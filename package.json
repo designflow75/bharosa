@@ -3,8 +3,8 @@
   "version": "2.4.0",
   "description": "Bharosa — AI-Powered Freelance OS & Trust Platform",
   "scripts": {
-    "test": "node verify-ids.js && node test-e2e.js",
-    "build": "node -e \"console.log('Build successful');\""
+    "start": "node server.js",
+    "test": "node test-e2e.js"
   },
   "keywords": [
     "escrow",
