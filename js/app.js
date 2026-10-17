@@ -1,447 +1,243 @@
 /**
  * ==============================================================================
  * BHAROSA — AI-Powered Freelance OS & Trust Platform
- * Shared Real-Time Store, Dual-Perspective Controller & Escrow Automation
+ * Full-Stack Client Controller & Real-Time Role-Enforced Router
  * ==============================================================================
  */
 
 // Storage Keys
-const SHARED_STORE_KEY = 'bharosa_shared_store_v2';
-const ROLE_STORAGE_KEY = 'bharosa_current_role_v2';
+const SESSION_USER_KEY = 'bharosa_session_user';
+const THEME_KEY = 'bharosa_theme';
 
-// Default initial state for the shared data store
-function getDefaultSharedStore() {
-  return {
-    // Financial metrics
-    stats: {
-      monthlyEarnings: 51000, // Settled/disbursed base: 25k (Milestone 1) + 20k (Advance) + 6k (Batch 1 Reels)
-      gstSettled: 9180,       // 18% GST collected
-      escrowBalance: 20000,   // Currently secured in escrow for Milestone 2
-      trustIndex: 99.8,
-      milestonesDelivered: "18 of 18 Milestones On-Time"
-    },
-
-    // Milestones (Flow: Pending → In Review → Released)
-    milestones: [
-      {
-        id: 'MS-101',
-        projectId: 'PRJ-101',
-        projectTitle: 'Fintech Mobile App Redesign',
-        client: 'GrowthNest Media (Rahul Verma)',
-        category: 'Design',
-        title: 'Milestone 1: Wireframes & Information Architecture Map',
-        amount: 25000,
-        status: 'Released', // Pending | In Review | Released
-        deadline: 'Oct 14, 2026',
-        releasedAt: 'Oct 14, 2026, 17:45 IST',
-        submittedAt: 'Oct 12, 2026, 11:30 IST',
-        protection: 'Escrow Released'
-      },
-      {
-        id: 'MS-102',
-        projectId: 'PRJ-101',
-        projectTitle: 'Fintech Mobile App Redesign',
-        client: 'GrowthNest Media (Rahul Verma)',
-        category: 'Design',
-        title: 'Milestone 2: Design System & 3D Assets',
-        amount: 20000,
-        status: 'In Review', // Currently in review waiting for client approval!
-        deadline: 'Oct 24, 2026',
-        submittedAt: 'Today, 11:30 IST',
-        releasedAt: null,
-        protection: 'Escrow Secured (₹20,000 Held)',
-        silenceAlert: true
-      },
-      {
-        id: 'MS-103',
-        projectId: 'PRJ-101',
-        projectTitle: 'Fintech Mobile App Redesign',
-        client: 'GrowthNest Media (Rahul Verma)',
-        category: 'Design',
-        title: 'Milestone 3: Developer Handoff Tokens & Asset Export',
-        amount: 20000,
-        status: 'Pending', // Pending submission by freelancer
-        deadline: 'Nov 05, 2026',
-        submittedAt: null,
-        releasedAt: null,
-        protection: 'Escrow Secured'
-      },
-      {
-        id: 'MS-104',
-        projectId: 'PRJ-102',
-        projectTitle: 'E-commerce Marketplace Branding',
-        client: 'UrbanBazaar Pvt Ltd',
-        category: 'Branding',
-        title: 'Milestone 1: Identity Guide & Logos',
-        amount: 20000,
-        status: 'Pending',
-        deadline: 'Nov 02, 2026',
-        submittedAt: null,
-        releasedAt: null,
-        protection: 'Revision Guard (1/2 used)'
-      },
-      {
-        id: 'MS-105',
-        projectId: 'PRJ-103',
-        projectTitle: '12 Instagram Short-Form Reels Campaign',
-        client: 'CreatorSpark Studios',
-        category: 'Video',
-        title: 'Batch 1: First 4 Reels Handover',
-        amount: 6000,
-        status: 'Released',
-        deadline: 'Oct 18, 2026',
-        releasedAt: 'Oct 18, 2026, 10:15 IST',
-        submittedAt: 'Oct 17, 2026, 16:30 IST',
-        protection: 'Milestone Escrow (₹6,000)'
-      }
-    ],
-
-    // Invoices list
-    invoices: [
-      {
-        id: 'INV-2026-001',
-        client: 'GrowthNest Media',
-        project: 'Fintech Mobile Redesign — Milestone 1 (Wireframes)',
-        baseAmount: 25000,
-        gst: 4500,
-        total: 29500,
-        dueDate: 'Oct 14, 2026',
-        status: 'paid',
-        milestoneId: 'MS-101'
-      },
-      {
-        id: 'INV-2026-002',
-        client: 'UrbanBazaar Pvt Ltd',
-        project: 'Marketplace Brand Identity — Retainer Advance',
-        baseAmount: 20000,
-        gst: 3600,
-        total: 23600,
-        dueDate: 'Oct 17, 2026',
-        status: 'paid',
-        milestoneId: null
-      },
-      {
-        id: 'INV-2026-003',
-        client: 'CreatorSpark Studios',
-        project: '12 Instagram Reels — Batch 1 Initial Handover',
-        baseAmount: 6000,
-        gst: 1080,
-        total: 7080,
-        dueDate: 'Oct 18, 2026',
-        status: 'paid',
-        milestoneId: 'MS-105'
-      },
-      {
-        id: 'INV-2026-004',
-        client: 'GrowthNest Media',
-        project: 'Fintech Mobile Redesign — Milestone 2 (Design System & 3D)',
-        baseAmount: 20000,
-        gst: 3600,
-        total: 23600,
-        dueDate: 'Oct 24, 2026',
-        status: 'secured', // Moves to 'paid' when approved!
-        milestoneId: 'MS-102'
-      }
-    ],
-
-    // Cryptographic Evidence Vault audit trail
-    evidenceVault: [
-      {
-        id: 'ev-1',
-        timestamp: 'Today, 14:22 IST',
-        hash: '8f9b4c2e1a341b5d',
-        title: 'Scope Change Request Detected',
-        desc: 'Client requested "3D interactive coin animation". AI verified against Initial Agreement (Clause 3.2: 2D Assets only). Cost amendment prepared for ₹6,500.',
-        dotColor: 'var(--primary)'
-      },
-      {
-        id: 'ev-2',
-        timestamp: 'Yesterday, 09:15 IST',
-        hash: '4e1cb892a091d33f',
-        title: 'Client Silence Protocol Triggered',
-        desc: '72-hour feedback window on Deliverable #3 expired without client response. Contractual deadline paused.',
-        dotColor: 'var(--warning)'
-      },
-      {
-        id: 'ev-3',
-        timestamp: 'Oct 14, 2026, 17:45 IST',
-        hash: 'd22a901e67bf3c88',
-        title: 'Milestone 1 Approved & Released',
-        desc: 'Wireframe package accepted by Rahul Verma. Payment of ₹25,000 disbursed to freelancer bank account.',
-        dotColor: 'var(--success)'
-      }
-    ],
-
-    // Kanban Tasks
-    kanbanTasks: [
-      {
-        id: 'task-1',
-        col: 'backlog',
-        title: 'Dark Mode Theme System',
-        desc: 'Create accessible high-contrast color tokens and component states.',
-        due: 'Due in 4 days',
-        milestone: 'Milestone 2',
-        tags: [{ label: 'In Scope', cls: 'scope-approved' }, { label: 'Figma', cls: 'design' }]
-      },
-      {
-        id: 'task-2',
-        col: 'backlog',
-        title: 'User Flow Prototype: KYC',
-        desc: 'Interactive click-through prototype for Aadhaar and PAN verification.',
-        due: 'Due in 6 days',
-        milestone: 'Milestone 2',
-        tags: [{ label: 'In Scope', cls: 'scope-approved' }, { label: 'UX Flow', cls: 'design' }]
-      },
-      {
-        id: 'task-3',
-        col: 'progress',
-        title: 'Interactive 3D Coin Animation',
-        desc: 'Client requested 3D Spline interactive asset. Exceeds standard 2D vector scope.',
-        due: 'Action Required',
-        milestone: 'Amendment Pending',
-        tags: [{ label: 'Scope Review', cls: 'scope-warning' }, { label: '+₹6,500', style: 'background:var(--warning-bg); color:var(--warning);' }]
-      },
-      {
-        id: 'task-4',
-        col: 'progress', // Moves to 'completed' when MS-102 is approved!
-        milestoneId: 'MS-102',
-        title: 'Design System Handoff (Milestone 2)',
-        desc: 'Typography, micro-spacing scale, and icon library tokens.',
-        due: 'Under Review',
-        milestone: 'Milestone 2',
-        tags: [{ label: 'In Scope', cls: 'scope-approved' }, { label: 'Revision 1/2', style: 'background:var(--primary-light); color:var(--primary);' }]
-      },
-      {
-        id: 'task-5',
-        col: 'completed',
-        title: 'Wireframe Architecture & Information Map',
-        desc: 'Formally signed off by Rahul Verma on Oct 14.',
-        due: 'Delivered',
-        milestone: '₹25,000 Settled',
-        tags: [{ label: 'Approved', cls: 'scope-approved' }, { label: 'Milestone 1', style: 'background:var(--success-bg); color:var(--success);' }]
-      },
-      {
-        id: 'task-6',
-        col: 'completed',
-        title: 'Competitor UX Research Report',
-        desc: 'Benchmarking against Jupiter, Fi Money, and Zerodha.',
-        due: 'Archived',
-        milestone: 'Verified',
-        tags: [{ label: 'Approved', cls: 'scope-approved' }, { label: 'Research', style: 'background:var(--success-bg); color:var(--success);' }]
-      }
-    ],
-
-    // Job opportunities
-    jobs: [
-      {
-        id: 'JOB-201',
-        title: 'Senior Product Designer for Crypto Trading Dashboard',
-        client: 'Kuber Exchange',
-        category: 'Design',
-        budget: '₹85,000 - ₹1,20,000',
-        timeline: '4 Weeks',
-        matchScore: 98,
-        source: 'Bharosa Direct',
-        skills: ['Figma', 'Web3', 'Design Systems', 'Micro-interactions'],
-        description: 'Looking for a senior product designer to revamp our spot & futures order execution screens.'
-      },
-      {
-        id: 'JOB-202',
-        title: 'Full-Stack Next.js 15 & Supabase Engineer',
-        client: 'SaaS Launchpad Inc',
-        category: 'Engineering',
-        budget: '₹95,000 INR',
-        timeline: '3 Weeks',
-        matchScore: 94,
-        source: 'Imported from LinkedIn',
-        skills: ['Next.js', 'React', 'Tailwind', 'PostgreSQL'],
-        description: 'Build user authentication, billing dashboard, and analytics widgets for a modern B2B SaaS.'
-      },
-      {
-        id: 'JOB-203',
-        title: '15 High-Retention Short-Form Reels for AI Tool',
-        client: 'AgenticFlow AI',
-        category: 'Video',
-        budget: '₹28,000 INR',
-        timeline: '2 Weeks',
-        matchScore: 96,
-        source: 'Bharosa Verified',
-        skills: ['Premiere Pro', 'After Effects', 'Storyboarding', 'Sound Design'],
-        description: 'Need fast-paced, high retention tech explainers with motion graphics and kinetic typography.'
-      },
-      {
-        id: 'JOB-204',
-        title: 'Complete Visual Identity & Mobile Guidelines',
-        client: 'Pulse Health Technologies',
-        category: 'Design',
-        budget: '₹55,000 INR',
-        timeline: '3 Weeks',
-        matchScore: 91,
-        source: 'Imported from Upwork',
-        skills: ['Branding', 'Typography', 'Figma', 'UI Kit'],
-        description: 'Design comprehensive brand guidelines, color harmony, typography tokens, and mobile component kit.'
-      }
-    ]
-  };
-}
-
-// Global Shared Store Instance
-let store = loadSharedStore();
-
-function loadSharedStore() {
-  try {
-    const raw = localStorage.getItem(SHARED_STORE_KEY);
-    if (raw) {
-      return JSON.parse(raw);
-    }
-  } catch (e) {
-    console.warn('Failed to parse shared store from localStorage', e);
-  }
-  const defaultStore = getDefaultSharedStore();
-  saveSharedStore(defaultStore);
-  return defaultStore;
-}
-
-function saveSharedStore(data = store) {
-  try {
-    localStorage.setItem(SHARED_STORE_KEY, JSON.stringify(data));
-  } catch (e) {
-    console.error('Failed to save store to localStorage', e);
-  }
-}
-
-// Reset Demo Data handler
-function resetDemoStore() {
-  if (confirm('Reset prototype demo state to initial baseline? This resets escrow balances, invoices, and milestones.')) {
-    store = getDefaultSharedStore();
-    saveSharedStore(store);
-    renderAllViews();
-    showToast('Demo dataset reset to initial baseline.', 'info');
-  }
-}
-
-// Multi-Tab Synchronization via 'storage' event
-if (typeof window !== 'undefined') {
-  window.addEventListener('storage', (e) => {
-    if (e.key === SHARED_STORE_KEY) {
-      store = loadSharedStore();
-      renderAllViews();
-      showToast('Live update received from other session!', 'info');
-    }
-    if (e.key === ROLE_STORAGE_KEY) {
-      const savedRole = localStorage.getItem(ROLE_STORAGE_KEY);
-      if (savedRole && savedRole !== state.currentRole) {
-        onRoleChange(savedRole, false);
-      }
-    }
-  });
-}
-
-// Helper to generate a realistic SHA256 snippet
-function generateSha256Hash() {
-  const chars = '0123456789abcdef';
-  let hash = '';
-  for (let i = 0; i < 16; i++) {
-    hash += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return `${hash.substring(0, 4)}...${hash.substring(12, 16)}`;
-}
-
-// Format current timestamp
-function formatCurrentTime() {
-  const d = new Date();
-  const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  return `Today, ${time} IST`;
-}
-
-// Application Session State (Local UI state)
-const state = {
-  theme: (typeof localStorage !== 'undefined' && localStorage.getItem('bharosa_theme')) || 'dark',
-  language: 'en',
-  currentRole: (typeof localStorage !== 'undefined' && localStorage.getItem(ROLE_STORAGE_KEY)) || 'freelancer',
-  currentUser: {
-    name: 'Priya Sharma',
-    email: 'priya.sharma@bharosa.design',
-    title: 'Senior Product Designer',
-    avatar: 'PS'
-  },
-  activeTab: 'dashboard'
+// Application State
+const appState = {
+  currentUser: null, // { id, name, email, role, title, organization, avatar }
+  currentRoute: window.location.pathname || '/',
+  activeProjectId: null,
+  activePwSubtab: 'overview',
+  activeAdminSubtab: 'overview',
+  pendingRevisionMilestoneId: null
 };
 
 // ==============================================================================
-// 1. THEME & LOCALIZATION MANAGEMENT
+// 1. ROUTER & PERMISSIONS (CLIENT-SIDE ROUTE GUARD + SERVER-SIDE PERMISSION ENFORCEMENT)
 // ==============================================================================
-function initTheme() {
-  if (typeof document === 'undefined') return;
-  document.documentElement.setAttribute('data-theme', state.theme);
-  updateThemeUI();
+
+function getSessionUser() {
+  try {
+    const raw = localStorage.getItem(SESSION_USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
 }
 
-function toggleTheme() {
-  state.theme = state.theme === 'dark' ? 'light' : 'dark';
-  localStorage.setItem('bharosa_theme', state.theme);
-  document.documentElement.setAttribute('data-theme', state.theme);
-  updateThemeUI();
-  showToast(`Switched to ${state.theme.toUpperCase()} Theme`, 'info');
-}
-
-function updateThemeUI() {
-  const icon = document.getElementById('theme-icon');
-  const label = document.getElementById('theme-label');
-  if (state.theme === 'dark') {
-    if (icon) icon.innerHTML = '<i data-lucide="moon" style="width:16px;height:16px;"></i>';
-    if (label) label.textContent = 'Dark';
+function setSessionUser(user) {
+  if (user) {
+    localStorage.setItem(SESSION_USER_KEY, JSON.stringify(user));
+    appState.currentUser = user;
   } else {
-    if (icon) icon.innerHTML = '<i data-lucide="sun" style="width:16px;height:16px;"></i>';
-    if (label) label.textContent = 'Light';
+    localStorage.removeItem(SESSION_USER_KEY);
+    appState.currentUser = null;
   }
-  if (typeof window !== 'undefined' && window.lucide) window.lucide.createIcons();
 }
 
-function toggleLanguage() {
-  state.language = state.language === 'en' ? 'hi' : 'en';
-  const btn = document.getElementById('btn-lang-toggle');
-  const subtitle = document.getElementById('dashboard-welcome-subtitle');
-  if (state.language === 'hi') {
-    if (btn) btn.textContent = 'EN';
-    if (subtitle) subtitle.textContent = 'भरोसा ऑपरेटिंग सिस्टम: अपने प्रोजेक्ट माइलस्टोन, एस्क्रो फंड और टाइमलाइन को सुरक्षित रखें।';
-    showToast('हिंदी मोड सक्रिय (Bilingual Mode)', 'info');
+function navigateTo(path, pushState = true) {
+  if (pushState && window.location.pathname !== path) {
+    window.history.pushState({}, '', path);
+  }
+  appState.currentRoute = path;
+  routeView(path);
+}
+
+window.addEventListener('popstate', () => {
+  appState.currentRoute = window.location.pathname;
+  routeView(window.location.pathname);
+});
+
+function routeView(pathname) {
+  const user = getSessionUser();
+  appState.currentUser = user;
+
+  // If not logged in and not on login page, show auth
+  if (!user && pathname !== '/' && pathname !== '/login') {
+    showAuthScreen();
+    return;
+  }
+
+  if (!user) {
+    showAuthScreen();
+    return;
+  }
+
+  // Parse path
+  if (pathname === '/' || pathname === '/login') {
+    // Redirect logged-in user to their role workspace
+    if (user.role === 'freelancer') {
+      navigateTo('/freelancer/dashboard');
+    } else if (user.role === 'client') {
+      navigateTo('/client/dashboard');
+    } else if (user.role === 'admin') {
+      navigateTo('/admin');
+    }
+    return;
+  }
+
+  // Check 403 Forbidden Access
+  if (pathname.startsWith('/freelancer') && user.role !== 'freelancer' && user.role !== 'admin') {
+    showForbiddenPage(`You are signed in as a Client (${user.name}). Accessing Freelancer workspaces (/freelancer/*) is forbidden.`);
+    return;
+  }
+
+  if (pathname.startsWith('/client') && user.role !== 'client' && user.role !== 'admin') {
+    showForbiddenPage(`You are signed in as a Freelancer (${user.name}). Accessing Client approvals and administrative portals (/client/*) is forbidden.`);
+    return;
+  }
+
+  if (pathname.startsWith('/admin') && user.role !== 'admin') {
+    showForbiddenPage(`Super Admin Control Panel (/admin) is restricted to platform operators. Your role is '${user.role}'.`);
+    return;
+  }
+
+  // Hide Auth and show App Shell
+  hideAuthScreen();
+  updateHeaderAndSidebar(user);
+
+  // Route Views
+  if (pathname.startsWith('/freelancer/dashboard') || pathname === '/freelancer') {
+    showSection('view-freelancer-dashboard');
+    loadFreelancerDashboard();
+  } else if (pathname.startsWith('/client/dashboard') || pathname === '/client') {
+    showSection('view-client-dashboard');
+    loadClientDashboard();
+  } else if (pathname.startsWith('/admin')) {
+    showSection('view-admin');
+    loadAdminDashboard();
+  } else if (pathname.startsWith('/projects/')) {
+    const projectId = pathname.split('/')[2];
+    appState.activeProjectId = projectId;
+    showSection('view-project-workspace');
+    loadProjectWorkspace(projectId);
+  } else if (pathname === '/403') {
+    showSection('view-403');
   } else {
-    if (btn) btn.textContent = 'हिन्दी';
-    updateRoleSubtitle();
-    showToast('Switched to English', 'info');
+    // Default fallback
+    if (user.role === 'freelancer') {
+      navigateTo('/freelancer/dashboard');
+    } else if (user.role === 'client') {
+      navigateTo('/client/dashboard');
+    } else {
+      navigateTo('/admin');
+    }
   }
 }
 
-// ==============================================================================
-// 2. AUTHENTICATION & PERSONA SELECTION
-// ==============================================================================
-function selectPersona(role, name, subtitle) {
-  state.currentRole = role;
-  state.currentUser.name = name;
-  state.currentUser.title = subtitle;
-  state.currentUser.avatar = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+function showAuthScreen() {
+  const authScreen = document.getElementById('auth-screen');
+  const appShell = document.getElementById('app-shell');
+  if (authScreen) authScreen.style.display = 'flex';
+  if (appShell) appShell.classList.remove('active');
+}
 
-  const emailInput = document.getElementById('user-email');
-  if (emailInput) {
-    if (role === 'freelancer') emailInput.value = 'priya.sharma@bharosa.design';
-    if (role === 'client') emailInput.value = 'rahul.verma@growthnest.media';
-    if (role === 'agency') emailInput.value = 'director@apexstudio.agency';
+function hideAuthScreen() {
+  const authScreen = document.getElementById('auth-screen');
+  const appShell = document.getElementById('app-shell');
+  if (authScreen) authScreen.style.display = 'none';
+  if (appShell) appShell.classList.add('active');
+}
+
+function showSection(sectionId) {
+  document.querySelectorAll('.view-section').forEach(sec => {
+    sec.classList.remove('active');
+  });
+  const target = document.getElementById(sectionId);
+  if (target) {
+    target.classList.add('active');
+  }
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function showForbiddenPage(explanation) {
+  hideAuthScreen();
+  updateHeaderAndSidebar(appState.currentUser);
+  showSection('view-403');
+  const expEl = document.getElementById('forbidden-explanation');
+  if (expEl && explanation) expEl.textContent = explanation;
+  if (window.location.pathname !== '/403') {
+    window.history.pushState({}, '', '/403');
   }
 }
 
-function quickLoginAs(role) {
-  if (role === 'freelancer') {
-    selectPersona('freelancer', 'Priya Sharma', 'Senior Product Designer');
-  } else if (role === 'client') {
-    selectPersona('client', 'Rahul Verma', 'Client (GrowthNest Media)');
-  } else if (role === 'agency') {
-    selectPersona('agency', 'Apex Creative', 'Agency Director (8 Members)');
+function navigateHome() {
+  const user = getSessionUser();
+  if (!user) {
+    navigateTo('/login');
+  } else if (user.role === 'freelancer') {
+    navigateTo('/freelancer/dashboard');
+  } else if (user.role === 'client') {
+    navigateTo('/client/dashboard');
+  } else {
+    navigateTo('/admin');
   }
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem(ROLE_STORAGE_KEY, role);
+}
+
+function navigateBack() {
+  navigateHome();
+}
+
+// ==============================================================================
+// 2. AUTHENTICATION ACTIONS & DEMO LOGINS
+// ==============================================================================
+
+async function demoLogin(role) {
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role })
+    });
+    const data = await res.json();
+    if (res.ok && data.user) {
+      setSessionUser(data.user);
+      showToast(`Signed in as ${data.user.name} (${data.user.role})`, 'success');
+      navigateTo(data.redirectTo || (data.user.role === 'freelancer' ? '/freelancer/dashboard' : '/client/dashboard'));
+    } else {
+      showToast(data.error || 'Failed to sign in', 'danger');
+    }
+  } catch (err) {
+    console.error('Demo login error:', err);
+    showToast('Login request failed', 'danger');
   }
-  handleLogin();
+}
+
+async function handleCustomLogin(e) {
+  if (e) e.preventDefault();
+  const email = document.getElementById('user-email')?.value;
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (res.ok && data.user) {
+      setSessionUser(data.user);
+      showToast(`Welcome back, ${data.user.name}!`, 'success');
+      navigateTo(data.redirectTo);
+    } else {
+      showToast(data.error || 'User not found. Try priya@bharosa.design or rahul@growthnest.media', 'danger');
+    }
+  } catch (err) {
+    showToast('Custom login failed', 'danger');
+  }
+}
+
+function confirmLogout() {
+  if (confirm('Sign out of Bharosa OS?')) {
+    setSessionUser(null);
+    navigateTo('/login');
+    showToast('Signed out successfully.', 'info');
+  }
 }
 
 function toggleCustomLoginForm() {
@@ -452,1533 +248,1062 @@ function toggleCustomLoginForm() {
   }
 }
 
-function handleLogin(e) {
-  if (e) e.preventDefault();
+// ==============================================================================
+// 3. HEADER & SIDEBAR DYNAMIC ROLE RENDERING
+// ==============================================================================
 
-  const authScreen = document.getElementById('auth-screen');
-  const appShell = document.getElementById('app-shell');
+function updateHeaderAndSidebar(user) {
+  if (!user) return;
 
-  if (authScreen) authScreen.style.display = 'none';
-  if (appShell) appShell.classList.add('active');
-
-  updateHeaderProfile();
-  renderAllViews();
-  showToast(`Welcome back, ${state.currentUser.name}! Bharosa Shield active.`, 'success');
-}
-
-function updateHeaderProfile() {
+  // Header profile badge
   const nameEl = document.getElementById('nav-user-name');
   const roleEl = document.getElementById('nav-user-role');
   const avatarEl = document.getElementById('nav-user-avatar');
-  const unifiedSelector = document.getElementById('unified-role-select');
+  if (nameEl) nameEl.textContent = user.name;
+  if (roleEl) roleEl.textContent = user.organization ? `${user.title} • ${user.organization}` : user.title;
+  if (avatarEl) avatarEl.textContent = user.avatar || user.name.slice(0, 2).toUpperCase();
 
-  if (nameEl) nameEl.textContent = state.currentUser.name;
-  if (roleEl) roleEl.textContent = state.currentUser.title;
-  if (avatarEl) avatarEl.textContent = state.currentUser.avatar;
-  if (unifiedSelector) unifiedSelector.value = state.currentRole;
+  // Sidebar header
+  const suiteTitle = document.getElementById('sidebar-suite-title');
+  const roleBadge = document.getElementById('sidebar-role-badge');
+  if (suiteTitle) suiteTitle.textContent = `${user.role.toUpperCase()} SUITE`;
+  if (roleBadge) roleBadge.textContent = user.role === 'freelancer' ? 'Freelancer' : (user.role === 'client' ? 'Client' : 'Admin');
 
-  updateRoleBanner();
-  updateRoleSubtitle();
-}
+  // Sidebar navigation links tailored to role
+  const navContainer = document.getElementById('sidebar-nav-container');
+  if (!navContainer) return;
 
-function updateRoleBanner() {
-  const banner = document.getElementById('role-perspective-banner');
-  if (!banner) return;
-
-  if (state.currentRole === 'client') {
-    banner.className = 'role-perspective-banner client';
-    banner.innerHTML = `
-      <div style="display:flex; align-items:center; gap:8px;">
-        <i data-lucide="briefcase" style="width:16px;height:16px;"></i>
-        <span><strong>Client Mode (Rahul Verma — GrowthNest Media)</strong>: Review contractor deliverables and release payments from secure escrow.</span>
-      </div>
-      <button class="btn-tag" style="background:var(--info); color:white;" onclick="switchTab('client-portal')">View Client Hub →</button>
+  if (user.role === 'freelancer') {
+    navContainer.innerHTML = `
+      <div class="nav-section-label">Core Workspace</div>
+      <a class="nav-item ${appState.currentRoute === '/freelancer/dashboard' ? 'active' : ''}" onclick="navigateTo('/freelancer/dashboard')">
+        <span class="icon"><i data-lucide="layout-dashboard" style="width:18px;height:18px;"></i></span>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-item ${appState.currentRoute === '/freelancer/projects' ? 'active' : ''}" onclick="navigateTo('/freelancer/dashboard')">
+        <span class="icon"><i data-lucide="kanban-square" style="width:18px;height:18px;"></i></span>
+        <span>Projects</span>
+      </a>
+      <a class="nav-item" onclick="openUrlImportModal()">
+        <span class="icon"><i data-lucide="compass" style="width:18px;height:18px;"></i></span>
+        <span>Opportunities</span>
+        <span class="badge-count" style="background:var(--primary-light); color:var(--primary);">Demo</span>
+      </a>
+      <a class="nav-item" onclick="showToast('Invoicing ledger loaded with GST compliance fields.', 'info')">
+        <span class="icon"><i data-lucide="receipt" style="width:18px;height:18px;"></i></span>
+        <span>Invoices</span>
+      </a>
+      <div class="nav-section-label">Trust & Protection</div>
+      <a class="nav-item" onclick="showToast('Evidence vault: All deliverable hashes recorded for integrity.', 'info')">
+        <span class="icon"><i data-lucide="shield-alert" style="width:18px;height:18px;"></i></span>
+        <span>Evidence Timeline</span>
+      </a>
+      <a class="nav-item" onclick="showToast('Direct client messaging channel active.', 'info')">
+        <span class="icon"><i data-lucide="message-square" style="width:18px;height:18px;"></i></span>
+        <span>Messages</span>
+      </a>
+      <a class="nav-item" onclick="showToast('Freelancer profile settings: Priya Sharma.', 'info')">
+        <span class="icon"><i data-lucide="settings" style="width:18px;height:18px;"></i></span>
+        <span>Settings</span>
+      </a>
     `;
-  } else if (state.currentRole === 'agency') {
-    banner.className = 'role-perspective-banner agency';
-    banner.innerHTML = `
-      <div style="display:flex; align-items:center; gap:8px;">
-        <i data-lucide="building-2" style="width:16px;height:16px;"></i>
-        <span><strong>Agency Mode (Apex Creative)</strong>: Managing 8 team members across 3 active client engagements and aggregated payouts.</span>
-      </div>
-      <button class="btn-tag" style="background:#a855f7; color:white;" onclick="switchTab('client-portal')">Agency Portal →</button>
+  } else if (user.role === 'client') {
+    navContainer.innerHTML = `
+      <div class="nav-section-label">Client Portal</div>
+      <a class="nav-item ${appState.currentRoute === '/client/dashboard' ? 'active' : ''}" onclick="navigateTo('/client/dashboard')">
+        <span class="icon"><i data-lucide="layout-dashboard" style="width:18px;height:18px;"></i></span>
+        <span>Dashboard</span>
+      </a>
+      <a class="nav-item" onclick="navigateTo('/client/dashboard')">
+        <span class="icon"><i data-lucide="folder" style="width:18px;height:18px;"></i></span>
+        <span>Projects</span>
+      </a>
+      <a class="nav-item" onclick="scrollToApprovals()">
+        <span class="icon"><i data-lucide="check-circle" style="width:18px;height:18px;"></i></span>
+        <span>Approvals Queue</span>
+      </a>
+      <a class="nav-item" onclick="showToast('Client invoices: GST breakdowns available for accounting audits.', 'info')">
+        <span class="icon"><i data-lucide="receipt" style="width:18px;height:18px;"></i></span>
+        <span>Invoices</span>
+      </a>
+      <div class="nav-section-label">Contracts & Security</div>
+      <a class="nav-item" onclick="showToast('All SOWs and approved scope amendments stored securely.', 'info')">
+        <span class="icon"><i data-lucide="file-text" style="width:18px;height:18px;"></i></span>
+        <span>Documents</span>
+      </a>
+      <a class="nav-item" onclick="showToast('Contractor communication channel active.', 'info')">
+        <span class="icon"><i data-lucide="message-square" style="width:18px;height:18px;"></i></span>
+        <span>Messages</span>
+      </a>
+      <a class="nav-item" onclick="showToast('Client organization settings: GrowthNest Media.', 'info')">
+        <span class="icon"><i data-lucide="settings" style="width:18px;height:18px;"></i></span>
+        <span>Settings</span>
+      </a>
     `;
-  } else {
-    banner.className = 'role-perspective-banner freelancer';
-    banner.innerHTML = `
-      <div style="display:flex; align-items:center; gap:8px;">
-        <i data-lucide="shield-check" style="width:16px;height:16px;"></i>
-        <span><strong>Freelancer Mode (Priya Sharma)</strong>: Bharosa Shield is actively monitoring 72-hour review windows and revision quotas.</span>
-      </div>
-      <button class="btn-tag" style="background:var(--success); color:white;" onclick="switchTab('protection')">Evidence Vault →</button>
-    `;
-  }
-  if (typeof window !== 'undefined' && window.lucide) window.lucide.createIcons();
-}
-
-function updateRoleSubtitle() {
-  const subtitle = document.getElementById('dashboard-welcome-subtitle');
-  if (!subtitle) return;
-  if (state.currentRole === 'client') {
-    subtitle.textContent = 'Review contractor deliverables, approve milestone sign-offs, and release escrow funds.';
-  } else if (state.currentRole === 'agency') {
-    subtitle.textContent = 'Monitor team capacity, distribute milestones, and review unified billing records.';
-  } else {
-    subtitle.textContent = 'Manage client milestones, monitor scope change alerts, and track verified payouts.';
-  }
-}
-
-function onRoleChange(newRole, saveToStorage = true) {
-  state.currentRole = newRole;
-  if (saveToStorage && typeof localStorage !== 'undefined') {
-    localStorage.setItem(ROLE_STORAGE_KEY, newRole);
-  }
-
-  if (newRole === 'client') {
-    state.currentUser.name = 'Rahul Verma';
-    state.currentUser.title = 'Client (GrowthNest Media)';
-    state.currentUser.avatar = 'RV';
-  } else if (newRole === 'agency') {
-    state.currentUser.name = 'Apex Creative';
-    state.currentUser.title = 'Agency Director (8 Members)';
-    state.currentUser.avatar = 'AC';
-  } else {
-    state.currentUser.name = 'Priya Sharma';
-    state.currentUser.title = 'Senior Product Designer';
-    state.currentUser.avatar = 'PS';
-  }
-
-  updateHeaderProfile();
-  renderAllViews();
-  showToast(`Switched perspective to ${newRole.toUpperCase()} Mode`, 'info');
-}
-
-function confirmLogout() {
-  if (confirm('Do you want to log out from this Bharosa workspace?')) {
-    const authScreen = document.getElementById('auth-screen');
-    const appShell = document.getElementById('app-shell');
-    if (appShell) appShell.classList.remove('active');
-    if (authScreen) authScreen.style.display = 'flex';
-    showToast('Logged out securely.', 'info');
-  }
-}
-
-// ==============================================================================
-// 3. TAB NAVIGATION
-// ==============================================================================
-function switchTab(tabId) {
-  state.activeTab = tabId;
-
-  document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
-    if (item.getAttribute('data-tab') === tabId) {
-      item.classList.add('active');
-    } else {
-      item.classList.remove('active');
-    }
-  });
-
-  document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
-  const target = document.getElementById(`view-${tabId}`);
-  if (target) {
-    target.classList.add('active');
-  }
-
-  if (typeof window !== 'undefined') {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-}
-
-// ==============================================================================
-// 4. ESCROW STEPPER & DASHBOARD RENDERING
-// ==============================================================================
-function getEscrowStepperHtml(escrowState) {
-  const steps = [
-    { id: 'funded', label: 'Funded' },
-    { id: 'in_progress', label: 'In Progress' },
-    { id: 'review', label: 'Review' },
-    { id: 'released', label: 'Released' }
-  ];
-
-  let currentIndex = 1;
-  if (escrowState === 'funded') currentIndex = 0;
-  if (escrowState === 'in_progress') currentIndex = 1;
-  if (escrowState === 'review') currentIndex = 2;
-  if (escrowState === 'released') currentIndex = 3;
-
-  return `
-    <div class="escrow-stepper">
-      ${steps.map((s, idx) => {
-        let cls = '';
-        if (idx < currentIndex) cls = 'done';
-        else if (idx === currentIndex) cls = 'active';
-        return `
-          <span class="escrow-step ${cls}">
-            <span class="escrow-step-dot"></span>
-            <span>${s.label}</span>
-          </span>
-          ${idx < steps.length - 1 ? '<span class="escrow-step-sep">›</span>' : ''}
-        `;
-      }).join('')}
-    </div>
-  `;
-}
-
-/**
- * Render Page Header & Actions based on active role
- */
-function renderDashboardHeader() {
-  const heading = document.getElementById('dashboard-main-heading');
-  const subtitle = document.getElementById('dashboard-welcome-subtitle');
-  const actionGroup = document.getElementById('dashboard-header-actions');
-  if (!heading) return;
-
-  const isClient = state.currentRole === 'client';
-  const isAgency = state.currentRole === 'agency';
-
-  if (isClient) {
-    heading.textContent = 'Client Escrow & Approvals Portal';
-    if (subtitle) {
-      subtitle.textContent = 'GrowthNest Media (Rahul Verma) • Review contractor deliverables, authorize milestone payouts, and manage secure escrow deposits.';
-    }
-    if (actionGroup) {
-      actionGroup.innerHTML = `
-        <button class="btn-secondary" onclick="switchTab('client-portal')">
-          <i data-lucide="eye" style="width:15px;height:15px;"></i>
-          <span>Contractor Hub Preview</span>
-        </button>
-        <button class="btn-primary" style="width: auto;" onclick="openScopeChangeModal()">
-          <i data-lucide="shield-check" style="width:15px;height:15px;"></i>
-          <span>Review Scope Change (+₹6,500)</span>
-        </button>
-      `;
-    }
-  } else if (isAgency) {
-    heading.textContent = 'Agency Command Center';
-    if (subtitle) {
-      subtitle.textContent = 'Apex Creative • Multi-contractor workload, client billing, and distributed milestone payouts.';
-    }
-    if (actionGroup) {
-      actionGroup.innerHTML = `
-        <button class="btn-secondary" onclick="switchTab('client-portal')">
-          <i data-lucide="building-2" style="width:15px;height:15px;"></i>
-          <span>Agency Portal</span>
-        </button>
-        <button class="btn-ai" onclick="switchTab('ai-assistant')">
-          <i data-lucide="sparkles" style="width:15px;height:15px;"></i>
-          <span>Team Project Brief</span>
-        </button>
-      `;
-    }
-  } else {
-    // Freelancer
-    heading.textContent = 'Freelancer Workspace Overview';
-    if (subtitle) {
-      subtitle.textContent = 'Priya Sharma • Track project milestones, monitor 72-hour review windows, and receive verified escrow payouts.';
-    }
-    if (actionGroup) {
-      actionGroup.innerHTML = `
-        <button class="btn-secondary" onclick="openUrlImportModal()">
-          <i data-lucide="link-2" style="width:15px;height:15px;"></i>
-          <span>Import Job by URL</span>
-        </button>
-        <button class="btn-ai" onclick="switchTab('ai-assistant')">
-          <i data-lucide="sparkles" style="width:15px;height:15px;"></i>
-          <span>New AI Project Brief</span>
-        </button>
-      `;
-    }
-  }
-}
-
-/**
- * Render Protection Alerts Row dynamically based on role
- */
-function renderDashboardAlerts() {
-  const container = document.getElementById('dashboard-alerts-row');
-  if (!container) return;
-
-  const isClient = state.currentRole === 'client';
-  const isAgency = state.currentRole === 'agency';
-
-  const m2 = store.milestones.find(m => m.id === 'MS-102');
-  const isM2Released = m2 && m2.status === 'Released';
-
-  if (isClient) {
-    container.innerHTML = `
-      <!-- Client Deliverable Review Banner -->
-      <div class="alert-banner silence">
-        <div class="alert-icon-box">
-          <i data-lucide="clock-alert" style="width:22px;height:22px;color:var(--warning);"></i>
-        </div>
-        <div class="alert-content">
-          <h4>Action Required: Deliverable Review Pending</h4>
-          <p>Contractor <strong>Priya Sharma</strong> submitted <strong>"Milestone 2: Design System & 3D Assets"</strong> for <strong>Fintech Mobile App Redesign</strong>. 72-hour review window active. Review assets against SOW and authorize payment from secure escrow.</p>
-          <div class="alert-actions">
-            ${isM2Released 
-              ? `<span style="color:var(--success); font-weight:700; font-size:0.85rem;">✓ Milestone 2 Approved & Released to Priya Sharma</span>`
-              : `<button class="btn-tag" style="background:var(--success); color:white; font-weight:700;" onclick="approveMilestone('MS-102')">Approve & Release Payment (₹20,000)</button>`
-            }
-            <button class="btn-tag" onclick="switchTab('protection')">Inspect in Evidence Vault →</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Scope Amendment Request for Client -->
-      <div class="alert-banner fairness">
-        <div class="alert-icon-box">
-          <i data-lucide="scale" style="width:22px;height:22px;color:var(--primary);"></i>
-        </div>
-        <div class="alert-content">
-          <h4>Scope Amendment Quote: +₹6,500</h4>
-          <p><strong>Project: Fintech Mobile Redesign</strong> — 2 of 2 included revisions utilized. Your request for <em>"Interactive 3D coin animation"</em> exceeds base 2D scope (Clause 3.2). Contractor generated formal AI Scope Amendment quote.</p>
-          <div class="alert-actions">
-            <button class="btn-tag" onclick="openScopeChangeModal()">Review Scope Amendment (+₹6,500)</button>
-            <button class="btn-tag" onclick="switchTab('projects')">View Task in Kanban →</button>
-          </div>
-        </div>
-      </div>
-    `;
-  } else if (isAgency) {
-    container.innerHTML = `
-      <div class="alert-banner silence">
-        <div class="alert-icon-box">
-          <i data-lucide="users" style="width:22px;height:22px;color:var(--warning);"></i>
-        </div>
-        <div class="alert-content">
-          <h4>Team Workload Alert: 8 Members Active</h4>
-          <p>Priya Sharma and Rohan Mehta have deliverable milestones due this week. Escrow secured across 3 enterprise client accounts.</p>
-          <div class="alert-actions">
-            <button class="btn-tag" onclick="switchTab('projects')">Inspect Team Kanban →</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="alert-banner fairness">
-        <div class="alert-icon-box">
-          <i data-lucide="scale" style="width:22px;height:22px;color:var(--primary);"></i>
-        </div>
-        <div class="alert-content">
-          <h4>Revision Fairness Monitor</h4>
-          <p>GrowthNest Media project has 1 out-of-scope request pending client approval (+₹6,500).</p>
-          <div class="alert-actions">
-            <button class="btn-tag" onclick="openScopeChangeModal()">Review Scope Amendment (+₹6,500)</button>
-          </div>
-        </div>
-      </div>
-    `;
-  } else {
-    // Freelancer
-    container.innerHTML = `
-      <!-- Client Silence Protection Banner -->
-      <div class="alert-banner silence">
-        <div class="alert-icon-box">
-          <i data-lucide="clock-alert" style="width:22px;height:22px;color:var(--warning);"></i>
-        </div>
-        <div class="alert-content">
-          <h4>72-Hour Client Silence Protocol Triggered</h4>
-          <p>Client Rahul Verma has not provided feedback on <strong>Deliverable #3 (Brand Motion Package)</strong> for <strong>72 consecutive hours</strong>. Automatic silence protocol paused contractual penalty countdown on Day 3. Proposed timeline extended +2 days.</p>
-          <div class="alert-actions">
-            <button class="btn-tag" onclick="showToast('Automated polite reminder sent to Rahul Verma with decision timestamp.', 'success')">Send Friendly Reminder</button>
-            <button class="btn-tag" onclick="switchTab('protection')">Inspect in Evidence Vault →</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Revision Fairness Meter Quick Widget -->
-      <div class="alert-banner fairness">
-        <div class="alert-icon-box">
-          <i data-lucide="scale" style="width:22px;height:22px;color:var(--primary);"></i>
-        </div>
-        <div class="alert-content">
-          <h4>Revision Fairness Meter: Limit Reached</h4>
-          <p><strong>Project: Fintech Mobile Redesign</strong> — 2 of 2 included revisions utilized. Client's latest request for <em>"Interactive 3D coin animation"</em> has been automatically flagged as an <strong>Out-of-Scope Change</strong>.</p>
-          <div class="alert-actions">
-            <button class="btn-tag" onclick="openScopeChangeModal()">Review Scope Amendment (+₹6,500)</button>
-          </div>
-        </div>
-      </div>
+  } else if (user.role === 'admin') {
+    navContainer.innerHTML = `
+      <div class="nav-section-label">Platform Governance</div>
+      <a class="nav-item active" onclick="navigateTo('/admin')">
+        <span class="icon"><i data-lucide="shield-check" style="width:18px;height:18px;"></i></span>
+        <span>Admin Dashboard</span>
+      </a>
+      <a class="nav-item" onclick="switchAdminSubtab('disputes')">
+        <span class="icon"><i data-lucide="scale" style="width:18px;height:18px;"></i></span>
+        <span>Dispute Center</span>
+      </a>
+      <a class="nav-item" onclick="switchAdminSubtab('audit')">
+        <span class="icon"><i data-lucide="list" style="width:18px;height:18px;"></i></span>
+        <span>Audit Logs</span>
+      </a>
     `;
   }
+
+  if (window.lucide) window.lucide.createIcons();
 }
 
-/**
- * Render Guided Demo Banner based on role
- */
-function renderDashboardGuidedDemo() {
-  const title = document.getElementById('demo-banner-title');
-  const badge = document.getElementById('demo-banner-badge');
-  const stepsGrid = document.getElementById('demo-steps-grid');
-  if (!title || !stepsGrid) return;
-
-  const isClient = state.currentRole === 'client';
-
-  if (isClient) {
-    title.textContent = 'Client Protection Workflow: 100% Refund & Milestone Security';
-    if (badge) badge.textContent = 'Zero Risk Escrow';
-    stepsGrid.innerHTML = `
-      <div class="guided-step-item current" onclick="showToast('Step 1: All deliverables and revision limits are verified upfront.', 'info')">
-        <div class="guided-step-num">Step 1</div>
-        <div class="guided-step-label">Defined Scope</div>
-        <div class="guided-step-desc">Transparent deliverables locked before starting</div>
-      </div>
-      <div class="guided-step-item" onclick="showToast('Step 2: Funds held safely with ICICI/Razorpay Trustee until approval.', 'info')">
-        <div class="guided-step-num">Step 2</div>
-        <div class="guided-step-label">Trustee Escrow</div>
-        <div class="guided-step-desc">₹20,000 held in secure escrow; never released early</div>
-      </div>
-      <div class="guided-step-item" onclick="showToast('Step 3: 72-hour window to inspect Figma files and code.', 'info')">
-        <div class="guided-step-num">Step 3</div>
-        <div class="guided-step-label">Quality Review</div>
-        <div class="guided-step-desc">Inspect deliverables and test before authorizing payout</div>
-      </div>
-      <div class="guided-step-item" onclick="approveMilestone('MS-102')">
-        <div class="guided-step-num">Step 4</div>
-        <div class="guided-step-label">One-Click Release</div>
-        <div class="guided-step-desc">Single tap to release payout with GST compliance</div>
-      </div>
-    `;
-  } else {
-    title.textContent = 'Interactive Guided Demo: How Bharosa Eliminates Freelance Payment Risk';
-    if (badge) badge.textContent = 'Click any step to simulate';
-    stepsGrid.innerHTML = `
-      <div class="guided-step-item current" onclick="runGuidedDemo(1)" title="Step 1: Client sends scope change">
-        <div class="guided-step-num">Step 1</div>
-        <div class="guided-step-label">Scope Request</div>
-        <div class="guided-step-desc">Client requests 3D animation exceeding 2D scope</div>
-      </div>
-      <div class="guided-step-item" onclick="runGuidedDemo(2)" title="Step 2: Auto-generate amendment">
-        <div class="guided-step-num">Step 2</div>
-        <div class="guided-step-label">AI Amendment</div>
-        <div class="guided-step-desc">Auto-creates formal change quote (+₹6,500)</div>
-      </div>
-      <div class="guided-step-item" onclick="runGuidedDemo(3)" title="Step 3: Client deposits escrow">
-        <div class="guided-step-num">Step 3</div>
-        <div class="guided-step-label">Client Escrow</div>
-        <div class="guided-step-desc">Client signs & deposits ₹6,500 into secure escrow</div>
-      </div>
-      <div class="guided-step-item" onclick="runGuidedDemo(4)" title="Step 4: Payout released">
-        <div class="guided-step-num">Step 4</div>
-        <div class="guided-step-label">Escrow Release</div>
-        <div class="guided-step-desc">Deliverables approved; payout disbursed instantly</div>
-      </div>
-    `;
-  }
-}
-
-/**
- * Render Sidebar Navigation text based on active role
- */
-function renderSidebarNav() {
-  const navCoreLabel = document.getElementById('sidebar-core-label');
-  const navTextDashboard = document.getElementById('nav-text-dashboard');
-  const navTextAi = document.getElementById('nav-text-ai');
-  const navTextJobs = document.getElementById('nav-text-jobs');
-  const navTextProjects = document.getElementById('nav-text-projects');
-  const navBadgeProjects = document.getElementById('nav-badge-projects');
-  const navTextProtection = document.getElementById('nav-text-protection');
-  const navTextInvoicing = document.getElementById('nav-text-invoicing');
-  const navTextPortal = document.getElementById('nav-text-portal');
-
-  const isClient = state.currentRole === 'client';
-  const isAgency = state.currentRole === 'agency';
-
-  if (isClient) {
-    if (navCoreLabel) navCoreLabel.textContent = 'Client Workspace';
-    if (navTextDashboard) navTextDashboard.textContent = 'Approvals & Escrow';
-    if (navTextAi) navTextAi.textContent = 'AI SOW & Contract Creator';
-    if (navTextJobs) navTextJobs.textContent = 'Find Top Freelancers';
-    if (navTextProjects) navTextProjects.textContent = 'Deliverables & Kanban';
-    if (navBadgeProjects) navBadgeProjects.textContent = '1';
-    if (navTextProtection) navTextProtection.textContent = 'Audit Vault & Escrow';
-    if (navTextInvoicing) navTextInvoicing.textContent = 'Escrow & Tax Invoices';
-    if (navTextPortal) navTextPortal.textContent = 'Contractor Portal';
-  } else if (isAgency) {
-    if (navCoreLabel) navCoreLabel.textContent = 'Agency Workspace';
-    if (navTextDashboard) navTextDashboard.textContent = 'Agency Dashboard';
-    if (navTextAi) navTextAi.textContent = 'Team Scope Assistant';
-    if (navTextJobs) navTextJobs.textContent = 'Opportunity Pipeline';
-    if (navTextProjects) navTextProjects.textContent = 'Team Projects & Kanban';
-    if (navBadgeProjects) navBadgeProjects.textContent = '3';
-    if (navTextProtection) navTextProtection.textContent = 'Agency Evidence Vault';
-    if (navTextInvoicing) navTextInvoicing.textContent = 'Consolidated Billing';
-    if (navTextPortal) navTextPortal.textContent = 'Client Portals';
-  } else {
-    if (navCoreLabel) navCoreLabel.textContent = 'Core Workspace';
-    if (navTextDashboard) navTextDashboard.textContent = 'Dashboard';
-    if (navTextAi) navTextAi.textContent = 'AI Project Assistant';
-    if (navTextJobs) navTextJobs.textContent = 'Job & Opportunity Finder';
-    if (navTextProjects) navTextProjects.textContent = 'Projects & Kanban';
-    if (navBadgeProjects) navBadgeProjects.textContent = '3';
-    if (navTextProtection) navTextProtection.textContent = 'Evidence Vault & Scope';
-    if (navTextInvoicing) navTextInvoicing.textContent = 'Invoicing & Payments';
-    if (navTextPortal) navTextPortal.textContent = 'Branded Client Portals';
-  }
-}
-
-/**
- * Render Dashboard Metric Cards from Shared Store
- */
-function renderDashboardStats() {
-  const statSettled = document.getElementById('stat-settled-earnings');
-  const statEscrow = document.getElementById('stat-escrow-payouts');
-  const statTrust = document.getElementById('stat-trust-index');
-  const statTrustFooter = document.getElementById('stat-trust-footer');
-  const statTrustTrend = document.getElementById('stat-trust-trend');
-  const statProjectsCount = document.getElementById('stat-projects-count');
-  const statProjectsFooter = document.getElementById('stat-projects-footer');
-  const invoicesTotalDisp = document.getElementById('invoices-total-display');
-
-  const statTitleProjects = document.getElementById('stat-title-projects');
-  const statTitleSettled = document.getElementById('stat-title-settled');
-  const statTitleEscrow = document.getElementById('stat-title-escrow');
-  const statTitleTrust = document.getElementById('stat-title-trust');
-
-  const isClient = state.currentRole === 'client';
-
-  if (isClient) {
-    if (statTitleProjects) statTitleProjects.textContent = 'Active Engagements';
-    if (statProjectsCount) statProjectsCount.textContent = '1 Active';
-    if (statProjectsFooter) {
-      statProjectsFooter.innerHTML = `<span class="stat-trend up">On Schedule</span> <span>• Priya Sharma (Fintech App)</span>`;
-    }
-
-    if (statTitleSettled) statTitleSettled.textContent = 'Total Released to Contractors';
-    if (statSettled) statSettled.textContent = `₹${store.stats.monthlyEarnings.toLocaleString('en-IN')}`;
-    const settledFooter = document.getElementById('stat-settled-footer');
-    if (settledFooter) {
-      settledFooter.innerHTML = `<span class="stat-trend up">↑ Verified</span> <span>All GST tax invoices cleared</span>`;
-    }
-
-    if (statTitleEscrow) statTitleEscrow.textContent = 'Escrow Deposited (Protected)';
-    if (statEscrow) statEscrow.textContent = `₹${store.stats.escrowBalance.toLocaleString('en-IN')}`;
-    const escrowFooter = document.getElementById('stat-escrow-footer');
-    if (escrowFooter) {
-      escrowFooter.innerHTML = `<span class="stat-trend neutral">Held in ICICI/Razorpay Trustee Escrow</span>`;
-    }
-
-    if (statTitleTrust) statTitleTrust.textContent = 'Contractor Trust Rating';
-    if (statTrust) statTrust.textContent = `${store.stats.trustIndex}%`;
-    if (statTrustTrend) statTrustTrend.textContent = 'Top Rated';
-    if (statTrustFooter) statTrustFooter.textContent = 'Priya Sharma • 18/18 On-Time';
-
-  } else {
-    // Freelancer
-    if (statTitleProjects) statTitleProjects.textContent = 'Active Projects';
-    if (statProjectsCount) statProjectsCount.textContent = '3 Active';
-    if (statProjectsFooter) {
-      statProjectsFooter.innerHTML = `<span class="stat-trend up">↑ 1 on target</span> <span>• 12 deliverables remaining</span>`;
-    }
-
-    if (statTitleSettled) statTitleSettled.textContent = 'Monthly Settled Earnings';
-    if (statSettled) statSettled.textContent = `₹${store.stats.monthlyEarnings.toLocaleString('en-IN')}`;
-    const settledFooter = document.getElementById('stat-settled-footer');
-    if (settledFooter) {
-      settledFooter.innerHTML = `<span class="stat-trend up">↑ Verified</span> <span>Gross Settled: ₹60,180 (with GST)</span>`;
-    }
-
-    if (statTitleEscrow) statTitleEscrow.textContent = 'Protected in Escrow (Pending)';
-    if (statEscrow) statEscrow.textContent = `₹${store.stats.escrowBalance.toLocaleString('en-IN')}`;
-    const escrowFooter = document.getElementById('stat-escrow-footer');
-    if (escrowFooter) {
-      escrowFooter.innerHTML = `<span class="stat-trend neutral">Fintech App (Milestone 2 Held)</span>`;
-    }
-
-    if (statTitleTrust) statTitleTrust.textContent = 'Fairness & Trust Index';
-    if (statTrust) statTrust.textContent = `${store.stats.trustIndex}%`;
-    if (statTrustTrend) statTrustTrend.textContent = 'Dispute-Free';
-    if (statTrustFooter) statTrustFooter.textContent = store.stats.milestonesDelivered;
-  }
-
-  if (invoicesTotalDisp) {
-    invoicesTotalDisp.textContent = `Total Settled: ₹${store.stats.monthlyEarnings.toLocaleString('en-IN')} | In Escrow: ₹${store.stats.escrowBalance.toLocaleString('en-IN')}`;
-  }
-}
-
-/**
- * Render Active Project Pipeline & Milestones Table
- * Dual role behavior:
- * - Freelancer: Shows all milestones with their status, "Submit for Review" on Pending, "Paid" badge on Released
- * - Client: Shows Rahul Verma's project milestones with "Approve & Release Payment" on In Review
- */
-function renderDashboardProjects() {
-  const tbody = document.getElementById('dashboard-projects-body');
-  const tableTitle = document.getElementById('dashboard-projects-title');
-  const theadTr = document.getElementById('dashboard-projects-thead-tr');
-  if (!tbody) return;
-
-  const isClient = state.currentRole === 'client';
-
-  if (isClient) {
-    if (tableTitle) {
-      tableTitle.textContent = 'Contractor Milestones & Escrow Approvals (Fintech Mobile Redesign)';
-    }
-
-    if (theadTr) {
-      theadTr.innerHTML = `
-        <th>Project Deliverable</th>
-        <th>Contractor</th>
-        <th>Lifecycle & Stepper</th>
-        <th>Review Deadline</th>
-        <th>Escrow Amount</th>
-        <th>Escrow Status</th>
-        <th>Action</th>
-      `;
-    }
-
-    // Show GrowthNest Media (Rahul Verma's) milestones
-    const clientMilestones = store.milestones.filter(m => 
-      m.projectId === 'PRJ-101' || m.client.includes('GrowthNest') || m.client.includes('Rahul')
-    );
-
-    if (clientMilestones.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="7">
-            <div class="table-empty-state">
-              <div class="table-empty-icon">✓</div>
-              <div class="table-empty-title">All Milestones Reviewed</div>
-              <div class="table-empty-desc">No milestones are currently in your pipeline.</div>
-            </div>
-          </td>
-        </tr>
-      `;
-      return;
-    }
-
-    tbody.innerHTML = clientMilestones.map(m => {
-      let statusPillHtml = '';
-      let actionBtnHtml = '';
-      let stepperState = 'in_progress';
-
-      if (m.status === 'Released') {
-        stepperState = 'released';
-        statusPillHtml = `
-          <span class="status-pill paid" title="Funds released to contractor">
-            Paid & Released • ${m.releasedAt || 'Oct 14, 17:45'}
-          </span>
-        `;
-        actionBtnHtml = `<span style="font-size:0.75rem; color:var(--success); font-weight:700;">✓ Funds Released</span>`;
-      } else if (m.status === 'In Review') {
-        stepperState = 'review';
-        statusPillHtml = `
-          <span class="status-pill pending" style="background:var(--warning-bg); color:var(--warning); border:1px solid var(--warning-border);">
-            In Review • Action Required
-          </span>
-        `;
-        actionBtnHtml = `
-          <button class="btn-tag" style="background:var(--success); color:white; font-weight:700; padding:6px 14px;" onclick="approveMilestone('${m.id}')">
-            Approve & Release Payment
-          </button>
-        `;
-      } else {
-        stepperState = 'funded';
-        statusPillHtml = `
-          <span class="status-pill draft">
-            Upcoming Delivery
-          </span>
-        `;
-        actionBtnHtml = `<span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Awaiting Contractor</span>`;
-      }
-
-      return `
-        <tr>
-          <td>
-            <div style="font-weight: 700; color: var(--text-primary);">${m.title}</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">${m.projectTitle} • ${m.projectId}</div>
-          </td>
-          <td>
-            <div style="font-weight: 600;">Priya Sharma</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Senior Product Designer</div>
-          </td>
-          <td>
-            ${getEscrowStepperHtml(stepperState)}
-          </td>
-          <td>
-            <div style="font-size: 0.82rem; font-weight: 600; color: ${m.status === 'In Review' ? 'var(--warning)' : 'var(--text-secondary)'};">
-              ${m.deadline} ${m.status === 'In Review' ? '⚠️ (Action Required)' : ''}
-            </div>
-          </td>
-          <td>
-            <div style="font-weight: 700; color: var(--primary);">₹${m.amount.toLocaleString('en-IN')}</div>
-          </td>
-          <td>
-            ${statusPillHtml}
-          </td>
-          <td>
-            ${actionBtnHtml}
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-  } else {
-    // Freelancer view (Priya Sharma): Shows all milestones with their status
-    if (tableTitle) {
-      tableTitle.textContent = 'Active Project Pipeline & Milestones';
-    }
-
-    if (theadTr) {
-      theadTr.innerHTML = `
-        <th>Project Name</th>
-        <th>Client</th>
-        <th>Next Milestone & Escrow Status</th>
-        <th>Review Deadline</th>
-        <th>Amount</th>
-        <th>Trust Protection</th>
-        <th>Action</th>
-      `;
-    }
-
-    if (store.milestones.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="7">
-            <div class="table-empty-state">
-              <div class="table-empty-icon">📁</div>
-              <div class="table-empty-title">No Active Milestones in Pipeline</div>
-              <div class="table-empty-desc">Create your first milestone agreement or import an opportunity.</div>
-            </div>
-          </td>
-        </tr>
-      `;
-      return;
-    }
-
-    tbody.innerHTML = store.milestones.map(m => {
-      let statusPillHtml = '';
-      let actionBtnHtml = '';
-      let stepperState = 'in_progress';
-
-      if (m.status === 'Released') {
-        stepperState = 'released';
-        statusPillHtml = `
-          <span class="status-pill paid" title="Funds released to bank account">
-            Paid • ${m.releasedAt || 'Oct 14, 17:45'}
-          </span>
-        `;
-        actionBtnHtml = `<span style="font-size:0.75rem; color:var(--success); font-weight:700;">✓ Settled</span>`;
-      } else if (m.status === 'In Review') {
-        stepperState = 'review';
-        statusPillHtml = `
-          <span class="status-pill pending" style="background:var(--warning-bg); color:var(--warning); border:1px solid var(--warning-border);">
-            In Review
-          </span>
-        `;
-        actionBtnHtml = `<span style="font-size:0.75rem; color:var(--warning); font-weight:600;">Waiting for Client Approval</span>`;
-      } else {
-        // Pending
-        stepperState = 'funded';
-        statusPillHtml = `
-          <span class="status-pill draft">
-            Pending
-          </span>
-        `;
-        actionBtnHtml = `
-          <button class="btn-tag" style="background:var(--primary); color:white; font-weight:700;" onclick="submitMilestoneForReview('${m.id}')">
-            Submit for Review
-          </button>
-        `;
-      }
-
-      return `
-        <tr>
-          <td>
-            <div style="font-weight: 700; color: var(--text-primary);">${m.projectTitle}</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">${m.projectId} • ${m.category}</div>
-          </td>
-          <td>
-            <div style="font-weight: 600;">${m.client}</div>
-          </td>
-          <td>
-            <div style="font-size: 0.82rem; font-weight: 600;">${m.title}</div>
-            ${getEscrowStepperHtml(stepperState)}
-          </td>
-          <td>
-            <div style="font-size: 0.82rem; font-weight: 600; color: ${m.silenceAlert && m.status !== 'Released' ? 'var(--warning)' : 'var(--text-secondary)'};">
-              ${m.deadline} ${m.silenceAlert && m.status !== 'Released' ? '⚠️ (Paused at 72h)' : ''}
-            </div>
-          </td>
-          <td>
-            <div style="font-weight: 700; color: var(--primary);">₹${m.amount.toLocaleString('en-IN')}</div>
-          </td>
-          <td>
-            ${statusPillHtml}
-          </td>
-          <td>
-            ${actionBtnHtml}
-          </td>
-        </tr>
-      `;
-    }).join('');
-  }
-
-  if (typeof window !== 'undefined' && window.lucide) window.lucide.createIcons();
-}
-
-/**
- * Render Kanban Board from Shared Store
- */
-function renderKanban() {
-  const colBacklog = document.getElementById('kanban-backlog');
-  const colProgress = document.getElementById('kanban-progress');
-  const colCompleted = document.getElementById('kanban-completed');
-  const countBacklog = document.getElementById('col-count-backlog');
-  const countProgress = document.getElementById('col-count-progress');
-  const countCompleted = document.getElementById('col-count-completed');
-
-  if (!colBacklog || !colProgress || !colCompleted) return;
-
-  const tasks = store.kanbanTasks || [];
-
-  const backlogTasks = tasks.filter(t => t.col === 'backlog');
-  const progressTasks = tasks.filter(t => t.col === 'progress');
-  const completedTasks = tasks.filter(t => t.col === 'completed');
-
-  if (countBacklog) countBacklog.textContent = backlogTasks.length;
-  if (countProgress) countProgress.textContent = progressTasks.length;
-  if (countCompleted) countCompleted.textContent = completedTasks.length;
-
-  const renderTaskCard = (t) => `
-    <div class="task-card" onclick="inspectTask('${t.title}')">
-      <div class="task-tags">
-        ${(t.tags || []).map(tag => `<span class="tag-badge ${tag.cls || ''}" style="${tag.style || ''}">${tag.label}</span>`).join('')}
-      </div>
-      <div class="task-title">${t.title}</div>
-      <div class="task-desc">${t.desc}</div>
-      <div class="task-meta">
-        <span class="task-due">${t.due}</span>
-        <span style="font-weight: 700;">${t.milestone}</span>
-      </div>
-    </div>
-  `;
-
-  colBacklog.innerHTML = backlogTasks.map(renderTaskCard).join('');
-  colProgress.innerHTML = progressTasks.map(renderTaskCard).join('');
-  colCompleted.innerHTML = completedTasks.map(renderTaskCard).join('');
-}
-
-/**
- * Render Evidence Vault Audit Trail from Shared Store
- */
-function renderEvidenceVault() {
-  const container = document.getElementById('vault-timeline-container');
-  if (!container) return;
-
-  const logs = store.evidenceVault || [];
-  container.innerHTML = logs.map(ev => `
-    <div class="vault-event-card">
-      <div class="vault-event-dot" style="background: ${ev.dotColor || 'var(--primary)'};"></div>
-      <div class="vault-event-header">
-        <span>${ev.timestamp}</span>
-        <span class="vault-hash-badge">SHA256: ${ev.hash}</span>
-      </div>
-      <div class="vault-event-title">${ev.title}</div>
-      <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
-        ${ev.desc}
-      </p>
-    </div>
-  `).join('');
-}
-
-/**
- * Render Client Portal Preview from Shared Store
- */
-function renderClientPortalPreview() {
-  const escrowDisp = document.getElementById('portal-escrow-disp');
-  const approvedDisp = document.getElementById('portal-approved-disp');
-  const stepperDisp = document.getElementById('portal-stepper-disp');
-  const btnApproval = document.getElementById('btn-portal-approval');
-
-  const m2 = store.milestones.find(m => m.id === 'MS-102');
-  const isM2Released = m2 && m2.status === 'Released';
-
-  if (escrowDisp) {
-    escrowDisp.textContent = `₹${store.stats.escrowBalance.toLocaleString('en-IN')} Held`;
-  }
-
-  if (approvedDisp) {
-    approvedDisp.textContent = isM2Released ? '8 / 8 Items' : '4 / 8 Items';
-  }
-
-  if (stepperDisp) {
-    if (isM2Released) {
-      stepperDisp.innerHTML = `
-        <span class="escrow-step done"><span class="escrow-step-dot"></span><span>1. Funded (₹20,000)</span></span>
-        <span class="escrow-step-sep">───</span>
-        <span class="escrow-step done"><span class="escrow-step-dot"></span><span>2. In Progress</span></span>
-        <span class="escrow-step-sep">───</span>
-        <span class="escrow-step done"><span class="escrow-step-dot"></span><span>3. Client Review</span></span>
-        <span class="escrow-step-sep">───</span>
-        <span class="escrow-step active"><span class="escrow-step-dot"></span><span>4. Released</span></span>
-      `;
-    } else {
-      stepperDisp.innerHTML = `
-        <span class="escrow-step done"><span class="escrow-step-dot"></span><span>1. Funded (₹20,000)</span></span>
-        <span class="escrow-step-sep">───</span>
-        <span class="escrow-step done"><span class="escrow-step-dot"></span><span>2. In Progress</span></span>
-        <span class="escrow-step-sep">───</span>
-        <span class="escrow-step active"><span class="escrow-step-dot"></span><span>3. Client Review</span></span>
-        <span class="escrow-step-sep">───</span>
-        <span class="escrow-step"><span class="escrow-step-dot"></span><span>4. Released</span></span>
-      `;
-    }
-  }
-
-  if (btnApproval) {
-    if (isM2Released) {
-      btnApproval.textContent = 'Milestone 2 Released & Settled ✓';
-      btnApproval.className = 'btn-secondary';
-      btnApproval.style.opacity = '0.7';
-      btnApproval.style.cursor = 'default';
-      btnApproval.disabled = true;
-    } else {
-      btnApproval.textContent = 'Approve & Release Payment (₹20,000)';
-      btnApproval.className = 'btn-primary';
-      btnApproval.style.opacity = '1';
-      btnApproval.style.cursor = 'pointer';
-      btnApproval.disabled = false;
-    }
-  }
-}
-
-/**
- * Render Invoices Table from Shared Store
- */
-function renderInvoices() {
-  const tbody = document.getElementById('invoices-table-body');
-  if (!tbody) return;
-
-  const invoices = store.invoices || [];
-
-  if (invoices.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="9">
-          <div class="table-empty-state">
-            <div class="table-empty-icon">💳</div>
-            <div class="table-empty-title">No Invoices Issued Yet</div>
-            <div class="table-empty-desc">Generate your first milestone invoice with 18% GST calculation and escrow protection.</div>
-            <button class="btn-primary" style="margin: 0 auto; width: auto;" onclick="openCreateInvoiceModal()">+ Create Milestone Invoice</button>
-          </div>
-        </td>
-      </tr>
-    `;
-    return;
-  }
-
-  tbody.innerHTML = invoices.map(inv => `
-    <tr>
-      <td>
-        <strong style="color: var(--primary);">${inv.id}</strong>
-      </td>
-      <td>${inv.client}</td>
-      <td>
-        <div style="font-size: 0.82rem; font-weight: 600;">${inv.project}</div>
-      </td>
-      <td>₹${inv.baseAmount.toLocaleString('en-IN')}</td>
-      <td style="color: var(--text-muted);">₹${inv.gst.toLocaleString('en-IN')}</td>
-      <td style="font-weight: 800;">₹${inv.total.toLocaleString('en-IN')}</td>
-      <td>${inv.dueDate}</td>
-      <td>
-        <span class="status-pill ${inv.status}">
-          ${inv.status === 'paid' ? 'Settled' : (inv.status === 'secured' ? 'In Escrow' : 'Awaiting')}
-        </span>
-      </td>
-      <td>
-        <button class="btn-tag" onclick="showToast('Invoice ${inv.id} PDF downloaded.', 'info')">PDF</button>
-      </td>
-    </tr>
-  `).join('');
-}
-
-// Master View Render
-function renderAllViews() {
-  renderDashboardHeader();
-  renderDashboardAlerts();
-  renderDashboardGuidedDemo();
-  renderSidebarNav();
-  renderDashboardStats();
-  renderDashboardProjects();
-  renderKanban();
-  renderEvidenceVault();
-  renderClientPortalPreview();
-  renderJobsList(store.jobs || []);
-  renderInvoices();
-  if (typeof window !== 'undefined' && window.lucide) window.lucide.createIcons();
+function scrollToApprovals() {
+  const el = document.getElementById('cl-approvals-section');
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
 }
 
 // ==============================================================================
-// 5. CORE ESCROW ACTIONS (APPROVE & RELEASE, SUBMIT FOR REVIEW)
+// 4. FREELANCER DASHBOARD CONTROLLER (/freelancer/dashboard)
 // ==============================================================================
 
-/**
- * Client Approves & Releases Milestone
- * Executed when:
- * 1. Client taps "Approve & Release Payment" on dashboard
- * 2. Client taps "Simulate Client Approval" in client portal view
- * 3. Guided demo step 4 executes
- */
-function approveMilestone(milestoneId) {
-  const m = store.milestones.find(item => item.id === milestoneId);
-  if (!m) return;
+async function loadFreelancerDashboard() {
+  const user = getSessionUser();
+  if (!user) return;
 
-  if (m.status === 'Released') {
-    showToast(`Milestone ${m.title} is already released and settled.`, 'info');
-    return;
-  }
-
-  // 1. Status becomes Released with timestamp
-  m.status = 'Released';
-  m.releasedAt = formatCurrentTime();
-  m.silenceAlert = false;
-
-  // 2. Escrow balance goes down
-  store.stats.escrowBalance = Math.max(0, store.stats.escrowBalance - m.amount);
-
-  // 3. Freelancer earnings go up
-  store.stats.monthlyEarnings += m.amount;
-
-  // 4. Corresponding invoice moves from Pending/Secured to Paid
-  const inv = store.invoices.find(i => i.milestoneId === milestoneId || i.id === 'INV-2026-004');
-  if (inv) {
-    inv.status = 'paid';
-  }
-
-  // 5. New entry added to Evidence Vault trail with timestamp and hash
-  const newHash = generateSha256Hash();
-  store.evidenceVault.unshift({
-    id: 'ev-' + Date.now(),
-    timestamp: formatCurrentTime(),
-    hash: newHash,
-    title: `${m.title} Approved & Released`,
-    desc: `Deliverables verified & accepted by client Rahul Verma. ₹${m.amount.toLocaleString('en-IN')} escrow payout released to freelancer Priya Sharma.`,
-    dotColor: 'var(--success)'
-  });
-
-  // 6. Kanban card moves to "Approved & Completed"
-  const task = store.kanbanTasks.find(t => t.milestoneId === milestoneId || t.id === 'task-4');
-  if (task) {
-    task.col = 'completed';
-    task.due = 'Delivered';
-    task.milestone = `₹${m.amount.toLocaleString('en-IN')} Settled`;
-    task.tags = [
-      { label: 'Approved', cls: 'scope-approved' },
-      { label: 'Milestone 2', style: 'background:var(--success-bg); color:var(--success);' }
-    ];
-  }
-
-  // 7. Save to shared localStorage and notify other tabs
-  saveSharedStore();
-
-  // 8. Re-render UI
-  renderAllViews();
-
-  showToast(`✓ Payment approved! ₹${m.amount.toLocaleString('en-IN')} escrow released to Priya Sharma.`, 'success');
-}
-
-/**
- * Freelancer Submits Milestone for Client Review
- */
-function submitMilestoneForReview(milestoneId) {
-  const m = store.milestones.find(item => item.id === milestoneId);
-  if (!m) return;
-
-  m.status = 'In Review';
-  m.submittedAt = formatCurrentTime();
-
-  // Add Evidence Vault entry
-  const newHash = generateSha256Hash();
-  store.evidenceVault.unshift({
-    id: 'ev-' + Date.now(),
-    timestamp: formatCurrentTime(),
-    hash: newHash,
-    title: `Deliverables Submitted: ${m.title}`,
-    desc: `Priya Sharma uploaded deliverable assets for ${m.projectTitle}. 72-hour review window initiated for client Rahul Verma.`,
-    dotColor: 'var(--warning)'
-  });
-
-  // Save to shared localStorage and notify other tabs
-  saveSharedStore();
-
-  // Re-render UI
-  renderAllViews();
-
-  showToast(`Deliverables for ${m.title} submitted for review!`, 'success');
-}
-
-// ==============================================================================
-// 6. GUIDED INTERACTIVE 4-STEP DEMO
-// ==============================================================================
-function runGuidedDemo(step = 1) {
-  document.querySelectorAll('.guided-step-item').forEach((item, idx) => {
-    if (idx + 1 === step) item.classList.add('current');
-    else item.classList.remove('current');
-  });
-
-  if (step === 1) {
-    showToast('Step 1: Client sent an out-of-scope request ("3D Spline interactive coin")', 'warning');
-    switchTab('projects');
-    const taskCard = document.querySelector('#kanban-progress .task-card');
-    if (taskCard) {
-      taskCard.style.outline = '2px solid var(--warning)';
-      taskCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => taskCard.style.outline = 'none', 3000);
-    }
-  } else if (step === 2) {
-    showToast('Step 2: AI Scope Amendment generated (+₹6,500 & +2 Days)', 'info');
-    openScopeChangeModal();
-  } else if (step === 3) {
-    closeModal('modal-scope-change');
-    store.stats.escrowBalance += 6500;
-    saveSharedStore();
-    renderAllViews();
-    showToast('Step 3: Client Rahul Verma deposited ₹6,500 into secure escrow!', 'success');
-  } else if (step === 4) {
-    approveMilestone('MS-102');
-  }
-}
-
-// ==============================================================================
-// 7. AI PROJECT ASSISTANT & SCOPE SCRIBING
-// ==============================================================================
-const promptTemplates = {
-  reels: "I need 12 Instagram reels, each under 30 seconds, delivered over three weeks. My budget is ₹18,000.",
-  fintech: "We need a complete UX audit and Figma prototype for our mobile fintech app, including biometric authentication and KYC flows. Total budget is ₹65,000 with milestone payments.",
-  branding: "Brand identity package for a cloud developer tooling startup. We need logo marks, color tokens, typography guide, and social media presentation kit. Budget ₹40,000."
-};
-
-function applyPromptChip(key) {
-  const input = document.getElementById('ai-prompt-input');
-  if (input && promptTemplates[key]) {
-    input.value = promptTemplates[key];
-    input.focus();
-  }
-}
-
-function clearAiInput() {
-  const input = document.getElementById('ai-prompt-input');
-  if (input) input.value = '';
-}
-
-function runAiScoper() {
-  const input = document.getElementById('ai-prompt-input');
-  const text = input ? input.value.trim() : '';
-
-  if (!text) {
-    showToast('Please type or select a client prompt first.', 'warning');
-    return;
-  }
-
-  showToast('AI Analyzing requirements & structuring milestones...', 'info');
-
-  const badge = document.getElementById('sow-status-badge');
-  if (badge) badge.textContent = 'Generating...';
-
-  setTimeout(() => {
-    if (badge) badge.textContent = 'Contract Ready';
-
-    let title = 'Custom Freelance Project Brief';
-    let budget = 25000;
-    let deliverables = [];
-
-    if (text.toLowerCase().includes('reels') || text.toLowerCase().includes('video')) {
-      title = '12 Instagram Short-Form Reels Campaign';
-      budget = 18000;
-      deliverables = [
-        { name: 'Batch 1: First 4 Reels (Concept & Hook Strategy)', price: '₹6,000 (33%)' },
-        { name: 'Batch 2: Mid-Campaign 4 Reels (Revisions Applied)', price: '₹6,000 (33%)' },
-        { name: 'Batch 3: Final 4 Reels & Source File Handover', price: '₹6,000 (33%)' }
-      ];
-    } else if (text.toLowerCase().includes('fintech') || text.toLowerCase().includes('app')) {
-      title = 'Fintech Mobile UI & Interactive KYC Prototype';
-      budget = 65000;
-      deliverables = [
-        { name: 'Milestone 1: Wireframes & Information Architecture Map', price: '₹25,000 (38%)' },
-        { name: 'Milestone 2: Design System & Interactive KYC Figma Prototype', price: '₹25,000 (38%)' },
-        { name: 'Milestone 3: Developer Handoff Tokens & Asset Export', price: '₹15,000 (24%)' }
-      ];
-    } else {
-      title = 'Branding & Design System Architecture';
-      budget = 40000;
-      deliverables = [
-        { name: 'Milestone 1: Brand Discovery & 3 Core Visual Directions', price: '₹15,000 (37.5%)' },
-        { name: 'Milestone 2: Final Vector Assets & Typography Guide', price: '₹15,000 (37.5%)' },
-        { name: 'Milestone 3: Social & Marketing Presentation Collateral', price: '₹10,000 (25%)' }
-      ];
-    }
-
-    const titleEl = document.getElementById('out-project-title');
-    if (titleEl) titleEl.textContent = title;
-
-    const outBody = document.getElementById('ai-sow-output');
-    if (outBody) {
-      outBody.innerHTML = `
-        <div class="sow-section">
-          <h5>1. Project Identification</h5>
-          <p style="font-size: 0.88rem; font-weight: 600;">${title}</p>
-          <p style="font-size: 0.78rem; color: var(--text-muted);">Total Value: ₹${budget.toLocaleString('en-IN')} INR • Est. Delivery: 2-3 Weeks</p>
-        </div>
-
-        <div class="sow-section">
-          <h5>2. Proposed Milestones & Payment Schedule</h5>
-          ${deliverables.map(d => `
-            <div class="sow-deliverable-item">
-              <span>${d.name}</span>
-              <strong style="color: var(--primary);">${d.price}</strong>
-            </div>
-          `).join('')}
-        </div>
-
-        <div class="sow-section">
-          <h5>3. Scope Protection Guardrails</h5>
-          <ul style="font-size: 0.8rem; color: var(--text-secondary); padding-left: 1.25rem; line-height: 1.5;">
-            <li>Includes up to <strong>2 rounds of revisions</strong> per milestone.</li>
-            <li>Out-of-scope requests trigger automatic Bharosa Scope Amendment.</li>
-            <li>Client review turnaround: 72 hours before silence protection triggers.</li>
-          </ul>
-        </div>
-      `;
-    }
-
-    showToast('SOW and Milestone breakdown created!', 'success');
-  }, 600);
-}
-
-function createProjectFromAi() {
-  const title = document.getElementById('out-project-title')?.textContent || 'New Project';
-  const newMs = {
-    id: `MS-${Math.floor(100 + Math.random() * 900)}`,
-    projectId: `PRJ-${Math.floor(100 + Math.random() * 900)}`,
-    projectTitle: title,
-    client: 'Direct Client (Via Bharosa Brief)',
-    category: 'Design & Content',
-    title: 'Milestone 1: Kickoff & Initial Assets',
-    amount: 18000,
-    status: 'Pending',
-    deadline: 'Nov 10, 2026',
-    submittedAt: null,
-    releasedAt: null,
-    protection: 'Escrow Secured (₹18,000)'
-  };
-
-  store.milestones.unshift(newMs);
-  saveSharedStore();
-  renderAllViews();
-  showToast(`Contract created: ${title}! Added to workspace.`, 'success');
-  switchTab('dashboard');
-}
-
-// ==============================================================================
-// 8. JOB DISCOVERY & URL IMPORTER
-// ==============================================================================
-function renderJobsList(jobsToRender) {
-  const container = document.getElementById('jobs-container');
-  if (!container) return;
-
-  container.innerHTML = jobsToRender.map(j => `
-    <div class="card-section" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between;">
-      <div>
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-          <span class="brand-badge" style="background: var(--primary-light); color: var(--primary);">${j.source}</span>
-          <span style="font-size: 0.78rem; font-weight: 700; color: var(--success);">${j.matchScore}% Match</span>
-        </div>
-        <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-primary);">${j.title}</h4>
-        <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-          Client: <strong>${j.client}</strong> • Duration: ${j.timeline}
-        </div>
-        <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 1rem;">
-          ${j.description}
-        </p>
-        <div style="display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1.25rem;">
-          ${j.skills.map(s => `<span class="btn-tag" style="padding: 2px 8px; font-size: 0.7rem;">${s}</span>`).join('')}
-        </div>
-      </div>
-
-      <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 1rem; border-top: 1px solid var(--border-subtle);">
-        <div>
-          <div style="font-size: 0.7rem; color: var(--text-muted);">Agreed Range</div>
-          <div style="font-size: 1rem; font-weight: 800; color: var(--primary);">${j.budget}</div>
-        </div>
-        <button class="btn-primary" style="width: auto; padding: 0.5rem 1rem; font-size: 0.82rem;" onclick="applyForJob('${j.title}')">
-          Apply with Bharosa
-        </button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function filterJobs(query) {
-  const q = query.toLowerCase();
-  const filtered = (store.jobs || []).filter(j => 
-    j.title.toLowerCase().includes(q) ||
-    j.description.toLowerCase().includes(q) ||
-    j.skills.some(s => s.toLowerCase().includes(q))
-  );
-  renderJobsList(filtered);
-}
-
-function filterJobCategory(cat, btn) {
-  document.querySelectorAll('.tab-pills .tab-pill').forEach(p => p.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-
-  if (cat === 'all') {
-    renderJobsList(store.jobs || []);
-  } else {
-    const filtered = (store.jobs || []).filter(j => j.category === cat);
-    renderJobsList(filtered);
-  }
-}
-
-function applyForJob(jobTitle) {
-  showToast(`Application proposal sent with Bharosa Protection for: ${jobTitle}`, 'success');
-}
-
-// Modal Handlers
-function openModal(id) {
-  const modal = document.getElementById(id);
-  if (modal) modal.classList.add('active');
-}
-
-function closeModal(id) {
-  const modal = document.getElementById(id);
-  if (modal) modal.classList.remove('active');
-}
-
-function openUrlImportModal() {
-  openModal('modal-url-importer');
-}
-
-function setDemoUrl(source) {
-  const input = document.getElementById('import-url-input');
-  if (source === 'upwork') {
-    input.value = 'https://upwork.com/jobs/senior-ui-ux-mobile-reels-creator-fintech';
-  } else {
-    input.value = 'https://linkedin.com/jobs/view/lead-brand-designer-series-a-394819';
-  }
-}
-
-function processUrlImport() {
-  const input = document.getElementById('import-url-input');
-  const resCard = document.getElementById('url-parsing-result');
-  const btn = document.getElementById('btn-run-url-parse');
-
-  if (!input.value) {
-    showToast('Please provide a URL to import.', 'warning');
-    return;
-  }
-
-  btn.textContent = 'Extracting...';
-
-  setTimeout(() => {
-    btn.textContent = 'Create Bharosa Opportunity';
-    if (resCard) resCard.style.display = 'block';
-
-    btn.onclick = () => {
-      showToast('External job imported into Bharosa Workspace! Draft proposal ready.', 'success');
-      closeModal('modal-url-importer');
-      switchTab('job-discovery');
-    };
-  }, 700);
-}
-
-// ==============================================================================
-// 9. SCOPE AMENDMENT & MODALS
-// ==============================================================================
-function openScopeChangeModal() {
-  openModal('modal-scope-change');
-}
-
-function submitScopeAmendment() {
-  showToast('Formal Scope Change Request (+₹6,500) sent to client Rahul Verma.', 'success');
-  closeModal('modal-scope-change');
-}
-
-function openDisputeModal() {
-  openModal('modal-dispute-assistant');
-}
-
-function inspectTask(taskTitle) {
-  showToast(`Inspecting deliverable: ${taskTitle}. Evidence hash verified.`, 'info');
-}
-
-function openAddTaskModal() {
-  const title = prompt('Enter deliverable task name:');
-  if (title) {
-    store.kanbanTasks.unshift({
-      id: 'task-' + Date.now(),
-      col: 'backlog',
-      title: title,
-      desc: 'Added to active project milestone deliverables.',
-      due: 'Due in 5 days',
-      milestone: 'Milestone 2',
-      tags: [{ label: 'In Scope', cls: 'scope-approved' }]
+  try {
+    const res = await fetch('/api/freelancer/dashboard', {
+      headers: { 'x-user-id': user.id }
     });
-    saveSharedStore();
-    renderKanban();
-    showToast(`Task "${title}" added to Scope & Backlog!`, 'success');
+
+    if (res.status === 403) {
+      showForbiddenPage('You do not have permission to view the Freelancer Dashboard.');
+      return;
+    }
+
+    const data = await res.json();
+    renderFreelancerDashboardUI(data);
+  } catch (err) {
+    console.error('Error loading freelancer dashboard:', err);
   }
 }
 
-function openCreateInvoiceModal() {
-  openModal('modal-create-invoice');
-  calculateInvoiceTotal();
-}
+function renderFreelancerDashboardUI(data) {
+  const { overview, actionItems, alerts, projects } = data;
 
-function calculateInvoiceTotal() {
-  const base = parseFloat(document.getElementById('inv-base-amount')?.value || 0);
-  const rate = parseFloat(document.getElementById('inv-gst-rate')?.value || 0.18);
-  const gst = base * rate;
-  const total = base + gst;
+  // 1. Metric Cards (Strictly separate received, pending, projected income)
+  const actProjEl = document.getElementById('fl-stat-active-projects');
+  if (actProjEl) actProjEl.textContent = `${overview.activeProjectsCount} Active`;
 
-  const subEl = document.getElementById('inv-subtotal-disp');
-  const gstEl = document.getElementById('inv-gst-disp');
-  const totEl = document.getElementById('inv-total-disp');
-
-  if (subEl) subEl.textContent = `₹${base.toLocaleString('en-IN')}`;
-  if (gstEl) gstEl.textContent = `₹${gst.toLocaleString('en-IN')}`;
-  if (totEl) totEl.textContent = `₹${total.toLocaleString('en-IN')}`;
-}
-
-function saveGeneratedInvoice() {
-  const project = document.getElementById('inv-project-select')?.value || 'Client Project';
-  const milestone = document.getElementById('inv-milestone-title')?.value || 'Milestone';
-  const base = parseFloat(document.getElementById('inv-base-amount')?.value || 20000);
-  const rate = parseFloat(document.getElementById('inv-gst-rate')?.value || 0.18);
-  const gst = base * rate;
-  const total = base + gst;
-
-  const newInv = {
-    id: `INV-2026-00${store.invoices.length + 1}`,
-    client: project.includes('GrowthNest') ? 'GrowthNest Media' : (project.includes('UrbanBazaar') ? 'UrbanBazaar' : 'Pulse Health'),
-    project: milestone,
-    baseAmount: base,
-    gst: gst,
-    total: total,
-    dueDate: 'Nov 05, 2026',
-    status: 'pending'
-  };
-
-  store.invoices.unshift(newInv);
-  saveSharedStore();
-  renderInvoices();
-  closeModal('modal-create-invoice');
-  showToast(`Invoice ${newInv.id} generated and issued with GST compliance!`, 'success');
-}
-
-// Global Search
-function handleGlobalSearch(e) {
-  const query = e.target.value.toLowerCase().trim();
-  if (!query) {
-    renderAllViews();
-    return;
+  const nextDeadEl = document.getElementById('fl-stat-next-deadline');
+  const nextProjTitle = document.getElementById('fl-stat-next-project-title');
+  if (nextDeadEl && overview.nextDeadline) {
+    const d = new Date(overview.nextDeadline.deadline);
+    nextDeadEl.textContent = d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+    if (nextProjTitle) nextProjTitle.textContent = overview.nextDeadline.projectTitle;
+  } else if (nextDeadEl) {
+    nextDeadEl.textContent = 'None';
   }
 
-  const filteredMilestones = store.milestones.filter(m =>
-    m.projectTitle.toLowerCase().includes(query) ||
-    m.client.toLowerCase().includes(query) ||
-    m.title.toLowerCase().includes(query)
-  );
+  const pendingPayEl = document.getElementById('fl-stat-pending-payouts');
+  if (pendingPayEl) pendingPayEl.textContent = `₹${overview.financials.pendingPayouts.toLocaleString('en-IN')}`;
 
-  const tbody = document.getElementById('dashboard-projects-body');
-  if (tbody) {
-    if (filteredMilestones.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem; color: var(--text-muted);">No matching projects found for "${query}"</td></tr>`;
+  const recIncEl = document.getElementById('fl-stat-received-income');
+  if (recIncEl) recIncEl.textContent = `₹${overview.financials.receivedIncome.toLocaleString('en-IN')}`;
+
+  const projIncEl = document.getElementById('fl-projected-income-text');
+  if (projIncEl) projIncEl.textContent = `₹${overview.financials.projectedIncome.toLocaleString('en-IN')} INR`;
+
+  // 2. Needs Your Action Section
+  const actionListEl = document.getElementById('fl-action-items-list');
+  const actionCountEl = document.getElementById('fl-action-count-badge');
+  if (actionCountEl) actionCountEl.textContent = `${actionItems.length} items`;
+
+  if (actionListEl) {
+    if (actionItems.length === 0) {
+      actionListEl.innerHTML = `<div style="color:var(--text-muted); font-size:0.85rem; padding:1rem;">All caught up! No urgent actions required right now.</div>`;
     } else {
-      tbody.innerHTML = filteredMilestones.map(m => `
-        <tr>
-          <td>
-            <div style="font-weight: 700; color: var(--text-primary);">${m.projectTitle}</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">${m.projectId}</div>
-          </td>
-          <td>${m.client}</td>
-          <td>${m.title}</td>
-          <td>${m.deadline}</td>
-          <td>₹${m.amount.toLocaleString('en-IN')}</td>
-          <td><span class="status-pill secured">${m.protection}</span></td>
-          <td><button class="btn-tag" onclick="switchTab('projects')">Workspace</button></td>
-        </tr>
+      actionListEl.innerHTML = actionItems.map(item => `
+        <div class="action-item-card">
+          <div class="action-item-header">
+            <div>
+              <div class="action-item-title">${item.projectTitle}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${item.milestoneTitle}</div>
+            </div>
+            <span class="status-pill pending" style="font-size:0.68rem;">Action Required</span>
+          </div>
+          <div class="action-item-desc">${item.message}</div>
+          <div class="action-item-footer">
+            <span>Due: ${new Date(item.deadline).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</span>
+            <button class="btn-primary" style="font-size:0.74rem; padding:4px 10px;" onclick="navigateTo('/projects/${item.projectId}')">
+              Open Workspace →
+            </button>
+          </div>
+        </div>
       `).join('');
     }
   }
+
+  // 3. Alerts: 72-Hour Client Silence & Possible Scope Change
+  const alertsRow = document.getElementById('fl-alerts-row');
+  if (alertsRow) {
+    let html = '';
+    alerts.forEach(a => {
+      if (a.type === 'client_silence_watch') {
+        html += `
+          <div class="alert-banner silence">
+            <div class="alert-icon-box"><i data-lucide="clock" style="width:22px;height:22px;color:var(--warning);"></i></div>
+            <div class="alert-content">
+              <h4>72-Hour Client Silence Protection Active</h4>
+              <p>Milestone <strong>"${a.milestoneTitle}"</strong> is in review. If unanswered after 72 hours, send a polite reminder and propose a new schedule. Deadlines are never silently extended.</p>
+              <div class="alert-actions">
+                <button class="btn-tag" onclick="openSilenceReminderModal('${a.milestoneId}')">Send Reminder &amp; Propose Schedule</button>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (a.type === 'possible_scope_change') {
+        html += `
+          <div class="alert-banner fairness">
+            <div class="alert-icon-box"><i data-lucide="alert-triangle" style="width:22px;height:22px;color:var(--primary);"></i></div>
+            <div class="alert-content">
+              <h4>Possible Scope Change Detected</h4>
+              <p>${a.message}</p>
+              <div class="alert-actions">
+                <button class="btn-tag" onclick="openScopeChangeModal('${a.milestoneId}')">Draft Scope Amendment (+₹6,500)</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    });
+    alertsRow.innerHTML = html;
+  }
+
+  // 4. Projects Table
+  const tableBody = document.getElementById('fl-projects-table-body');
+  if (tableBody) {
+    tableBody.innerHTML = projects.map(p => `
+      <tr>
+        <td>
+          <div style="font-weight:700; color:var(--text-primary); cursor:pointer;" onclick="navigateTo('/projects/${p.id}')">${p.title}</div>
+          <div style="font-size:0.72rem; color:var(--text-muted);">${p.id}</div>
+        </td>
+        <td>
+          <div style="font-weight:600;">${p.clientName}</div>
+          <div style="font-size:0.72rem; color:var(--text-muted);">${p.clientOrg}</div>
+        </td>
+        <td>
+          <div style="font-size:0.8rem; font-weight:600;">${p.activeMilestone.title}</div>
+        </td>
+        <td>
+          <span style="font-size:0.78rem;">${new Date(p.activeMilestone.deadline).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</span>
+        </td>
+        <td>
+          <strong>₹${p.activeMilestone.amount.toLocaleString('en-IN')}</strong>
+        </td>
+        <td>
+          <span class="status-pill ${p.activeMilestone.status === 'Invoiced' ? 'paid' : 'pending'}" style="font-size:0.7rem;">
+            ${p.activeMilestone.status}
+          </span>
+          <div style="font-size:0.65rem; color:var(--text-muted); margin-top:2px;">Payment via provider (simulated)</div>
+        </td>
+        <td>
+          <button class="btn-secondary" style="font-size:0.72rem; padding:4px 8px;" onclick="navigateTo('/projects/${p.id}')">
+            Workspace
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  if (window.lucide) window.lucide.createIcons();
 }
 
-// Toast Notifications
+// ==============================================================================
+// 5. CLIENT DASHBOARD CONTROLLER (/client/dashboard)
+// ==============================================================================
+
+async function loadClientDashboard() {
+  const user = getSessionUser();
+  if (!user) return;
+
+  try {
+    const res = await fetch('/api/client/dashboard', {
+      headers: { 'x-user-id': user.id }
+    });
+
+    if (res.status === 403) {
+      showForbiddenPage('You do not have permission to view the Client Dashboard.');
+      return;
+    }
+
+    const data = await res.json();
+    renderClientDashboardUI(data);
+  } catch (err) {
+    console.error('Error loading client dashboard:', err);
+  }
+}
+
+function renderClientDashboardUI(data) {
+  const { overview, needsApproval, amendmentsRequiringApproval, projects, invoices, recentActivity } = data;
+
+  // 1. Metric Cards (Committed vs Spent, Pending Approvals, Active Projects)
+  const commEl = document.getElementById('cl-stat-committed');
+  if (commEl) commEl.textContent = `₹${overview.budgetCommitted.toLocaleString('en-IN')}`;
+
+  const spentEl = document.getElementById('cl-stat-spent');
+  if (spentEl) spentEl.textContent = `₹${overview.budgetSpent.toLocaleString('en-IN')}`;
+
+  const pendEl = document.getElementById('cl-stat-pending-count');
+  if (pendEl) pendEl.textContent = String(overview.pendingApprovalsCount);
+
+  const actProjEl = document.getElementById('cl-stat-active-projects');
+  if (actProjEl) actProjEl.textContent = `${overview.activeProjectsCount} Active`;
+
+  // 2. Needs Your Approval Queue
+  const approvalListEl = document.getElementById('cl-approval-items-list');
+  const countBadge = document.getElementById('cl-approval-count-badge');
+  if (countBadge) countBadge.textContent = `${overview.pendingApprovalsCount} items`;
+
+  if (approvalListEl) {
+    if (needsApproval.length === 0 && amendmentsRequiringApproval.length === 0) {
+      approvalListEl.innerHTML = `<div style="color:var(--text-muted); font-size:0.85rem; padding:1rem;">All caught up! No deliverables or amendments pending approval.</div>`;
+    } else {
+      let html = '';
+
+      // Deliverables to approve or revise
+      needsApproval.forEach(item => {
+        if (item.type === 'deliverable_approval') {
+          html += `
+            <div class="action-item-card" style="border-left: 3px solid var(--info);">
+              <div class="action-item-header">
+                <div>
+                  <div class="action-item-title">${item.projectTitle}</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">${item.milestoneTitle} (₹${item.amount.toLocaleString('en-IN')})</div>
+                </div>
+                <span class="status-pill" style="background:var(--info-bg); color:var(--info); font-size:0.68rem;">Review Ready</span>
+              </div>
+              <div class="action-item-desc">
+                ${item.deliverables?.length || 0} deliverable files uploaded by contractor. Revisions used: ${item.revisionsUsed} of ${item.revisionsAllowed}.
+              </div>
+              <div class="action-item-footer">
+                <span style="color:var(--text-muted);">Due: ${new Date(item.deadline).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</span>
+                <div style="display:flex; gap:0.4rem;">
+                  <button class="btn-tag" style="color:var(--danger); border-color:var(--danger-border);" onclick="openRevisionRequestModal('${item.milestoneId}')">
+                    Request Revision
+                  </button>
+                  <button class="btn-primary" style="font-size:0.74rem; padding:4px 10px;" onclick="clientApproveMilestone('${item.milestoneId}')">
+                    Approve Deliverables
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        } else if (item.type === 'fund_milestone') {
+          html += `
+            <div class="action-item-card" style="border-left: 3px solid var(--warning);">
+              <div class="action-item-header">
+                <div>
+                  <div class="action-item-title">${item.projectTitle}</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">${item.milestoneTitle}</div>
+                </div>
+                <span class="status-pill pending" style="font-size:0.68rem;">Funding Required</span>
+              </div>
+              <div class="action-item-desc">${item.message}</div>
+              <div class="action-item-footer">
+                <span>Amount: ₹${item.amount.toLocaleString('en-IN')}</span>
+                <button class="btn-primary" style="font-size:0.74rem; padding:4px 10px;" onclick="clientFundMilestone('${item.milestoneId}')">
+                  Fund Milestone
+                </button>
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      // Scope Amendments needing approval
+      amendmentsRequiringApproval.forEach(amd => {
+        html += `
+          <div class="action-item-card" style="border-left: 3px solid var(--primary);">
+            <div class="action-item-header">
+              <div>
+                <div class="action-item-title">Scope Amendment: ${amd.title}</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Requested by ${amd.requesterName} (+₹${amd.additionalCost} INR · +${amd.additionalDays} days)</div>
+              </div>
+              <span class="status-pill" style="background:var(--primary-light); color:var(--primary); font-size:0.68rem;">Amendment</span>
+            </div>
+            <div class="action-item-desc">${amd.description}</div>
+            <div class="action-item-footer">
+              <span style="font-size:0.72rem; color:var(--text-muted);">Contract updates upon approval</span>
+              <button class="btn-primary" style="font-size:0.74rem; padding:4px 10px;" onclick="clientApproveAmendment('${amd.id}')">
+                Approve Amendment
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      approvalListEl.innerHTML = html;
+    }
+  }
+
+  // 3. Project Cards
+  const projGridEl = document.getElementById('cl-projects-grid');
+  if (projGridEl) {
+    projGridEl.innerHTML = projects.map(p => `
+      <div class="cl-project-card">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <h4 style="font-size:0.95rem; font-weight:700; color:var(--text-primary);">${p.title}</h4>
+            <span class="brand-badge" style="font-size:0.68rem;">${p.progressPct}% Complete</span>
+          </div>
+          <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">Contractor: <strong>${p.freelancerName}</strong></div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: ${p.progressPct}%;"></div>
+          </div>
+          <div style="margin-top:0.75rem; background:var(--bg-surface-elevated); padding:0.65rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+            <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Current Milestone</div>
+            <div style="font-size:0.82rem; font-weight:600; color:var(--text-primary); margin-top:2px;">${p.currentMilestone.title}</div>
+            <div style="display:flex; justify-content:space-between; font-size:0.74rem; color:var(--text-secondary); margin-top:4px;">
+              <span>Responsible: <strong>${p.currentMilestone.responsibleParty}</strong></span>
+              <span>Status: <strong style="color:var(--primary);">${p.currentMilestone.status}</strong></span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:0.75rem; font-size:0.78rem;">
+          <span>Spent: <strong>₹${p.spentBudget.toLocaleString('en-IN')}</strong> / ₹${p.totalBudget.toLocaleString('en-IN')}</span>
+          <button class="btn-secondary" style="font-size:0.74rem; padding:4px 9px;" onclick="navigateTo('/projects/${p.id}')">
+            Project Details →
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // 4. Invoices
+  const invListEl = document.getElementById('cl-invoices-list');
+  if (invListEl) {
+    invListEl.innerHTML = invoices.map(i => `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0; border-bottom:1px solid var(--border-subtle); font-size:0.8rem;">
+        <div>
+          <div style="font-weight:700;">${i.id} · ${i.milestoneTitle}</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">Base: ₹${i.baseAmount.toLocaleString('en-IN')} + 18% GST (₹${i.gstAmount.toLocaleString('en-IN')})</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-weight:800; color:var(--text-primary);">₹${i.totalAmount.toLocaleString('en-IN')}</div>
+          <span class="status-pill ${i.status === 'paid' ? 'paid' : 'pending'}" style="font-size:0.65rem;">${i.status.toUpperCase()}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // 5. Activity Timeline
+  const actTimelineEl = document.getElementById('cl-activity-timeline');
+  if (actTimelineEl) {
+    actTimelineEl.innerHTML = recentActivity.map(a => `
+      <div style="display:flex; gap:8px; padding:0.6rem 0; border-bottom:1px solid var(--border-subtle); font-size:0.78rem;">
+        <div style="font-size:1rem; line-height:1;">🛡️</div>
+        <div style="flex:1;">
+          <div style="display:flex; justify-content:space-between;">
+            <strong style="color:var(--text-primary); font-size:0.8rem;">${a.action}</strong>
+            <span style="font-size:0.68rem; color:var(--text-muted);">${new Date(a.timestamp).toLocaleDateString('en-IN', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
+          </div>
+          <div style="color:var(--text-secondary); margin-top:2px;">By: ${a.actorName} (${a.actorRole}) · ${a.reason}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+// ==============================================================================
+// 6. SHARED PROJECT WORKSPACE CONTROLLER (/projects/:id)
+// ==============================================================================
+
+async function loadProjectWorkspace(projectId) {
+  const user = getSessionUser();
+  if (!user) return;
+
+  try {
+    const res = await fetch(`/api/projects/${projectId}`, {
+      headers: { 'x-user-id': user.id }
+    });
+
+    if (res.status === 403) {
+      showForbiddenPage('You are not a participant in this project.');
+      return;
+    }
+
+    const data = await res.json();
+    renderProjectWorkspaceUI(data);
+  } catch (err) {
+    console.error('Error loading project workspace:', err);
+  }
+}
+
+function renderProjectWorkspaceUI(data) {
+  const { project, scopeAmendments, auditLogs, invoices, userRoleInProject } = data;
+  const user = getSessionUser();
+
+  // Header
+  const titleEl = document.getElementById('pw-project-title');
+  const metaEl = document.getElementById('pw-project-meta');
+  if (titleEl) titleEl.textContent = project.title;
+  if (metaEl) {
+    metaEl.textContent = `Client: ${project.clientName} (${project.clientOrg}) · Contractor: ${project.freelancerName} · Budget: ₹${project.totalBudget.toLocaleString('en-IN')} INR · Role: ${userRoleInProject.toUpperCase()}`;
+  }
+
+  // Header Actions by Role
+  const actionsEl = document.getElementById('pw-header-actions');
+  if (actionsEl) {
+    if (userRoleInProject === 'freelancer') {
+      actionsEl.innerHTML = `
+        <button class="btn-secondary" onclick="openScopeChangeModal()">
+          <i data-lucide="plus" style="width:14px;height:14px;"></i>
+          <span>Request Scope Amendment</span>
+        </button>
+        <button class="btn-primary" onclick="switchPwTab('milestones')">
+          <i data-lucide="upload" style="width:14px;height:14px;"></i>
+          <span>Submit Milestone Deliverable</span>
+        </button>
+      `;
+    } else if (userRoleInProject === 'client') {
+      actionsEl.innerHTML = `
+        <button class="btn-secondary" onclick="openRaiseDisputeModal()">
+          <i data-lucide="alert-triangle" style="width:14px;height:14px;"></i>
+          <span>Raise Dispute</span>
+        </button>
+        <button class="btn-primary" onclick="switchPwTab('milestones')">
+          <i data-lucide="check" style="width:14px;height:14px;"></i>
+          <span>Review Milestones</span>
+        </button>
+      `;
+    }
+  }
+
+  // Render Subtab Content
+  renderPwSubtabContent(data);
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function switchPwTab(tabName) {
+  appState.activePwSubtab = tabName;
+  document.querySelectorAll('.admin-subnav-btn').forEach(btn => btn.classList.remove('active'));
+  const btn = document.getElementById(`pw-tab-btn-${tabName}`);
+  if (btn) btn.classList.add('active');
+
+  if (appState.activeProjectId) {
+    loadProjectWorkspace(appState.activeProjectId);
+  }
+}
+
+function renderPwSubtabContent(data) {
+  const container = document.getElementById('pw-subtab-content');
+  if (!container) return;
+
+  const { project, scopeAmendments, auditLogs, invoices, userRoleInProject } = data;
+  const tab = appState.activePwSubtab;
+
+  if (tab === 'overview') {
+    container.innerHTML = `
+      <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1.5rem;">
+        <div>
+          <h4 style="font-weight:700; margin-bottom:0.5rem;">Project Scope &amp; Deliverables</h4>
+          <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.6;">${project.description}</p>
+
+          <h4 style="font-weight:700; margin-top:1.5rem; margin-bottom:0.75rem;">Milestone Schedule</h4>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Milestone</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Revisions</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${project.milestones.map(m => `
+                  <tr>
+                    <td><strong>${m.title}</strong></td>
+                    <td>₹${m.amount.toLocaleString('en-IN')}</td>
+                    <td><span class="status-pill ${m.status === 'Invoiced' ? 'paid' : 'pending'}">${m.status}</span></td>
+                    <td>${m.revisionsUsed || 0} / ${m.revisionsAllowed}</td>
+                    <td>
+                      ${userRoleInProject === 'client' && (m.status === 'In review' || m.status === 'Submitted') ?
+                        `<button class="btn-primary" style="font-size:0.72rem; padding:3px 8px;" onclick="clientApproveMilestone('${m.id}')">Approve</button>` :
+                        (userRoleInProject === 'freelancer' && m.status === 'In progress' ?
+                          `<button class="btn-primary" style="font-size:0.72rem; padding:3px 8px;" onclick="freelancerSubmitDeliverable('${m.id}')">Submit Files</button>` :
+                          `<span style="font-size:0.72rem; color:var(--text-muted);">-</span>`
+                        )
+                      }
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1rem;">
+            <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Financial Status</div>
+            <div style="font-size:1.3rem; font-weight:800; color:var(--text-primary); margin:6px 0;">₹${project.totalBudget.toLocaleString('en-IN')} INR</div>
+            <div style="font-size:0.78rem; color:var(--text-secondary);">Spent: ₹${project.spentBudget.toLocaleString('en-IN')} · Remaining: ₹${(project.totalBudget - project.spentBudget).toLocaleString('en-IN')}</div>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:8px;">Payment via provider (simulated in demo)</div>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (tab === 'milestones') {
+    container.innerHTML = `
+      <h4 style="font-weight:700; margin-bottom:1rem;">All Project Milestones &amp; State Machine Transitions</h4>
+      <div style="display:flex; flex-direction:column; gap:1rem;">
+        ${project.milestones.map(m => `
+          <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1rem; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:700; font-size:0.95rem;">${m.title}</div>
+              <div style="font-size:0.78rem; color:var(--text-muted);">Amount: ₹${m.amount.toLocaleString('en-IN')} · Status: <strong style="color:var(--primary);">${m.status}</strong> · Deadline: ${new Date(m.deadline).toLocaleDateString('en-IN')}</div>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              ${userRoleInProject === 'client' && (m.status === 'In review' || m.status === 'Submitted') ?
+                `<button class="btn-tag" style="color:var(--danger);" onclick="openRevisionRequestModal('${m.id}')">Request Revision</button>
+                 <button class="btn-primary" style="font-size:0.74rem;" onclick="clientApproveMilestone('${m.id}')">Approve &amp; Release</button>` : ''
+              }
+              ${userRoleInProject === 'client' && m.status === 'Agreed' ?
+                `<button class="btn-primary" style="font-size:0.74rem;" onclick="clientFundMilestone('${m.id}')">Fund Milestone</button>` : ''
+              }
+              ${userRoleInProject === 'freelancer' && m.status === 'In progress' ?
+                `<button class="btn-primary" style="font-size:0.74rem;" onclick="freelancerSubmitDeliverable('${m.id}')">Submit Deliverable Files</button>` : ''
+              }
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else if (tab === 'evidence') {
+    container.innerHTML = `
+      <h4 style="font-weight:700; margin-bottom:1rem;">Append-Only Integrity Audit Log</h4>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Actor</th>
+              <th>Action</th>
+              <th>Reason</th>
+              <th>SHA-256 Hash</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${auditLogs.map(a => `
+              <tr>
+                <td><span style="font-family:monospace; font-size:0.75rem;">${new Date(a.timestamp).toLocaleString('en-IN')}</span></td>
+                <td><strong>${a.actorName}</strong> (${a.actorRole})</td>
+                <td><strong style="color:var(--primary);">${a.action}</strong></td>
+                <td>${a.reason}</td>
+                <td><code style="font-size:0.72rem;">${a.evidenceHash || 'verified'}</code></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } else {
+    container.innerHTML = `
+      <div style="text-align:center; padding:2rem; color:var(--text-muted);">
+        Tab <strong>${tab}</strong> is active for project ${project.id}. Real-time synchronization enabled.
+      </div>
+    `;
+  }
+}
+
+// ==============================================================================
+// 7. BACKEND WORKFLOW TRANSITIONS
+// ==============================================================================
+
+async function clientApproveMilestone(milestoneId) {
+  const user = getSessionUser();
+  if (!user) return;
+
+  try {
+    const res = await fetch(`/api/milestones/${milestoneId}/transition`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({
+        action: 'APPROVE_MILESTONE',
+        reason: 'Client reviewed and verified deliverables against contractual SOW specifications.'
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      showToast('Milestone approved! Funds released via simulated payment provider. Draft invoice created.', 'success');
+      if (appState.activeProjectId) loadProjectWorkspace(appState.activeProjectId);
+      if (appState.currentRoute.includes('/client')) loadClientDashboard();
+    } else {
+      showToast(data.error || 'Approval rejected by server state machine.', 'danger');
+    }
+  } catch (err) {
+    showToast('Failed to approve milestone', 'danger');
+  }
+}
+
+async function clientFundMilestone(milestoneId) {
+  const user = getSessionUser();
+  if (!user) return;
+
+  try {
+    const res = await fetch(`/api/milestones/${milestoneId}/transition`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({
+        action: 'FUND_MILESTONE',
+        reason: 'Client funded milestone into simulated provider vault.'
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      showToast('Milestone funded! Contractor may now begin work.', 'success');
+      if (appState.activeProjectId) loadProjectWorkspace(appState.activeProjectId);
+      if (appState.currentRoute.includes('/client')) loadClientDashboard();
+    } else {
+      showToast(data.error || 'Failed to fund milestone', 'danger');
+    }
+  } catch (err) {
+    showToast('Funding failed', 'danger');
+  }
+}
+
+async function freelancerSubmitDeliverable(milestoneId) {
+  const user = getSessionUser();
+  if (!user) return;
+
+  try {
+    const res = await fetch(`/api/milestones/${milestoneId}/transition`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({
+        action: 'SUBMIT_DELIVERABLES',
+        reason: 'Delivered revised assets and prototype tokens.',
+        deliverableFiles: [
+          { name: 'Handoff_Release_v3.fig', hash: Math.random().toString(36).substring(2, 18), size: '12.4 MB' }
+        ]
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      showToast('Deliverables submitted for client review. 72-hour review clock started.', 'success');
+      if (appState.activeProjectId) loadProjectWorkspace(appState.activeProjectId);
+      if (appState.currentRoute.includes('/freelancer')) loadFreelancerDashboard();
+    } else {
+      showToast(data.error || 'Submission failed', 'danger');
+    }
+  } catch (err) {
+    showToast('Deliverable submission failed', 'danger');
+  }
+}
+
+function openRevisionRequestModal(milestoneId) {
+  appState.pendingRevisionMilestoneId = milestoneId;
+  const modal = document.getElementById('modal-revision-request');
+  if (modal) modal.classList.add('active');
+}
+
+async function submitRevisionRequest() {
+  const user = getSessionUser();
+  const reason = document.getElementById('revision-reason-input')?.value;
+  const milestoneId = appState.pendingRevisionMilestoneId;
+
+  if (!reason || reason.trim().length === 0) {
+    showToast('A specific reason is required when requesting revisions.', 'warning');
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/milestones/${milestoneId}/transition`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({
+        action: 'REQUEST_REVISION',
+        reason: reason.trim()
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      showToast('Revision request recorded. Quota updated.', 'info');
+      closeModal('modal-revision-request');
+      if (appState.activeProjectId) loadProjectWorkspace(appState.activeProjectId);
+      if (appState.currentRoute.includes('/client')) loadClientDashboard();
+    } else {
+      showToast(data.error || 'Revision request failed', 'danger');
+    }
+  } catch (err) {
+    showToast('Failed to record revision request', 'danger');
+  }
+}
+
+function openScopeChangeModal(milestoneId = 'MS-102') {
+  appState.pendingRevisionMilestoneId = milestoneId;
+  const modal = document.getElementById('modal-scope-change');
+  if (modal) modal.classList.add('active');
+}
+
+async function submitScopeAmendment() {
+  const user = getSessionUser();
+  const title = document.getElementById('scope-title-input')?.value;
+  const description = document.getElementById('scope-desc-input')?.value;
+  const additionalCost = document.getElementById('scope-cost-input')?.value;
+  const additionalDays = document.getElementById('scope-days-input')?.value;
+  const milestoneId = appState.pendingRevisionMilestoneId || 'MS-102';
+
+  try {
+    const res = await fetch(`/api/milestones/${milestoneId}/scope-change`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({ title, description, additionalCost, additionalDays })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      showToast('Scope amendment drafted. Contract will update ONLY after client approval.', 'success');
+      closeModal('modal-scope-change');
+      if (appState.activeProjectId) loadProjectWorkspace(appState.activeProjectId);
+      if (appState.currentRoute.includes('/freelancer')) loadFreelancerDashboard();
+    } else {
+      showToast(data.error || 'Failed to draft amendment', 'danger');
+    }
+  } catch (err) {
+    showToast('Failed to submit amendment', 'danger');
+  }
+}
+
+async function clientApproveAmendment(amendmentId) {
+  const user = getSessionUser();
+  try {
+    const res = await fetch(`/api/scope-amendments/${amendmentId}/approve`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      }
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      showToast('Scope amendment approved! Contract budget and timeline updated.', 'success');
+      if (appState.activeProjectId) loadProjectWorkspace(appState.activeProjectId);
+      if (appState.currentRoute.includes('/client')) loadClientDashboard();
+    } else {
+      showToast(data.error || 'Failed to approve amendment', 'danger');
+    }
+  } catch (err) {
+    showToast('Approval failed', 'danger');
+  }
+}
+
+function openSilenceReminderModal(milestoneId) {
+  appState.pendingRevisionMilestoneId = milestoneId;
+  const modal = document.getElementById('modal-silence-reminder');
+  if (modal) modal.classList.add('active');
+}
+
+async function submitSilenceReminder() {
+  const user = getSessionUser();
+  const proposedSchedule = document.getElementById('silence-schedule-input')?.value;
+  const milestoneId = appState.pendingRevisionMilestoneId || 'MS-102';
+
+  try {
+    const res = await fetch(`/api/milestones/${milestoneId}/transition`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({
+        action: 'SEND_SILENCE_REMINDER',
+        proposedSchedule
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      showToast('Polite reminder dispatched with proposed schedule. No silent extensions.', 'info');
+      closeModal('modal-silence-reminder');
+    } else {
+      showToast(data.error || 'Failed to send silence reminder', 'danger');
+    }
+  } catch (err) {
+    showToast('Reminder request failed', 'danger');
+  }
+}
+
+// ==============================================================================
+// 8. ADMIN DASHBOARD CONTROLLER (/admin)
+// ==============================================================================
+
+async function loadAdminDashboard() {
+  const user = getSessionUser();
+  if (!user || user.role !== 'admin') {
+    showForbiddenPage('Super Admin area requires platform administrator privileges.');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/audit-logs', {
+      headers: { 'x-user-id': user.id }
+    });
+    const data = await res.json();
+    const tbody = document.getElementById('adm-audit-table-body');
+    const countEl = document.getElementById('adm-audit-count');
+    if (countEl) countEl.textContent = String(data.auditLogs.length);
+
+    if (tbody) {
+      tbody.innerHTML = data.auditLogs.map(l => `
+        <tr>
+          <td><span style="font-family:monospace; font-size:0.75rem;">${new Date(l.timestamp).toLocaleString('en-IN')}</span></td>
+          <td><strong>${l.actorName}</strong> (${l.actorRole})</td>
+          <td>${l.projectId || 'N/A'}</td>
+          <td><strong style="color:var(--primary);">${l.action}</strong></td>
+          <td>${l.reason}</td>
+          <td><code style="font-size:0.7rem;">${l.evidenceHash || 'verified'}</code></td>
+        </tr>
+      `).join('');
+    }
+  } catch (err) {
+    console.error('Error loading admin audit logs:', err);
+  }
+}
+
+function switchAdminSubtab(tab) {
+  appState.activeAdminSubtab = tab;
+  loadAdminDashboard();
+}
+
+// ==============================================================================
+// 9. MODALS & TOAST UTILITIES
+// ==============================================================================
+
+function openUrlImportModal() {
+  const m = document.getElementById('modal-url-import');
+  if (m) m.classList.add('active');
+}
+
+function simulateJobImport() {
+  closeModal('modal-url-import');
+  showToast('Sample job data extracted and converted into milestone brief draft.', 'success');
+}
+
+function openNewProjectBriefModal() {
+  showToast('AI Project Assistant: Turn messages into structured SOWs and milestones.', 'info');
+}
+
+function openCreateInvoiceModal() {
+  showToast('Invoices are auto-drafted with GST when milestones are approved.', 'info');
+}
+
+function openCreateProjectModal() {
+  showToast('Create Project wizard opened (Sample data in demo).', 'info');
+}
+
+function openInviteFreelancerModal() {
+  showToast('Invite link generated for freelancer onboarding.', 'info');
+}
+
+function openRaiseDisputeModal() {
+  alert('Dispute Protocol: A dispute gathers the contract, submissions, feedback and messages, summarizes both sides neutrally, and submits to a human arbiter. AI never decides outcomes or releases funds.');
+}
+
+function openRequestRefundModal() {
+  showToast('Refund request logged for milestone escrow review.', 'info');
+}
+
+function closeModal(modalId) {
+  const m = document.getElementById(modalId);
+  if (m) m.classList.remove('active');
+}
+
 function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
   if (!container) return;
 
   const toast = document.createElement('div');
-  toast.className = 'toast';
-
-  let icon = 'ℹ️';
-  if (type === 'success') icon = '✓';
-  if (type === 'warning') icon = '⚠️';
-  if (type === 'danger') icon = '🚨';
-
-  toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
-
-  if (type === 'success') toast.style.borderLeftColor = 'var(--success)';
-  if (type === 'warning') toast.style.borderLeftColor = 'var(--warning)';
-  if (type === 'danger') toast.style.borderLeftColor = 'var(--danger)';
-
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${message}</span>`;
   container.appendChild(toast);
 
   setTimeout(() => {
     toast.style.opacity = '0';
-    toast.style.transform = 'translateX(100%)';
-    toast.style.transition = 'all 0.3s ease';
     setTimeout(() => toast.remove(), 300);
   }, 4000);
 }
 
-// Global click & key listeners
-if (typeof window !== 'undefined') {
-  window.addEventListener('click', (e) => {
-    if (e.target.classList.contains('modal-overlay')) {
-      e.target.classList.remove('active');
-    }
-  });
-
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      document.querySelectorAll('.modal-overlay.active').forEach(modal => {
-        modal.classList.remove('active');
-      });
-    }
-  });
+function toggleNotificationPanel() {
+  const p = document.getElementById('notification-panel');
+  if (p) p.style.display = p.style.display === 'block' ? 'none' : 'block';
 }
 
-// Document Ready Initialization
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    initTheme();
-    // Initialize role based on saved state or default
-    const savedRole = localStorage.getItem(ROLE_STORAGE_KEY) || 'freelancer';
-    state.currentRole = savedRole;
-    if (savedRole === 'client') {
-      selectPersona('client', 'Rahul Verma', 'Client (GrowthNest Media)');
-    } else if (savedRole === 'agency') {
-      selectPersona('agency', 'Apex Creative', 'Agency Director (8 Members)');
-    } else {
-      selectPersona('freelancer', 'Priya Sharma', 'Senior Product Designer');
-    }
-
-    renderAllViews();
-    updateHeaderProfile();
-    if (window.lucide) window.lucide.createIcons();
-  });
+function markAllNotifsRead() {
+  const badge = document.getElementById('notif-count-badge');
+  if (badge) badge.style.display = 'none';
+  showToast('All notifications marked as read', 'info');
 }
 
-// Export for Node/testing environment
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = {
-    store,
-    state,
-    getDefaultSharedStore,
-    approveMilestone,
-    submitMilestoneForReview,
-    resetDemoStore,
-    renderAllViews,
-    onRoleChange
-  };
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem(THEME_KEY, next);
+
+  const label = document.getElementById('theme-label');
+  if (label) label.textContent = next === 'dark' ? 'Dark' : 'Light';
 }
+
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY) || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  const label = document.getElementById('theme-label');
+  if (label) label.textContent = saved === 'dark' ? 'Dark' : 'Light';
+}
+
+function handleGlobalSearch(e) {
+  // Simple filter helper
+}
+
+// Global modal dismiss
+window.addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal-overlay')) {
+    e.target.classList.remove('active');
+  }
+});
+
+// App Initialization on DOM Ready
+document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  routeView(window.location.pathname);
+});

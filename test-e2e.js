@@ -1,130 +1,179 @@
 // test-e2e.js
-// Automated verification for Bharosa shared store, dual-perspective controller, and escrow flow.
+// Automated End-to-End and Security Verification for Bharosa OS
 
 const assert = require('assert');
+const http = require('http');
 
-// Mock localStorage
-const storage = {};
-global.localStorage = {
-  getItem: (k) => (k in storage ? storage[k] : null),
-  setItem: (k, v) => { storage[k] = String(v); },
-  removeItem: (k) => { delete storage[k]; },
-  clear: () => { for (const k in storage) delete storage[k]; }
-};
-
-// Mock document & window
-global.window = {
-  addEventListener: () => {},
-  scrollTo: () => {}
-};
-global.document = {
-  documentElement: { setAttribute: () => {} },
-  getElementById: (id) => null,
-  querySelectorAll: () => [],
-  addEventListener: () => {}
-};
-
-// Import app logic
-const app = require('./js/app.js');
-
-console.log('--- TEST 1: Default Shared Store Initialization ---');
-const defaultStore = app.getDefaultSharedStore();
-assert(defaultStore.stats.escrowBalance === 20000, 'Default escrow should be 20,000');
-assert(defaultStore.stats.monthlyEarnings === 51000, 'Default earnings should be 51,000');
-assert(defaultStore.milestones.length === 5, 'Should have 5 milestones');
-
-const ms102 = defaultStore.milestones.find(m => m.id === 'MS-102');
-assert(ms102 && ms102.status === 'In Review', 'MS-102 must be In Review initially');
-
-const inv102 = defaultStore.invoices.find(i => i.milestoneId === 'MS-102');
-assert(inv102 && inv102.status === 'secured', 'Invoice for MS-102 must be secured initially');
-
-console.log('✓ Test 1 passed: Default store verified');
-
-console.log('--- TEST 2: Approve Milestone MS-102 ---');
-// Set store to default
-app.store.stats = JSON.parse(JSON.stringify(defaultStore.stats));
-app.store.milestones = JSON.parse(JSON.stringify(defaultStore.milestones));
-app.store.invoices = JSON.parse(JSON.stringify(defaultStore.invoices));
-app.store.evidenceVault = JSON.parse(JSON.stringify(defaultStore.evidenceVault));
-app.store.kanbanTasks = JSON.parse(JSON.stringify(defaultStore.kanbanTasks));
-
-app.approveMilestone('MS-102');
-
-// Verify milestone status
-const approvedM = app.store.milestones.find(m => m.id === 'MS-102');
-assert.strictEqual(approvedM.status, 'Released', 'Status must be Released');
-assert(approvedM.releasedAt !== null, 'releasedAt must have timestamp');
-
-// Verify stats
-assert.strictEqual(app.store.stats.escrowBalance, 0, 'Escrow balance should decrease by 20,000 to 0');
-assert.strictEqual(app.store.stats.monthlyEarnings, 71000, 'Monthly earnings should increase from 51,000 to 71,000');
-
-// Verify invoice status
-const approvedInv = app.store.invoices.find(i => i.milestoneId === 'MS-102');
-assert.strictEqual(approvedInv.status, 'paid', 'Invoice status must be paid');
-
-// Verify Evidence Vault entry
-const latestAudit = app.store.evidenceVault[0];
-assert(latestAudit.title.includes('Approved & Released'), 'Evidence vault must log approved milestone');
-assert(latestAudit.hash && latestAudit.hash.length > 5, 'Evidence vault entry must include hash');
-
-// Verify Kanban task
-const kanbanTask4 = app.store.kanbanTasks.find(t => t.id === 'task-4');
-assert.strictEqual(kanbanTask4.col, 'completed', 'Kanban task-4 must move to completed column');
-
-console.log('✓ Test 2 passed: Approve milestone correctly updates escrow, earnings, invoice, audit log, and kanban');
-
-console.log('--- TEST 3: Submit Milestone for Review ---');
-const ms103Before = app.store.milestones.find(m => m.id === 'MS-103');
-assert.strictEqual(ms103Before.status, 'Pending', 'MS-103 must be Pending initially');
-
-app.submitMilestoneForReview('MS-103');
-
-const ms103After = app.store.milestones.find(m => m.id === 'MS-103');
-assert.strictEqual(ms103After.status, 'In Review', 'MS-103 status must be In Review after submission');
-assert(ms103After.submittedAt !== null, 'submittedAt must be set');
-
-const auditSubmit = app.store.evidenceVault[0];
-assert(auditSubmit.title.includes('Deliverables Submitted'), 'Evidence vault must log submitted deliverables');
-
-console.log('✓ Test 3 passed: Freelancer submit milestone works');
-
-console.log('--- TEST 4: Role Differentiated Perspectives ---');
-// Mock DOM elements for test 4
-const elements = {};
-function getMockElement(id) {
-  if (!elements[id]) {
-    elements[id] = { textContent: '', innerHTML: '', style: {}, classList: { add: ()=>{}, remove: ()=>{} } };
-  }
-  return elements[id];
+function request(options, body) {
+  return new Promise((resolve, reject) => {
+    const req = http.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          resolve({ status: res.statusCode, headers: res.headers, body: JSON.parse(data) });
+        } catch (e) {
+          resolve({ status: res.statusCode, headers: res.headers, body: data });
+        }
+      });
+    });
+    req.on('error', reject);
+    if (body) req.write(typeof body === 'string' ? body : JSON.stringify(body));
+    req.end();
+  });
 }
-global.document.getElementById = (id) => getMockElement(id);
 
-// Switch to Client mode
-app.state.currentRole = 'client';
-app.renderAllViews();
+async function runE2E() {
+  // Ensure fresh seed data
+  await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/reset-demo',
+    method: 'POST'
+  });
 
-assert.strictEqual(getMockElement('dashboard-main-heading').textContent, 'Client Escrow & Approvals Portal');
-assert.strictEqual(getMockElement('stat-title-projects').textContent, 'Active Engagements');
-assert.strictEqual(getMockElement('stat-projects-count').textContent, '1 Active');
-assert.strictEqual(getMockElement('stat-title-settled').textContent, 'Total Released to Contractors');
-assert.strictEqual(getMockElement('nav-text-dashboard').textContent, 'Approvals & Escrow');
-assert(getMockElement('dashboard-alerts-row').innerHTML.includes('Deliverable Review Pending'), 'Client alert must show pending review');
-assert(getMockElement('dashboard-projects-body').innerHTML.includes('Priya Sharma'), 'Client table must show contractor deliverables');
+  console.log('=== CHECK 1: Login & Role-Based Route Redirects ===');
+  const flLogin = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auth/login',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  }, { role: 'freelancer' });
+  assert.strictEqual(flLogin.status, 200);
+  assert.strictEqual(flLogin.body.user.role, 'freelancer');
+  assert.strictEqual(flLogin.body.redirectTo, '/freelancer/dashboard');
 
-// Switch to Freelancer mode
-app.state.currentRole = 'freelancer';
-app.renderAllViews();
+  const clLogin = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/auth/login',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }
+  }, { role: 'client' });
+  assert.strictEqual(clLogin.status, 200);
+  assert.strictEqual(clLogin.body.user.role, 'client');
+  assert.strictEqual(clLogin.body.redirectTo, '/client/dashboard');
+  console.log('✓ Freelancer redirects to /freelancer/dashboard; Client to /client/dashboard');
 
-assert.strictEqual(getMockElement('dashboard-main-heading').textContent, 'Freelancer Workspace Overview');
-assert.strictEqual(getMockElement('stat-title-projects').textContent, 'Active Projects');
-assert.strictEqual(getMockElement('stat-projects-count').textContent, '3 Active');
-assert.strictEqual(getMockElement('stat-title-settled').textContent, 'Monthly Settled Earnings');
-assert.strictEqual(getMockElement('nav-text-dashboard').textContent, 'Dashboard');
-assert(getMockElement('dashboard-alerts-row').innerHTML.includes('72-Hour Client Silence Protocol'), 'Freelancer alert must show silence protocol');
+  console.log('=== CHECK 2: Server-Side 403 on Cross-Role API Access ===');
+  // Client attempts to call freelancer dashboard API
+  const forbiddenFlCall = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/freelancer/dashboard',
+    method: 'GET',
+    headers: { 'x-user-id': 'USR-102' } // Client ID
+  });
+  assert.strictEqual(forbiddenFlCall.status, 403, 'Client calling freelancer API must return 403');
+  console.log('✓ Server-side 403 enforced when Client attempts to access Freelancer API');
 
-console.log('✓ Test 4 passed: Client and Freelancer dashboards are completely differentiated');
+  // Freelancer attempts to call client dashboard API
+  const forbiddenClCall = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/client/dashboard',
+    method: 'GET',
+    headers: { 'x-user-id': 'USR-101' } // Freelancer ID
+  });
+  assert.strictEqual(forbiddenClCall.status, 403, 'Freelancer calling client API must return 403');
+  console.log('✓ Server-side 403 enforced when Freelancer attempts to access Client API');
 
-console.log('--- ALL AUTOMATED LOGIC TESTS PASSED ---');
+  console.log('=== CHECK 3: Client Cannot Read Freelancer Earnings or Private Notes ===');
+  const clProjects = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/projects',
+    method: 'GET',
+    headers: { 'x-user-id': 'USR-102' } // Client ID
+  });
+  assert.strictEqual(clProjects.status, 200);
+  clProjects.body.projects.forEach(p => {
+    assert.strictEqual(p.freelancerPrivateNotes, undefined, 'Private notes must be stripped for client');
+    assert.strictEqual(p.freelancerEarnings, undefined, 'Freelancer earnings must not be exposed to client');
+  });
+  console.log('✓ Verified: Freelancer earnings and private notes are NEVER sent to Client');
 
+  console.log('=== CHECK 4: Workflow State Machine: Only Client Can Approve Milestone ===');
+  // Freelancer tries to approve milestone -> 403
+  const flApproveTry = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/milestones/MS-102/transition',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-user-id': 'USR-101' }
+  }, { action: 'APPROVE_MILESTONE' });
+  assert.strictEqual(flApproveTry.status, 403, 'Freelancer must not be able to approve milestone');
+
+  // Client approves milestone -> 200
+  const clApprove = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/milestones/MS-102/transition',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-user-id': 'USR-102' }
+  }, { action: 'APPROVE_MILESTONE', reason: 'Deliverables verified against contract.' });
+  assert.strictEqual(clApprove.status, 200);
+  assert.strictEqual(clApprove.body.milestone.status, 'Invoiced');
+  assert(clApprove.body.auditEntry, 'Audit log must record approval');
+  console.log('✓ Only Client can approve milestone; auto-creates audit entry and draft invoice');
+
+  console.log('=== CHECK 5: Scope Change Requires Explicit Client Approval ===');
+  // Freelancer drafts scope amendment
+  const draftAmendment = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/milestones/MS-102/scope-change',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-user-id': 'USR-101' }
+  }, { title: '3D Spline Asset', description: 'Interactive WebGL Coin', additionalCost: 6500, additionalDays: 2 });
+  assert.strictEqual(draftAmendment.status, 200);
+  const amdId = draftAmendment.body.amendment.id;
+
+  // Verify project total budget did NOT change yet
+  const projBeforeApproval = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/projects/PRJ-101',
+    method: 'GET',
+    headers: { 'x-user-id': 'USR-102' }
+  });
+  const budgetBefore = projBeforeApproval.body.project.totalBudget;
+
+  // Client approves amendment
+  const approveAmd = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: `/api/scope-amendments/${amdId}/approve`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-user-id': 'USR-102' }
+  });
+  assert.strictEqual(approveAmd.status, 200);
+  assert.strictEqual(approveAmd.body.amendment.status, 'approved');
+  assert.strictEqual(approveAmd.body.project.totalBudget, budgetBefore + 6500, 'Budget must update only upon approval');
+  console.log('✓ Scope amendment drafted by freelancer, contract updated ONLY after client approval');
+
+  console.log('=== CHECK 6: Client Silence Notice Proposes Schedule (No Silent Extension) ===');
+  const silenceReq = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/milestones/MS-102/transition',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-user-id': 'USR-101' }
+  }, {
+    action: 'SEND_SILENCE_REMINDER',
+    proposedSchedule: 'Extend review window by 48 hours; final handoff moved to Nov 07, 2026.'
+  });
+  assert.strictEqual(silenceReq.status, 200);
+  assert(silenceReq.body.milestone.silenceReminderSent.proposedSchedule, 'Proposed schedule must be recorded');
+  console.log('✓ 72-hour client silence reminder requires and records a proposed schedule');
+
+  console.log('\n=============================================');
+  console.log('  ALL ACCEPTANCE & E2E CHECKS PASSED (6/6)');
+  console.log('=============================================\n');
+}
+
+runE2E().catch(err => {
+  console.error('E2E Test Failed:', err);
+  process.exit(1);
+});

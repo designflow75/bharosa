@@ -14,5 +14,11 @@
     "trust"
   ],
   "author": "Bharosa",
-  "license": "MIT"
+  "license": "MIT",
+  "main": "test-e2e.js",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0"
+  }
 }
