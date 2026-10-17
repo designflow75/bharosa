@@ -5,17 +5,29 @@
  * ==============================================================================
  */
 
-// Application State
+// Application State (Single source of truth)
 const state = {
   theme: localStorage.getItem('bharosa_theme') || 'dark',
+  language: 'en', // 'en' | 'hi'
   currentRole: 'freelancer', // 'freelancer' | 'client' | 'agency'
   currentUser: {
     name: 'Priya Sharma',
     email: 'priya.sharma@bharosa.design',
-    title: 'Senior Product & Motion Designer',
+    title: 'Senior Product Designer',
     avatar: 'PS'
   },
   activeTab: 'dashboard',
+  // Reconciled financial metrics across every screen
+  stats: {
+    totalSettled: 51000, // Settled/disbursed base: 25k (Milestone 1) + 20k (Advance) + 6k (Batch 1 Reels)
+    gstSettled: 9180,    // 18% GST collected: 4500 + 3600 + 1080
+    totalGrossSettled: 60180,
+    escrowHeld: 20000,   // Currently secured in escrow for Fintech M2
+    totalPipeline: 85000,// Total active contract pipeline value
+    trustIndex: 99.8,
+    disputeRate: 0,
+    milestonesDelivered: "18 of 18 Milestones On-Time"
+  },
   projects: [
     {
       id: 'PRJ-101',
@@ -26,8 +38,11 @@ const state = {
       nextMilestone: 'Milestone 2: Design System & 3D Assets',
       deadline: 'Oct 24, 2026',
       status: 'In Progress',
-      protection: 'Escrow Secured',
-      silenceAlert: true
+      escrowState: 'in_progress', // 'funded' | 'in_progress' | 'review' | 'released'
+      escrowAmount: 20000,
+      protection: 'Escrow Secured (₹20,000 Held)',
+      silenceAlert: true,
+      silenceHours: 72
     },
     {
       id: 'PRJ-102',
@@ -38,8 +53,11 @@ const state = {
       nextMilestone: 'Milestone 1: Identity Guide & Logos',
       deadline: 'Nov 02, 2026',
       status: 'Review Pending',
+      escrowState: 'review',
+      escrowAmount: 20000,
       protection: 'Revision Guard (1/2 used)',
-      silenceAlert: false
+      silenceAlert: false,
+      silenceHours: 0
     },
     {
       id: 'PRJ-103',
@@ -49,9 +67,12 @@ const state = {
       budget: 18000,
       nextMilestone: 'Batch 1: First 4 Reels Handover',
       deadline: 'Oct 28, 2026',
-      status: 'In Progress',
-      protection: 'Milestone Escrow',
-      silenceAlert: false
+      status: 'Funded',
+      escrowState: 'funded',
+      escrowAmount: 6000,
+      protection: 'Milestone Escrow (₹6,000)',
+      silenceAlert: false,
+      silenceHours: 0
     }
   ],
   jobs: [
@@ -108,7 +129,7 @@ const state = {
     {
       id: 'INV-2026-001',
       client: 'GrowthNest Media',
-      project: 'Fintech Mobile Redesign — Milestone 1',
+      project: 'Fintech Mobile Redesign — Milestone 1 (Wireframes)',
       baseAmount: 25000,
       gst: 4500,
       total: 29500,
@@ -118,28 +139,38 @@ const state = {
     {
       id: 'INV-2026-002',
       client: 'UrbanBazaar Pvt Ltd',
-      project: 'Marketplace Brand Identity — Advance',
+      project: 'Marketplace Brand Identity — Retainer Advance',
       baseAmount: 20000,
       gst: 3600,
       total: 23600,
-      dueDate: 'Oct 22, 2026',
-      status: 'pending'
+      dueDate: 'Oct 17, 2026',
+      status: 'paid'
     },
     {
       id: 'INV-2026-003',
       client: 'CreatorSpark Studios',
-      project: '12 Instagram Reels — Batch 1 Escrow',
+      project: '12 Instagram Reels — Batch 1 Initial Handover',
       baseAmount: 6000,
       gst: 1080,
       total: 7080,
-      dueDate: 'Oct 28, 2026',
-      status: 'secured'
+      dueDate: 'Oct 18, 2026',
+      status: 'paid'
+    },
+    {
+      id: 'INV-2026-004',
+      client: 'GrowthNest Media',
+      project: 'Fintech Mobile Redesign — Milestone 2 (Design System & 3D)',
+      baseAmount: 20000,
+      gst: 3600,
+      total: 23600,
+      dueDate: 'Oct 24, 2026',
+      status: 'secured' // In Escrow
     }
   ]
 };
 
 // ==============================================================================
-// 1. THEME MANAGEMENT (LIGHT & DARK THEMES)
+// 1. THEME & LOCALIZATION MANAGEMENT
 // ==============================================================================
 function initTheme() {
   document.documentElement.setAttribute('data-theme', state.theme);
@@ -158,16 +189,32 @@ function updateThemeUI() {
   const icon = document.getElementById('theme-icon');
   const label = document.getElementById('theme-label');
   if (state.theme === 'dark') {
-    if (icon) icon.textContent = '🌙';
-    if (label) label.textContent = 'Dark Mode';
+    if (icon) icon.innerHTML = '<i data-lucide="moon" style="width:16px;height:16px;"></i>';
+    if (label) label.textContent = 'Dark';
   } else {
-    if (icon) icon.textContent = '☀️';
-    if (label) label.textContent = 'Light Mode';
+    if (icon) icon.innerHTML = '<i data-lucide="sun" style="width:16px;height:16px;"></i>';
+    if (label) label.textContent = 'Light';
+  }
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function toggleLanguage() {
+  state.language = state.language === 'en' ? 'hi' : 'en';
+  const btn = document.getElementById('btn-lang-toggle');
+  const subtitle = document.getElementById('dashboard-welcome-subtitle');
+  if (state.language === 'hi') {
+    if (btn) btn.textContent = 'EN';
+    if (subtitle) subtitle.textContent = 'भरोसा ऑपरेटिंग सिस्टम: अपने प्रोजेक्ट माइलस्टोन, एस्क्रो फंड और टाइमलाइन को सुरक्षित रखें।';
+    showToast('हिंदी मोड सक्रिय (Bilingual Mode)', 'info');
+  } else {
+    if (btn) btn.textContent = 'हिन्दी';
+    updateRoleSubtitle();
+    showToast('Switched to English', 'info');
   }
 }
 
 // ==============================================================================
-// 2. AUTHENTICATION & PERSONA SWITCHING
+// 2. AUTHENTICATION & ONE-CLICK PERSONA LOGIN
 // ==============================================================================
 function selectPersona(role, name, subtitle) {
   state.currentRole = role;
@@ -175,17 +222,36 @@ function selectPersona(role, name, subtitle) {
   state.currentUser.title = subtitle;
   state.currentUser.avatar = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 
-  // Highlight selected card
+  // Highlight selected card if visible
   document.querySelectorAll('.persona-card').forEach(card => card.classList.remove('active'));
   const clickedCard = event?.currentTarget;
   if (clickedCard) clickedCard.classList.add('active');
 
-  // Pre-fill email
   const emailInput = document.getElementById('user-email');
   if (emailInput) {
     if (role === 'freelancer') emailInput.value = 'priya.sharma@bharosa.design';
     if (role === 'client') emailInput.value = 'rahul.verma@growthnest.media';
     if (role === 'agency') emailInput.value = 'director@apexstudio.agency';
+  }
+}
+
+// One-click instant login without typing
+function quickLoginAs(role) {
+  if (role === 'freelancer') {
+    selectPersona('freelancer', 'Priya Sharma', 'Senior Product Designer');
+  } else if (role === 'client') {
+    selectPersona('client', 'Rahul Verma', 'Client (GrowthNest Media)');
+  } else if (role === 'agency') {
+    selectPersona('agency', 'Apex Creative', 'Agency Director (8 Members)');
+  }
+  handleLogin();
+}
+
+function toggleCustomLoginForm() {
+  const form = document.getElementById('custom-login-form-container');
+  if (form) {
+    const isHidden = form.style.display === 'none';
+    form.style.display = isHidden ? 'block' : 'none';
   }
 }
 
@@ -199,19 +265,93 @@ function handleLogin(e) {
   if (appShell) appShell.classList.add('active');
 
   // Update header profile
-  document.getElementById('nav-user-name').textContent = state.currentUser.name;
-  document.getElementById('nav-user-role').textContent = state.currentUser.title;
-  document.getElementById('nav-user-avatar').textContent = state.currentUser.avatar;
+  updateHeaderProfile();
 
-  const roleSelect = document.getElementById('role-select');
-  if (roleSelect) roleSelect.value = state.currentRole;
-
-  // Render initial dashboard data
-  renderDashboardProjects();
-  renderJobsList(state.jobs);
-  renderInvoices();
+  // Render all views
+  renderAllViews();
 
   showToast(`Welcome back, ${state.currentUser.name}! Bharosa Shield active.`, 'success');
+}
+
+function updateHeaderProfile() {
+  const nameEl = document.getElementById('nav-user-name');
+  const roleEl = document.getElementById('nav-user-role');
+  const avatarEl = document.getElementById('nav-user-avatar');
+  const unifiedSelector = document.getElementById('unified-role-select');
+
+  if (nameEl) nameEl.textContent = state.currentUser.name;
+  if (roleEl) roleEl.textContent = state.currentUser.title;
+  if (avatarEl) avatarEl.textContent = state.currentUser.avatar;
+  if (unifiedSelector) unifiedSelector.value = state.currentRole;
+
+  updateRoleBanner();
+  updateRoleSubtitle();
+}
+
+function updateRoleBanner() {
+  const banner = document.getElementById('role-perspective-banner');
+  if (!banner) return;
+
+  if (state.currentRole === 'client') {
+    banner.className = 'role-perspective-banner client';
+    banner.innerHTML = `
+      <div style="display:flex; align-items:center; gap:8px;">
+        <i data-lucide="briefcase" style="width:16px;height:16px;"></i>
+        <span><strong>Client Mode (GrowthNest Media)</strong>: You are reviewing contractor deliverables, approving milestone releases, and funding escrow.</span>
+      </div>
+      <button class="btn-tag" style="background:var(--info); color:white;" onclick="switchTab('client-portal')">View Client Hub →</button>
+    `;
+  } else if (state.currentRole === 'agency') {
+    banner.className = 'role-perspective-banner agency';
+    banner.innerHTML = `
+      <div style="display:flex; align-items:center; gap:8px;">
+        <i data-lucide="building-2" style="width:16px;height:16px;"></i>
+        <span><strong>Agency Mode (Apex Creative)</strong>: Managing 8 team members across 3 active client engagements and aggregated payouts.</span>
+      </div>
+      <button class="btn-tag" style="background:#a855f7; color:white;" onclick="switchTab('client-portal')">Agency Portal →</button>
+    `;
+  } else {
+    banner.className = 'role-perspective-banner freelancer';
+    banner.innerHTML = `
+      <div style="display:flex; align-items:center; gap:8px;">
+        <i data-lucide="shield-check" style="width:16px;height:16px;"></i>
+        <span><strong>Freelancer Mode (Priya Sharma)</strong>: Bharosa Shield is actively monitoring 72-hour review windows and revision quotas.</span>
+      </div>
+      <button class="btn-tag" style="background:var(--success); color:white;" onclick="switchTab('protection')">Evidence Vault →</button>
+    `;
+  }
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function updateRoleSubtitle() {
+  const subtitle = document.getElementById('dashboard-welcome-subtitle');
+  if (!subtitle) return;
+  if (state.currentRole === 'client') {
+    subtitle.textContent = 'Review contractor deliverables, approve milestone sign-offs, and manage escrow deposits.';
+  } else if (state.currentRole === 'agency') {
+    subtitle.textContent = 'Monitor team capacity, distribute milestones, and review unified billing records.';
+  } else {
+    subtitle.textContent = 'Manage client milestones, monitor scope change alerts, and track verified payouts.';
+  }
+}
+
+function onRoleChange(newRole) {
+  state.currentRole = newRole;
+  if (newRole === 'client') {
+    state.currentUser.name = 'Rahul Verma';
+    state.currentUser.title = 'Client (GrowthNest Media)';
+    state.currentUser.avatar = 'RV';
+  } else if (newRole === 'agency') {
+    state.currentUser.name = 'Apex Creative';
+    state.currentUser.title = 'Agency Director (8 Members)';
+    state.currentUser.avatar = 'AC';
+  } else {
+    state.currentUser.name = 'Priya Sharma';
+    state.currentUser.title = 'Senior Product Designer';
+    state.currentUser.avatar = 'PS';
+  }
+  updateHeaderProfile();
+  showToast(`Switched perspective to ${newRole.toUpperCase()} Mode`, 'info');
 }
 
 function confirmLogout() {
@@ -222,34 +362,6 @@ function confirmLogout() {
     if (authScreen) authScreen.style.display = 'flex';
     showToast('Logged out securely.', 'info');
   }
-}
-
-function onRoleChange(newRole) {
-  state.currentRole = newRole;
-  const subtitle = document.getElementById('dashboard-welcome-subtitle');
-
-  if (newRole === 'client') {
-    state.currentUser.name = 'Rahul Verma';
-    state.currentUser.title = 'Client (GrowthNest Media)';
-    state.currentUser.avatar = 'RV';
-    if (subtitle) subtitle.textContent = 'Review active contractor deliverables, approve milestones, and manage escrow deposits.';
-  } else if (newRole === 'agency') {
-    state.currentUser.name = 'Apex Creative';
-    state.currentUser.title = 'Agency Director (8 Members)';
-    state.currentUser.avatar = 'AC';
-    if (subtitle) subtitle.textContent = 'Team workload allocation, client portal access, and agency billing reports.';
-  } else {
-    state.currentUser.name = 'Priya Sharma';
-    state.currentUser.title = 'Senior Product & Motion Designer';
-    state.currentUser.avatar = 'PS';
-    if (subtitle) subtitle.textContent = 'Manage client milestones, scope change protections, and pending payouts.';
-  }
-
-  document.getElementById('nav-user-name').textContent = state.currentUser.name;
-  document.getElementById('nav-user-role').textContent = state.currentUser.title;
-  document.getElementById('nav-user-avatar').textContent = state.currentUser.avatar;
-
-  showToast(`Switched perspective to ${newRole.toUpperCase()} Mode`, 'info');
 }
 
 // ==============================================================================
@@ -280,9 +392,60 @@ function switchTab(tabId) {
 // ==============================================================================
 // 4. DASHBOARD & PROJECT RENDERING
 // ==============================================================================
+// ==============================================================================
+// 4. ESCROW STEPPER & DASHBOARD PROJECT RENDERING
+// ==============================================================================
+function getEscrowStepperHtml(escrowState) {
+  const steps = [
+    { id: 'funded', label: 'Funded' },
+    { id: 'in_progress', label: 'In Progress' },
+    { id: 'review', label: 'Review' },
+    { id: 'released', label: 'Released' }
+  ];
+
+  let currentIndex = 1;
+  if (escrowState === 'funded') currentIndex = 0;
+  if (escrowState === 'in_progress') currentIndex = 1;
+  if (escrowState === 'review') currentIndex = 2;
+  if (escrowState === 'released') currentIndex = 3;
+
+  return `
+    <div class="escrow-stepper">
+      ${steps.map((s, idx) => {
+        let cls = '';
+        if (idx < currentIndex) cls = 'done';
+        else if (idx === currentIndex) cls = 'active';
+        return `
+          <span class="escrow-step ${cls}">
+            <span class="escrow-step-dot"></span>
+            <span>${s.label}</span>
+          </span>
+          ${idx < steps.length - 1 ? '<span class="escrow-step-sep">›</span>' : ''}
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
 function renderDashboardProjects() {
   const tbody = document.getElementById('dashboard-projects-body');
   if (!tbody) return;
+
+  if (state.projects.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7">
+          <div class="table-empty-state">
+            <div class="table-empty-icon">📁</div>
+            <div class="table-empty-title">No Active Projects in Pipeline</div>
+            <div class="table-empty-desc">Create your first milestone agreement or import an opportunity from external platforms.</div>
+            <button class="btn-primary" style="margin: 0 auto; width: auto;" onclick="switchTab('ai-assistant')">+ New Project Brief</button>
+          </div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
 
   tbody.innerHTML = state.projects.map(p => `
     <tr>
@@ -294,11 +457,12 @@ function renderDashboardProjects() {
         <div style="font-weight: 600;">${p.client}</div>
       </td>
       <td>
-        <div style="font-size: 0.82rem;">${p.nextMilestone}</div>
+        <div style="font-size: 0.82rem; font-weight: 600;">${p.nextMilestone}</div>
+        ${getEscrowStepperHtml(p.escrowState)}
       </td>
       <td>
         <div style="font-size: 0.82rem; font-weight: 600; color: ${p.silenceAlert ? 'var(--warning)' : 'var(--text-secondary)'};">
-          ${p.deadline} ${p.silenceAlert ? '⚠️ (Paused)' : ''}
+          ${p.deadline} ${p.silenceAlert ? '⚠️ (Paused at 72h)' : ''}
         </div>
       </td>
       <td>
@@ -314,10 +478,76 @@ function renderDashboardProjects() {
       </td>
     </tr>
   `).join('');
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function renderAllViews() {
+  renderDashboardStats();
+  renderDashboardProjects();
+  renderJobsList(state.jobs);
+  renderInvoices();
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function renderDashboardStats() {
+  // Drive every figure from state.stats to ensure zero contradiction
+  const statSettled = document.getElementById('stat-settled-earnings');
+  const statEscrow = document.getElementById('stat-escrow-payouts');
+  const statTrust = document.getElementById('stat-trust-index');
+  const statTrustFooter = document.getElementById('stat-trust-footer');
+  const invoicesTotalDisp = document.getElementById('invoices-total-display');
+
+  if (statSettled) statSettled.textContent = `₹${state.stats.totalSettled.toLocaleString('en-IN')}`;
+  if (statEscrow) statEscrow.textContent = `₹${state.stats.escrowHeld.toLocaleString('en-IN')}`;
+  if (statTrust) statTrust.textContent = `${state.stats.trustIndex}%`;
+  if (statTrustFooter) statTrustFooter.textContent = state.stats.milestonesDelivered;
+  if (invoicesTotalDisp) {
+    invoicesTotalDisp.textContent = `Total Settled: ₹${state.stats.totalSettled.toLocaleString('en-IN')} | In Escrow: ₹${state.stats.escrowHeld.toLocaleString('en-IN')}`;
+  }
 }
 
 // ==============================================================================
-// 5. AI PROJECT ASSISTANT & SCOPE SCRIBING
+// 5. GUIDED INTERACTIVE 4-STEP DEMO
+// ==============================================================================
+function runGuidedDemo(step = 1) {
+  // Update UI indicators
+  document.querySelectorAll('.guided-step-item').forEach((item, idx) => {
+    if (idx + 1 === step) item.classList.add('current');
+    else item.classList.remove('current');
+  });
+
+  if (step === 1) {
+    showToast('Step 1: Client sent an out-of-scope request ("3D Spline interactive coin")', 'warning');
+    switchTab('projects');
+    const taskCard = document.querySelector('#kanban-progress .task-card');
+    if (taskCard) {
+      taskCard.style.outline = '2px solid var(--warning)';
+      taskCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => taskCard.style.outline = 'none', 3000);
+    }
+  } else if (step === 2) {
+    showToast('Step 2: AI Scope Amendment generated (+₹6,500 & +2 Days)', 'info');
+    openScopeChangeModal();
+  } else if (step === 3) {
+    closeModal('modal-scope-change');
+    state.stats.escrowHeld += 6500;
+    state.projects[0].budget += 6500;
+    renderAllViews();
+    showToast('Step 3: Client Rahul Verma digitally signed amendment and deposited ₹6,500 into escrow!', 'success');
+  } else if (step === 4) {
+    state.stats.totalSettled += 26500;
+    state.stats.escrowHeld -= 20000;
+    state.projects[0].escrowState = 'released';
+    state.projects[0].status = 'Milestone 2 Completed';
+    state.invoices[3].status = 'paid';
+    renderAllViews();
+    showToast('Step 4: Deliverables approved! ₹26,500 escrow released to freelancer bank account.', 'success');
+  }
+}
+
+// ==============================================================================
+// 6. AI PROJECT ASSISTANT & SCOPE SCRIBING
 // ==============================================================================
 const promptTemplates = {
   reels: "I need 12 Instagram reels, each under 30 seconds, delivered over three weeks. My budget is ₹18,000.",
@@ -355,7 +585,6 @@ function runAiScoper() {
   setTimeout(() => {
     if (badge) badge.textContent = 'Contract Ready';
 
-    // Parse keywords dynamically
     let title = 'Custom Freelance Project Brief';
     let budget = 25000;
     let deliverables = [];
@@ -413,7 +642,7 @@ function runAiScoper() {
           <ul style="font-size: 0.8rem; color: var(--text-secondary); padding-left: 1.25rem; line-height: 1.5;">
             <li>Includes up to <strong>2 rounds of revisions</strong> per milestone.</li>
             <li>Out-of-scope requests trigger automatic Bharosa Scope Amendment.</li>
-            <li>Client review turnaround: 48 hours before silence protection triggers.</li>
+            <li>Client review turnaround: 72 hours before silence protection triggers.</li>
           </ul>
         </div>
       `;
@@ -434,18 +663,21 @@ function createProjectFromAi() {
     nextMilestone: 'Milestone 1: Kickoff & Initial Assets',
     deadline: 'Nov 10, 2026',
     status: 'In Progress',
-    protection: 'Escrow Secured',
-    silenceAlert: false
+    escrowState: 'funded',
+    escrowAmount: 6000,
+    protection: 'Escrow Secured (₹6,000)',
+    silenceAlert: false,
+    silenceHours: 0
   };
 
   state.projects.unshift(newPrj);
-  renderDashboardProjects();
+  renderAllViews();
   showToast(`Contract created: ${title}! Added to workspace.`, 'success');
   switchTab('projects');
 }
 
 // ==============================================================================
-// 6. JOB DISCOVERY & URL IMPORTER
+// 7. JOB DISCOVERY & URL IMPORTER
 // ==============================================================================
 function renderJobsList(jobsToRender) {
   const container = document.getElementById('jobs-container');
@@ -456,7 +688,7 @@ function renderJobsList(jobsToRender) {
       <div>
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
           <span class="brand-badge" style="background: var(--primary-light); color: var(--primary);">${j.source}</span>
-          <span style="font-size: 0.78rem; font-weight: 700; color: var(--success);">${j.matchScore}% Profile Match</span>
+          <span style="font-size: 0.78rem; font-weight: 700; color: var(--success);">${j.matchScore}% Match</span>
         </div>
         <h4 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-primary);">${j.title}</h4>
         <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem;">
@@ -558,7 +790,7 @@ function processUrlImport() {
 }
 
 // ==============================================================================
-// 7. SCOPE CHANGE DETECTOR & FAIRNESS METER
+// 8. SCOPE CHANGE DETECTOR & FAIRNESS METER
 // ==============================================================================
 function openScopeChangeModal() {
   openModal('modal-scope-change');
@@ -591,7 +823,7 @@ function openAddTaskModal() {
         <div class="task-title">${title}</div>
         <div class="task-desc">Added to active project milestone deliverables.</div>
         <div class="task-meta">
-          <span class="task-due">📅 Just now</span>
+          <span class="task-due">Due in 5 days</span>
           <span style="font-weight: 700;">Milestone 2</span>
         </div>
       `;
@@ -602,11 +834,27 @@ function openAddTaskModal() {
 }
 
 // ==============================================================================
-// 8. INVOICING & PAYMENT RECORDS
+// 9. INVOICING & PAYMENT RECORDS
 // ==============================================================================
 function renderInvoices() {
   const tbody = document.getElementById('invoices-table-body');
   if (!tbody) return;
+
+  if (state.invoices.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9">
+          <div class="table-empty-state">
+            <div class="table-empty-icon">💳</div>
+            <div class="table-empty-title">No Invoices Issued Yet</div>
+            <div class="table-empty-desc">Generate your first milestone invoice with 18% GST calculation and escrow protection.</div>
+            <button class="btn-primary" style="margin: 0 auto; width: auto;" onclick="openCreateInvoiceModal()">+ Create Milestone Invoice</button>
+          </div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
 
   tbody.innerHTML = state.invoices.map(inv => `
     <tr>
@@ -623,7 +871,7 @@ function renderInvoices() {
       <td>${inv.dueDate}</td>
       <td>
         <span class="status-pill ${inv.status}">
-          ${inv.status === 'paid' ? '✓ Paid' : (inv.status === 'secured' ? '🛡️ In Escrow' : '⏳ Awaiting')}
+          ${inv.status === 'paid' ? 'Settled' : (inv.status === 'secured' ? 'In Escrow' : 'Awaiting')}
         </span>
       </td>
       <td>
@@ -669,23 +917,21 @@ function saveGeneratedInvoice() {
   };
 
   state.invoices.unshift(newInv);
-  renderInvoices();
+  renderAllViews();
   closeModal('modal-create-invoice');
   showToast(`Invoice ${newInv.id} generated and issued with GST compliance!`, 'success');
 }
 
 // ==============================================================================
-// 9. GLOBAL SEARCH
+// 10. GLOBAL SEARCH
 // ==============================================================================
 function handleGlobalSearch(e) {
   const query = e.target.value.toLowerCase().trim();
   if (!query) {
-    renderDashboardProjects();
-    renderJobsList(state.jobs);
+    renderAllViews();
     return;
   }
 
-  // Filter projects
   const filteredProjects = state.projects.filter(p =>
     p.title.toLowerCase().includes(query) ||
     p.client.toLowerCase().includes(query) ||
@@ -716,7 +962,7 @@ function handleGlobalSearch(e) {
 }
 
 // ==============================================================================
-// 10. TOAST NOTIFICATION SYSTEM
+// 11. TOAST NOTIFICATIONS & INITIALIZATION
 // ==============================================================================
 function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
@@ -726,7 +972,7 @@ function showToast(message, type = 'info') {
   toast.className = 'toast';
   
   let icon = 'ℹ️';
-  if (type === 'success') icon = '✅';
+  if (type === 'success') icon = '✓';
   if (type === 'warning') icon = '⚠️';
   if (type === 'danger') icon = '🚨';
 
@@ -746,16 +992,26 @@ function showToast(message, type = 'info') {
   }, 4000);
 }
 
-// Close modals when clicking outside
+// Close modals when clicking outside or pressing Escape key
 window.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal-overlay')) {
     e.target.classList.remove('active');
   }
 });
 
-// Initialize on document load
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+      modal.classList.remove('active');
+    });
+  }
+});
+
+// Initialize immediately on document ready so NO screen or table is ever blank
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
-  // Auto-load preset default
-  selectPersona('freelancer', 'Priya Sharma', 'Design & Video Pro');
+  renderAllViews();
+  selectPersona('freelancer', 'Priya Sharma', 'Senior Product Designer');
+  if (window.lucide) window.lucide.createIcons();
 });
+
