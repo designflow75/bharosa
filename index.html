@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bharosa — AI-Powered Freelance OS & Trust Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ======================================================================
+       1. AUTHENTICATION & ONBOARDING VIEW
+       ====================================================================== -->
+  <div id="auth-screen" class="auth-wrapper">
+    <div class="auth-card">
+      <!-- Left Hero Pane -->
+      <div class="auth-hero-pane">
+        <div>
+          <div class="auth-brand">
+            <div class="brand-icon">भ</div>
+            <div class="brand-text">
+              <h1>Bharosa OS</h1>
+              <span class="brand-badge">Trust & Operating System</span>
+            </div>
+          </div>
+
+          <div class="auth-value-props">
+            <div class="value-prop-item">
+              <div class="value-prop-icon">⚡</div>
+              <div class="value-prop-text">
+                <h4>AI Natural Language Scoping</h4>
+                <p>Turn brief client messages into structured milestones, SOWs, and contracts in seconds.</p>
+              </div>
+            </div>
+
+            <div class="value-prop-item">
+              <div class="value-prop-icon">🛡️</div>
+              <div class="value-prop-text">
+                <h4>Freelancer Protection Engine</h4>
+                <p>Client silence alerts, Revision Fairness Meter, and cryptographically verified Evidence Vault.</p>
+              </div>
+            </div>
+
+            <div class="value-prop-item">
+              <div class="value-prop-icon">🌐</div>
+              <div class="value-prop-text">
+                <h4>Universal Job Importer</h4>
+                <p>Paste any external job URL to automatically generate tailored proposals and workspaces.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="auth-trust-quote">
+          "Bharosa removed 90% of my administrative anxiety and protected my pay against scope creep."
+          <div style="margin-top: 4px; font-weight: 700; font-style: normal; font-size: 0.8rem; color: #38bdf8;">
+            — Independent Creator Community
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Form Pane -->
+      <div class="auth-form-pane">
+        <div class="auth-form-header">
+          <h2>Welcome to Bharosa</h2>
+          <p>Sign in to your unified freelance operating workspace</p>
+        </div>
+
+        <div class="persona-switcher">
+          <div class="persona-switcher-title">Select Demo Role & Persona</div>
+          <div class="persona-cards">
+            <div class="persona-card active" onclick="selectPersona('freelancer', 'Priya Sharma', 'Design & Video Pro')">
+              <div class="p-icon">👩‍💻</div>
+              <div class="p-role">Freelancer</div>
+              <div class="p-name">Priya Sharma</div>
+            </div>
+            <div class="persona-card" onclick="selectPersona('client', 'Rahul Verma', 'GrowthNest Media')">
+              <div class="p-icon">💼</div>
+              <div class="p-role">Client</div>
+              <div class="p-name">Rahul Verma</div>
+            </div>
+            <div class="persona-card" onclick="selectPersona('agency', 'Apex Studio', 'Agency Director')">
+              <div class="p-icon">🏢</div>
+              <div class="p-role">Agency</div>
+              <div class="p-name">Apex Studio</div>
+            </div>
+          </div>
+        </div>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+          <div class="auth-input-group">
+            <label for="user-email">Email or Professional ID</label>
+            <input type="email" id="user-email" value="priya.sharma@bharosa.design" required>
+          </div>
+
+          <div class="auth-input-group">
+            <label for="user-password">Password</label>
+            <input type="password" id="user-password" value="••••••••••••" required>
+          </div>
+
+          <div class="auth-options">
+            <label>
+              <input type="checkbox" checked> Remember workspace
+            </label>
+            <a href="#" style="color: var(--primary); text-decoration: none; font-weight: 600;">Forgot key?</a>
+          </div>
+
+          <button type="submit" class="btn-primary" id="btn-login">
+            <span>Enter Bharosa Workspace</span>
+            <span>→</span>
+          </button>
+        </form>
+
+        <div style="margin-top: 1.5rem; text-align: center; font-size: 0.82rem; color: var(--text-muted);">
+          Protected by End-to-End Milestone Protocols & GST Invoicing
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       2. APPLICATION MAIN DASHBOARD SHELL
+       ====================================================================== -->
+  <div id="app-shell" class="app-shell">
+
+    <!-- Top Navigation Header -->
+    <header class="top-header">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <div class="auth-brand" style="cursor: pointer;" onclick="switchTab('dashboard')">
+          <div class="brand-icon" style="width: 36px; height: 36px; font-size: 1.1rem;">भ</div>
+          <div class="brand-text">
+            <h1 style="font-size: 1.15rem;">Bharosa</h1>
+          </div>
+        </div>
+
+        <div class="header-search">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="global-search" placeholder="Search deliverables, contracts, clients, or jobs..." oninput="handleGlobalSearch(event)">
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Role Selector Switcher -->
+        <div class="role-badge-selector" title="Switch active perspective">
+          <span>Active View:</span>
+          <select id="role-select" onchange="onRoleChange(this.value)">
+            <option value="freelancer">Freelancer Mode</option>
+            <option value="client">Client Mode</option>
+            <option value="agency">Agency Mode</option>
+          </select>
+        </div>
+
+        <!-- Light / Dark Theme Switcher Button -->
+        <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Light and Dark Theme">
+          <span class="icon" id="theme-icon">🌙</span>
+          <span id="theme-label">Dark Mode</span>
+        </button>
+
+        <!-- User Profile Dropdown / Logout -->
+        <div class="user-profile-badge" onclick="confirmLogout()">
+          <div class="user-avatar" id="nav-user-avatar">PS</div>
+          <div class="user-info-text">
+            <span class="user-info-name" id="nav-user-name">Priya Sharma</span>
+            <span class="user-info-role" id="nav-user-role">Freelancer Pro</span>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 4px;">▼</span>
+        </div>
+      </div>
+    </header>
+
+
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="sidebar-header">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em;">OPERATING SUITE</span>
+          <span class="brand-badge" style="font-size: 0.65rem;">v2.4 Active</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Core Workspace</div>
+        <a class="nav-item active" data-tab="dashboard" onclick="switchTab('dashboard')">
+          <span class="icon">📊</span>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-item" data-tab="ai-assistant" onclick="switchTab('ai-assistant')">
+          <span class="icon">⚡</span>
+          <span>AI Project Assistant</span>
+          <span class="badge-count" style="background: var(--shield-gradient);">AI</span>
+        </a>
+        <a class="nav-item" data-tab="job-discovery" onclick="switchTab('job-discovery')">
+          <span class="icon">🔍</span>
+          <span>Job & Opportunity Finder</span>
+        </a>
+        <a class="nav-item" data-tab="projects" onclick="switchTab('projects')">
+          <span class="icon">📁</span>
+          <span>Projects & Kanban</span>
+          <span class="badge-count">3</span>
+        </a>
+
+        <div class="nav-section-label">Trust & Protection</div>
+        <a class="nav-item" data-tab="protection" onclick="switchTab('protection')">
+          <span class="icon">🛡️</span>
+          <span>Evidence Vault & Scope</span>
+          <span class="badge-count" style="background: var(--warning);">1 Alert</span>
+        </a>
+        <a class="nav-item" data-tab="invoicing" onclick="switchTab('invoicing')">
+          <span class="icon">💳</span>
+          <span>Invoicing & Payments</span>
+        </a>
+        <a class="nav-item" data-tab="client-portal" onclick="switchTab('client-portal')">
+          <span class="icon">🏢</span>
+          <span>Branded Client Portals</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="trust-shield-card">
+          <div class="shield-icon">🛡️</div>
+          <div class="shield-content">
+            <h5>Bharosa Shield Active</h5>
+            <p>Cryptographic Evidence Vault & Dispute Guard enabled</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+
+    <!-- Main View Dynamic Container -->
+    <main class="main-content">
+
+      <!-- ==================================================================
+           VIEW 1: DASHBOARD OVERVIEW
+           ================================================================== -->
+      <section id="view-dashboard" class="view-section active">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>Workspace Overview</h2>
+            <p id="dashboard-welcome-subtitle">Manage client milestones, scope change protections, and pending payouts.</p>
+          </div>
+          <div class="header-action-group">
+            <button class="btn-secondary" onclick="openUrlImportModal()">
+              <span>🔗</span>
+              <span>Import Job by URL</span>
+            </button>
+            <button class="btn-ai" onclick="switchTab('ai-assistant')">
+              <span>✨</span>
+              <span>New AI Project Brief</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Metric Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title">Active Projects</span>
+              <div class="stat-icon purple">📁</div>
+            </div>
+            <div class="stat-value">3 Active</div>
+            <div class="stat-footer">
+              <span class="stat-trend up">↑ 1 on target</span>
+              <span>• 12 deliverables remaining</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title">Monthly Earnings</span>
+              <div class="stat-icon green">₹</div>
+            </div>
+            <div class="stat-value">₹84,500</div>
+            <div class="stat-footer">
+              <span class="stat-trend up">↑ 22%</span>
+              <span>vs last month</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title">Pending Milestone Payouts</span>
+              <div class="stat-icon amber">⏳</div>
+            </div>
+            <div class="stat-value">₹36,000</div>
+            <div class="stat-footer">
+              <span class="stat-trend neutral">2 invoices awaiting release</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title">Fairness & Trust Index</span>
+              <div class="stat-icon blue">🛡️</div>
+            </div>
+            <div class="stat-value">99.4%</div>
+            <div class="stat-footer">
+              <span class="stat-trend up">Verified</span>
+              <span>100% contracts fulfilled</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Protection Alerts Row -->
+        <div class="protection-alerts-row">
+          <!-- Client Silence Protection Banner -->
+          <div class="alert-banner silence">
+            <div class="alert-icon-box">⏱️</div>
+            <div class="alert-content">
+              <h4>Client Silence Alert: GrowthNest Media</h4>
+              <p>Client Rahul Verma has not provided feedback on <strong>Deliverable #3 (Brand Motion Package)</strong> for <strong>4 consecutive days</strong>. Automatic silence protocol paused contractual penalty countdown. Proposed timeline extended +2 days.</p>
+              <div class="alert-actions">
+                <button class="btn-tag" onclick="showToast('Automated polite reminder sent to Rahul Verma with decision timestamp.', 'success')">Send Friendly Reminder</button>
+                <button class="btn-tag" onclick="showToast('Recorded delay officially in project Evidence Vault.', 'info')">Log into Evidence Vault</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Revision Fairness Meter Quick Widget -->
+          <div class="alert-banner fairness">
+            <div class="alert-icon-box">⚖️</div>
+            <div class="alert-content">
+              <h4>Revision Fairness Meter</h4>
+              <p><strong>Project: Fintech Mobile Redesign</strong> — 2 of 2 included revisions utilized. Client's latest request for <em>"Interactive 3D coin animation"</em> has been automatically flagged as a <strong>Scope Change</strong>.</p>
+              <div class="alert-actions">
+                <button class="btn-tag" onclick="openScopeChangeModal()">Review Scope Amendment (+₹6,500)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Projects Overview -->
+        <div class="card-section">
+          <div class="card-section-header">
+            <h3>Active Project Pipeline</h3>
+            <button class="btn-secondary" onclick="switchTab('projects')">View Full Kanban →</button>
+          </div>
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Project Name</th>
+                  <th>Client</th>
+                  <th>Next Milestone</th>
+                  <th>Deadline</th>
+                  <th>Budget</th>
+                  <th>Trust Protection</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="dashboard-projects-body">
+                <!-- Injected dynamically by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           VIEW 2: AI PROJECT ASSISTANT & SCOPE SCRIBING
+           ================================================================== -->
+      <section id="view-ai-assistant" class="view-section">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>AI Project Assistant & Scoper</h2>
+            <p>Convert informal client chats or natural language project requests into structured deliverables, contracts, and milestone schedules.</p>
+          </div>
+        </div>
+
+        <div class="ai-playground-layout">
+          <!-- Left: Input & Prompt Chips -->
+          <div class="ai-input-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h4 style="font-weight: 700;">Client Prompt / Message</h4>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">Natural Language Parser</span>
+            </div>
+
+            <div class="prompt-chips">
+              <span class="prompt-chip" onclick="applyPromptChip('reels')">🎬 12 Instagram Reels (₹18,000)</span>
+              <span class="prompt-chip" onclick="applyPromptChip('fintech')">📱 Mobile App UI Redesign (₹65,000)</span>
+              <span class="prompt-chip" onclick="applyPromptChip('branding')">🎨 SaaS Brand Identity (₹40,000)</span>
+            </div>
+
+            <textarea id="ai-prompt-input" class="ai-textarea" placeholder="Paste your client's raw message or requirements here... Example: 'I need 12 Instagram reels, each under 30 seconds, delivered over three weeks. My budget is ₹18,000.'"></textarea>
+
+            <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+              <button class="btn-primary" style="flex: 1;" onclick="runAiScoper()">
+                <span>⚡ Structure Deliverables & Milestones</span>
+              </button>
+              <button class="btn-secondary" onclick="clearAiInput()">Clear</button>
+            </div>
+          </div>
+
+          <!-- Right: Structured Output -->
+          <div class="ai-output-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h4 style="font-weight: 700;">Structured Statement of Work (SOW)</h4>
+              <span class="brand-badge" id="sow-status-badge">Ready for Approval</span>
+            </div>
+
+            <div class="ai-output-body" id="ai-sow-output">
+              <div class="sow-section">
+                <h5>1. Project Identification</h5>
+                <p style="font-size: 0.88rem; font-weight: 600;" id="out-project-title">12 Instagram Short-Form Reels Campaign</p>
+                <p style="font-size: 0.78rem; color: var(--text-muted);" id="out-project-specs">12 videos • Max 30s each • 9:16 vertical • Color grading & SFX included</p>
+              </div>
+
+              <div class="sow-section">
+                <h5>2. Proposed Milestones & Payment Schedule</h5>
+                <div class="sow-deliverable-item">
+                  <span>Batch 1: First 4 Reels (Hook & Core Strategy)</span>
+                  <strong style="color: var(--primary);">₹6,000 (33%)</strong>
+                </div>
+                <div class="sow-deliverable-item">
+                  <span>Batch 2: Mid-Campaign 4 Reels (Revisions Applied)</span>
+                  <strong style="color: var(--primary);">₹6,000 (33%)</strong>
+                </div>
+                <div class="sow-deliverable-item">
+                  <span>Batch 3: Final 4 Reels & Source Asset Handover</span>
+                  <strong style="color: var(--primary);">₹6,000 (33%)</strong>
+                </div>
+              </div>
+
+              <div class="sow-section">
+                <h5>3. Scope Protection Guardrails</h5>
+                <ul style="font-size: 0.8rem; color: var(--text-secondary); padding-left: 1.25rem; line-height: 1.5;">
+                  <li>Includes up to <strong>2 rounds of creative revisions</strong> per batch.</li>
+                  <li>Script alterations after voiceover recording constitute a scope change.</li>
+                  <li>Client review turnaround: 48 hours before silence protection triggers.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+              <button class="btn-primary" onclick="createProjectFromAi()">
+                <span>Create Official Bharosa Agreement</span>
+              </button>
+              <button class="btn-secondary" onclick="showToast('SOW exported as formatted PDF draft.', 'info')">Export PDF Draft</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           VIEW 3: JOB DISCOVERY & URL IMPORTER
+           ================================================================== -->
+      <section id="view-job-discovery" class="view-section">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>Opportunity Finder & Third-Party URL Importer</h2>
+            <p>Find vetted jobs on Bharosa or import any opportunity from LinkedIn, Upwork, or Twitter to manage it under Bharosa protections.</p>
+          </div>
+          <button class="btn-primary" style="width: auto;" onclick="openUrlImportModal()">
+            <span>🔗 Import Opportunity from External URL</span>
+          </button>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card-section" style="padding: 1rem 1.5rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 240px;">
+              <input type="text" placeholder="Filter by skills (e.g. Next.js, Figma, Video Editing)..." class="auth-input-group" style="margin: 0; padding: 0.6rem 1rem; width: 100%; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--bg-surface-elevated); color: var(--text-primary);" oninput="filterJobs(this.value)">
+            </div>
+            <div class="tab-pills">
+              <button class="tab-pill active" onclick="filterJobCategory('all', this)">All</button>
+              <button class="tab-pill" onclick="filterJobCategory('Design', this)">Design</button>
+              <button class="tab-pill" onclick="filterJobCategory('Engineering', this)">Engineering</button>
+              <button class="tab-pill" onclick="filterJobCategory('Video', this)">Video / Content</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Job Cards Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1.25rem;" id="jobs-container">
+          <!-- Injected dynamically by app.js -->
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           VIEW 4: PROJECT MANAGEMENT & KANBAN
+           ================================================================== -->
+      <section id="view-projects" class="view-section">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>Project Workspace & Kanban</h2>
+            <p>Manage deliverables, client reviews, and prevent scope creep with automated status transitions.</p>
+          </div>
+          <div class="header-action-group">
+            <button class="btn-secondary" onclick="openAddTaskModal()">+ Add Deliverable Task</button>
+          </div>
+        </div>
+
+        <!-- Active Project Info Bar -->
+        <div class="card-section" style="padding: 1rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Currently Viewing</div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: 2px;">Fintech Mobile App Redesign (GrowthNest Media)</h3>
+          </div>
+          <div style="display: flex; gap: 1rem; align-items: center;">
+            <div style="text-align: right;">
+              <div style="font-size: 0.72rem; color: var(--text-muted);">Contract Value</div>
+              <div style="font-weight: 800; color: var(--primary);">₹65,000 INR</div>
+            </div>
+            <span class="status-pill secured">🛡️ Bharosa Escrow Secured</span>
+          </div>
+        </div>
+
+        <!-- 3-Column Kanban Board -->
+        <div class="kanban-grid">
+          <!-- Column 1: Scope & Backlog -->
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="kanban-column-title">
+                <span>📋 Agreed Scope & Backlog</span>
+              </span>
+              <span class="kanban-badge" id="col-count-backlog">2</span>
+            </div>
+            <div class="kanban-task-list" id="kanban-backlog">
+              <div class="task-card" onclick="inspectTask('Task 101')">
+                <div class="task-tags">
+                  <span class="tag-badge scope-approved">In Scope</span>
+                  <span class="tag-badge design">Figma</span>
+                </div>
+                <div class="task-title">Dark Mode Theme System</div>
+                <div class="task-desc">Create accessible high-contrast color tokens and component states.</div>
+                <div class="task-meta">
+                  <span class="task-due">📅 Due in 4 days</span>
+                  <span style="font-weight: 700;">Milestone 2</span>
+                </div>
+              </div>
+
+              <div class="task-card" onclick="inspectTask('Task 102')">
+                <div class="task-tags">
+                  <span class="tag-badge scope-approved">In Scope</span>
+                </div>
+                <div class="task-title">User Flow Prototype: KYC</div>
+                <div class="task-desc">Interactive click-through prototype for Aadhaar and PAN verification.</div>
+                <div class="task-meta">
+                  <span class="task-due">📅 Due in 6 days</span>
+                  <span style="font-weight: 700;">Milestone 2</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: In Progress & Client Review -->
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="kanban-column-title">
+                <span>🔄 In Progress & Feedback</span>
+              </span>
+              <span class="kanban-badge" id="col-count-progress">2</span>
+            </div>
+            <div class="kanban-task-list" id="kanban-progress">
+              <div class="task-card" onclick="openScopeChangeModal()">
+                <div class="task-tags">
+                  <span class="tag-badge scope-warning">⚠️ Scope Review</span>
+                </div>
+                <div class="task-title">Interactive 3D Coin Animation</div>
+                <div class="task-desc">Client requested 3D Spline interactive asset. Exceeds standard 2D vector scope.</div>
+                <div class="task-meta">
+                  <span style="color: var(--warning); font-weight: 700;">Amendment Pending</span>
+                  <span>+₹6,500</span>
+                </div>
+              </div>
+
+              <div class="task-card" onclick="inspectTask('Task 104')">
+                <div class="task-tags">
+                  <span class="tag-badge scope-approved">In Scope</span>
+                </div>
+                <div class="task-title">Design System Handoff</div>
+                <div class="task-desc">Typography, micro-spacing scale, and icon library tokens.</div>
+                <div class="task-meta">
+                  <span class="task-due">📅 Today</span>
+                  <span>Revision 1/2</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 3: Approved & Delivered -->
+          <div class="kanban-column">
+            <div class="kanban-column-header">
+              <span class="kanban-column-title">
+                <span>✅ Approved & Completed</span>
+              </span>
+              <span class="kanban-badge" id="col-count-completed">2</span>
+            </div>
+            <div class="kanban-task-list" id="kanban-completed">
+              <div class="task-card">
+                <div class="task-tags">
+                  <span class="tag-badge scope-approved">Approved</span>
+                </div>
+                <div class="task-title">Wireframe Architecture & Information Map</div>
+                <div class="task-desc">Formally signed off by Rahul Verma on Oct 14.</div>
+                <div class="task-meta">
+                  <span style="color: var(--success); font-weight: 700;">Milestone 1 Paid</span>
+                  <span>₹25,000</span>
+                </div>
+              </div>
+
+              <div class="task-card">
+                <div class="task-tags">
+                  <span class="tag-badge scope-approved">Approved</span>
+                </div>
+                <div class="task-title">Competitor UX Research Report</div>
+                <div class="task-desc">Benchmarking against Jupiter, Fi Money, and Zerodha.</div>
+                <div class="task-meta">
+                  <span style="color: var(--success); font-weight: 700;">Archived</span>
+                  <span>Verified</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           VIEW 5: TRUST & EVIDENCE VAULT (PROTECTION ENGINE)
+           ================================================================== -->
+      <section id="view-protection" class="view-section">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>Evidence Vault & Dispute Assistant</h2>
+            <p>Every contract clause, approved revision, file submission, and client comment is stamped with tamper-evident audit logs.</p>
+          </div>
+          <button class="btn-ai" onclick="openDisputeModal()">
+            <span>⚖️</span>
+            <span>Launch AI Dispute Organizer</span>
+          </button>
+        </div>
+
+        <!-- Revision Fairness Meter Deep Dive -->
+        <div class="card-section">
+          <div class="card-section-header">
+            <h3>Revision Fairness Meter — GrowthNest Media</h3>
+            <span class="status-pill pending">2 of 2 Free Revisions Used</span>
+          </div>
+
+          <div class="fairness-meter-wrapper">
+            <div class="fairness-header">
+              <span style="font-size: 0.82rem; font-weight: 700;">Revision Quota Breakdown</span>
+              <span style="font-size: 0.82rem; font-weight: 700; color: var(--primary);">100% Contract Limit Reached</span>
+            </div>
+            <div class="fairness-bar">
+              <div class="fairness-fill-included" style="width: 70%;"></div>
+              <div class="fairness-fill-out" style="width: 30%;"></div>
+            </div>
+            <div class="fairness-legend">
+              <div class="legend-item">
+                <span class="legend-dot" style="background: var(--success);"></span>
+                <span>Included Scope Changes: 2 / 2</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot" style="background: var(--warning);"></span>
+                <span>Additional Scope Amendment: 1 Flagged (3D Spline Asset)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evidence Vault Audit Trail -->
+        <div class="card-section">
+          <div class="card-section-header">
+            <h3>Cryptographic Evidence Trail</h3>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">Immutable decision logs for this workspace</span>
+          </div>
+
+          <div class="vault-timeline">
+            <div class="vault-event-card">
+              <div class="vault-event-dot"></div>
+              <div class="vault-event-header">
+                <span>Today, 14:22 IST</span>
+                <span class="vault-hash-badge">SHA256: 8f9b...a341</span>
+              </div>
+              <div class="vault-event-title">Scope Change Request Detected</div>
+              <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+                Client requested "3D interactive coin animation". AI verified against Initial Agreement (Clause 3.2: 2D Assets only). Cost amendment prepared for ₹6,500.
+              </p>
+            </div>
+
+            <div class="vault-event-card">
+              <div class="vault-event-dot" style="background: var(--warning);"></div>
+              <div class="vault-event-header">
+                <span>Yesterday, 09:15 IST</span>
+                <span class="vault-hash-badge">SHA256: 4e1c...b892</span>
+              </div>
+              <div class="vault-event-title">Client Silence Protocol Triggered</div>
+              <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+                72-hour feedback window on Deliverable #3 expired without client response. Contractual deadline paused.
+              </p>
+            </div>
+
+            <div class="vault-event-card">
+              <div class="vault-event-dot" style="background: var(--success);"></div>
+              <div class="vault-event-header">
+                <span>Oct 14, 2026, 17:45 IST</span>
+                <span class="vault-hash-badge">SHA256: d22a...901e</span>
+              </div>
+              <div class="vault-event-title">Milestone 1 Approved & Released</div>
+              <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+                Wireframe package accepted by Rahul Verma. Payment of ₹25,000 disbursed to freelancer bank account.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           VIEW 6: INVOICING & PAYMENT RECORDS
+           ================================================================== -->
+      <section id="view-invoicing" class="view-section">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>Invoicing & Payment Records</h2>
+            <p>Automated milestone invoicing with GST compliance, payment link generation, and payout tracking.</p>
+          </div>
+          <button class="btn-primary" style="width: auto;" onclick="openCreateInvoiceModal()">
+            <span>+ Create Milestone Invoice</span>
+          </button>
+        </div>
+
+        <div class="card-section">
+          <div class="card-section-header">
+            <h3>Invoices & Milestone Payouts</h3>
+            <div style="font-size: 0.85rem; font-weight: 700; color: var(--success);">
+              Total Settled: ₹84,500 | Pending: ₹36,000
+            </div>
+          </div>
+
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Invoice #</th>
+                  <th>Client</th>
+                  <th>Project & Milestone</th>
+                  <th>Amount</th>
+                  <th>GST (18%)</th>
+                  <th>Total</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="invoices-table-body">
+                <!-- Injected dynamically by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           VIEW 7: BRANDED CLIENT PORTAL & AGENCY HUB
+           ================================================================== -->
+      <section id="view-client-portal" class="view-section">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>Branded Client Portals & Agency Suite</h2>
+            <p>Give clients a custom branded portal with live progress tracking, review tools, and no clutter.</p>
+          </div>
+          <button class="btn-secondary" onclick="showToast('Client Portal Share Link copied to clipboard!', 'success')">
+            <span>🔗 Copy Shareable Client Portal Link</span>
+          </button>
+        </div>
+
+        <div class="card-section">
+          <div class="card-section-header">
+            <h3>Client Preview: GrowthNest Media Portal</h3>
+            <span class="brand-badge">White-Labeled View</span>
+          </div>
+
+          <div style="padding: 1.5rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--primary-gradient); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800;">GN</div>
+                <div>
+                  <h4 style="font-weight: 700;">GrowthNest Mobile Experience Hub</h4>
+                  <p style="font-size: 0.75rem; color: var(--text-muted);">Managed by Priya Sharma (Lead Product Designer)</p>
+                </div>
+              </div>
+              <span class="status-pill paid">🟢 Milestone 2 Underway</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+              <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Deliverables Approved</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: var(--success); margin-top: 4px;">4 / 8 Items</div>
+              </div>
+              <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Next Client Review Due</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">Oct 20, 2026</div>
+              </div>
+              <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Protected Escrow</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-top: 4px;">₹20,000 Held</div>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.82rem; color: var(--text-muted);">Client permissions strictly limited to project reviews and payment approval.</span>
+              <button class="btn-primary" style="width: auto;" onclick="showToast('Review approved by client!', 'success')">Simulate Client Approval</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+
+  <!-- ======================================================================
+       MODAL 1: URL OPPORTUNITY IMPORTER
+       ====================================================================== -->
+  <div class="modal-overlay" id="modal-url-importer">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Import Opportunity from External URL</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-url-importer')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Paste a link from LinkedIn, Upwork, Twitter/X, or any client job listing. Bharosa will extract specifications, estimate required effort, and auto-generate a tailored proposal.
+        </p>
+
+        <div class="auth-input-group">
+          <label for="import-url-input">Job Posting or Client URL</label>
+          <input type="url" id="import-url-input" placeholder="https://www.linkedin.com/jobs/view/..." value="https://upwork.com/jobs/senior-ui-ux-mobile-reels-creator-fintech">
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+          <button class="btn-secondary" style="font-size: 0.75rem;" onclick="setDemoUrl('upwork')">Demo Upwork Job</button>
+          <button class="btn-secondary" style="font-size: 0.75rem;" onclick="setDemoUrl('linkedin')">Demo LinkedIn Job</button>
+        </div>
+
+        <div id="url-parsing-result" style="display: none; background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="color: var(--primary);" id="parsed-job-title">Senior Brand Motion Designer</strong>
+            <span class="status-pill paid" id="parsed-job-budget">₹45,000 INR</span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;" id="parsed-job-summary">
+            Source: Upwork Global • Client: Verified SaaS Series A • Estimated effort: 2 weeks. Missing info: Exact brand vector guidelines.
+          </p>
+          <div style="margin-top: 0.75rem; font-size: 0.78rem; font-weight: 700; color: var(--success);">
+            ✓ AI Proposal Draft Prepared based on Priya's Portfolio
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('modal-url-importer')">Cancel</button>
+        <button class="btn-primary" style="width: auto;" id="btn-run-url-parse" onclick="processUrlImport()">
+          <span>Extract with AI</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       MODAL 2: SCOPE CHANGE DETECTOR AMENDMENT
+       ====================================================================== -->
+  <div class="modal-overlay" id="modal-scope-change">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Scope Change Amendment Detected</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-scope-change')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: var(--warning-bg); border: 1px solid var(--warning-border); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.25rem;">
+          <h4 style="color: var(--warning); font-size: 0.95rem; font-weight: 700;">Out-of-Scope Work Detected</h4>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px;">
+            The approved project agreement covers <strong>2D Figma Mockups & Design Tokens</strong>. The client has requested an <strong>Interactive 3D WebGL / Spline Coin Animation</strong>.
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div style="background: var(--bg-surface-elevated); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+            <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Agreed Scope</div>
+            <div style="font-size: 0.85rem; font-weight: 600; margin-top: 4px;">Static 2D SVG Assets</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Included in Milestone 2</div>
+          </div>
+
+          <div style="background: var(--bg-surface-elevated); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+            <div style="font-size: 0.72rem; color: var(--primary); text-transform: uppercase; font-weight: 700;">Proposed Scope Add-on</div>
+            <div style="font-size: 0.85rem; font-weight: 600; margin-top: 4px;">3D Interactive Asset</div>
+            <div style="font-size: 0.75rem; color: var(--primary); font-weight: 700;">+₹6,500 INR & +2 Days</div>
+          </div>
+        </div>
+
+        <p style="font-size: 0.82rem; color: var(--text-muted);">
+          Submitting this amendment will send a formal Change Request to Rahul Verma. The contractual deadline will only update upon client digital signature.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('modal-scope-change')">Dismiss</button>
+        <button class="btn-primary" style="width: auto;" onclick="submitScopeAmendment()">Send Change Request to Client</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       MODAL 3: CREATE MILESTONE INVOICE
+       ====================================================================== -->
+  <div class="modal-overlay" id="modal-create-invoice">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Create Milestone Invoice</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-create-invoice')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="auth-input-group">
+          <label>Select Project</label>
+          <select id="inv-project-select" style="width: 100%; padding: 0.75rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); color: var(--text-primary);">
+            <option value="GrowthNest Media">Fintech Mobile App Redesign (GrowthNest Media)</option>
+            <option value="UrbanBazaar">E-commerce Marketplace Branding (UrbanBazaar)</option>
+            <option value="Pulse Health">HealthTech Patient Portal (Pulse Health)</option>
+          </select>
+        </div>
+
+        <div class="auth-input-group">
+          <label>Milestone Title</label>
+          <input type="text" id="inv-milestone-title" value="Milestone 2: Design System & Interactive Prototypes">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="auth-input-group">
+            <label>Base Amount (₹)</label>
+            <input type="number" id="inv-base-amount" value="20000" oninput="calculateInvoiceTotal()">
+          </div>
+          <div class="auth-input-group">
+            <label>GST Rate</label>
+            <select id="inv-gst-rate" onchange="calculateInvoiceTotal()" style="width: 100%; padding: 0.75rem; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); color: var(--text-primary);">
+              <option value="0.18">18% GST (Standard)</option>
+              <option value="0">0% (Exempt / SEZ)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 0.5rem;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem;">
+            <span>Subtotal:</span>
+            <span id="inv-subtotal-disp">₹20,000</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 4px;">
+            <span>GST (18%):</span>
+            <span id="inv-gst-disp">₹3,600</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 1rem; font-weight: 800; margin-top: 8px; border-top: 1px solid var(--border-subtle); padding-top: 8px; color: var(--primary);">
+            <span>Total Payable:</span>
+            <span id="inv-total-disp">₹23,600</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('modal-create-invoice')">Cancel</button>
+        <button class="btn-primary" style="width: auto;" onclick="saveGeneratedInvoice()">Generate & Issue Invoice</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================================
+       MODAL 4: AI DISPUTE ASSISTANT
+       ====================================================================== -->
+  <div class="modal-overlay" id="modal-dispute-assistant">
+    <div class="modal-card" style="max-width: 720px;">
+      <div class="modal-header">
+        <h3>AI Dispute Resolution Assistant</h3>
+        <button class="modal-close-btn" onclick="closeModal('modal-dispute-assistant')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Bharosa AI neutrally compiles contract clauses, approved milestone logs, chat evidence, and suggests fair resolutions.
+        </p>
+
+        <div style="background: var(--bg-surface-elevated); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 1rem;">
+          <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Case #DS-2026-081</div>
+          <h4 style="margin-top: 2px;">Deliverable #3: Revision Count & Deliverable Delay Claim</h4>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div style="background: var(--bg-surface); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+            <div style="font-size: 0.72rem; font-weight: 700; color: var(--primary);">Freelancer Position</div>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px;">
+              Deliverable #3 was submitted on Oct 11. Client did not reply for 4 days. Automatic silence protocol extended the deadline without penalty.
+            </p>
+          </div>
+
+          <div style="background: var(--bg-surface); padding: 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+            <div style="font-size: 0.72rem; font-weight: 700; color: var(--warning);">Client Position</div>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 4px;">
+              Client was waiting on external stakeholder sign-off and requested additional 3D graphics revision.
+            </p>
+          </div>
+        </div>
+
+        <div style="background: var(--success-bg); border: 1px solid var(--success-border); padding: 1rem; border-radius: var(--radius-md);">
+          <div style="font-size: 0.75rem; font-weight: 800; color: var(--success); text-transform: uppercase;">AI Neutral Proposal</div>
+          <p style="font-size: 0.82rem; color: var(--text-primary); margin-top: 4px;">
+            1. Validate the 4-day silence extension as per Contract Clause 4.1.<br>
+            2. Authorize Scope Change Amendment for ₹6,500 to cover 3D assets.<br>
+            3. Release Milestone 2 escrow upon delivery of adjusted package.
+          </p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('modal-dispute-assistant')">Close</button>
+        <button class="btn-primary" style="width: auto;" onclick="showToast('Resolution proposal sent to Rahul Verma for mutual agreement.', 'success'); closeModal('modal-dispute-assistant');">Send Proposal to Client</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Toast Notifications Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
