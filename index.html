@@ -325,14 +325,14 @@
 
         <!-- Financial Breakdown Cards (Received, Pending, Projected strictly separate) -->
         <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
-          <div class="stat-card">
+          <div class="stat-card" style="cursor:pointer;" onclick="navigateTo('/freelancer/projects')" title="Click to view all projects">
             <div class="stat-card-header">
               <span class="stat-title">Active Projects</span>
               <div class="stat-icon purple"><i data-lucide="folder" style="width:16px;height:16px;"></i></div>
             </div>
             <div class="stat-value" id="fl-stat-active-projects">0</div>
             <div class="stat-footer">
-              <span class="stat-trend up" id="fl-stat-projects-status">On target</span>
+              <span class="stat-trend up" id="fl-stat-projects-status">View All Projects →</span>
             </div>
           </div>
 
@@ -345,25 +345,25 @@
             <div class="stat-footer" id="fl-stat-next-project-title">No pending milestones</div>
           </div>
 
-          <div class="stat-card" style="border-left: 3px solid var(--warning);">
+          <div class="stat-card" style="border-left: 3px solid var(--warning); cursor:pointer;" onclick="navigateTo('/freelancer/invoices')" title="Click to view tax invoices ledger">
             <div class="stat-card-header">
               <span class="stat-title">Pending Payouts</span>
               <div class="stat-icon amber"><i data-lucide="clock" style="width:16px;height:16px;"></i></div>
             </div>
             <div class="stat-value" id="fl-stat-pending-payouts">₹0</div>
             <div class="stat-footer">
-              <span>In review by clients</span>
+              <span>View Invoices →</span>
             </div>
           </div>
 
-          <div class="stat-card" style="border-left: 3px solid var(--success);">
+          <div class="stat-card" style="border-left: 3px solid var(--success); cursor:pointer;" onclick="navigateTo('/freelancer/invoices')" title="Click to view paid invoices">
             <div class="stat-card-header">
               <span class="stat-title">Received Income</span>
               <div class="stat-icon green"><i data-lucide="wallet" style="width:16px;height:16px;"></i></div>
             </div>
             <div class="stat-value" id="fl-stat-received-income">₹0</div>
             <div class="stat-footer">
-              <span class="stat-trend up">Settled via provider</span>
+              <span class="stat-trend up">View Invoices →</span>
             </div>
           </div>
         </div>
@@ -451,47 +451,47 @@
 
         <!-- Client Metric Cards (Committed vs Spent, Pending Approvals, Next Milestone Due, Active Projects) -->
         <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
-          <div class="stat-card">
+          <div class="stat-card" style="cursor:pointer;" onclick="navigateTo('/client/invoices')" title="Click to view all invoices">
             <div class="stat-card-header">
               <span class="stat-title">Budget Committed</span>
               <div class="stat-icon purple"><i data-lucide="credit-card" style="width:16px;height:16px;"></i></div>
             </div>
             <div class="stat-value" id="cl-stat-committed">₹0</div>
             <div class="stat-footer">
-              <span>Total across all signed projects</span>
+              <span>View Invoices →</span>
             </div>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card" style="cursor:pointer;" onclick="navigateTo('/client/invoices')" title="Click to view payment breakdown">
             <div class="stat-card-header">
               <span class="stat-title">Budget Spent</span>
               <div class="stat-icon green"><i data-lucide="check-check" style="width:16px;height:16px;"></i></div>
             </div>
             <div class="stat-value" id="cl-stat-spent">₹0</div>
             <div class="stat-footer">
-              <span class="stat-trend up">Released on approval</span>
+              <span class="stat-trend up">Released on approval →</span>
             </div>
           </div>
 
-          <div class="stat-card" style="border-left: 3px solid var(--info);">
+          <div class="stat-card" style="border-left: 3px solid var(--info); cursor:pointer;" onclick="scrollToApprovals()" title="Click to review approvals">
             <div class="stat-card-header">
               <span class="stat-title">Pending Approvals</span>
               <div class="stat-icon blue"><i data-lucide="hourglass" style="width:16px;height:16px;"></i></div>
             </div>
             <div class="stat-value" id="cl-stat-pending-count">0</div>
             <div class="stat-footer">
-              <span>Deliverables &amp; amendments</span>
+              <span>Review Items →</span>
             </div>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card" style="cursor:pointer;" onclick="navigateTo('/client/projects')" title="Click to view all projects">
             <div class="stat-card-header">
               <span class="stat-title">Active Projects</span>
               <div class="stat-icon purple"><i data-lucide="layout-grid" style="width:16px;height:16px;"></i></div>
             </div>
             <div class="stat-value" id="cl-stat-active-projects">0</div>
             <div class="stat-footer">
-              <span>In active development</span>
+              <span>View All Projects →</span>
             </div>
           </div>
         </div>
@@ -715,6 +715,110 @@
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           VIEW 2E: PROJECTS DIRECTORY (/freelancer/projects & /client/projects)
+           Browse and access all active, completed, or funded project workspaces
+           ================================================================== -->
+      <section id="view-projects" class="view-section">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>Projects &amp; Workspaces</h2>
+            <p>Access your active contracts, milestone delivery trackers, and escrow workspaces.</p>
+          </div>
+          <div class="header-action-group" id="projects-header-actions">
+            <!-- Role-specific action buttons dynamically populated -->
+          </div>
+        </div>
+
+        <div id="projects-directory-list" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">
+          <!-- Dynamically populated by loadProjectsDirectory() -->
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           VIEW 2F: INVOICES & TAX LEDGER (/freelancer/invoices & /client/invoices)
+           View, inspect, and download GST-compliant tax invoices
+           ================================================================== -->
+      <section id="view-invoices" class="view-section">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>Tax Invoices &amp; Financials</h2>
+            <p>GST-compliant invoices auto-generated upon milestone approval. All payouts recorded.</p>
+          </div>
+          <div class="header-action-group">
+            <button class="btn-secondary" onclick="exportInvoicesCsv()">
+              <i data-lucide="download" style="width:15px;height:15px;"></i>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Financial Summary Cards -->
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title">Total Invoiced</span>
+              <div class="stat-icon purple"><i data-lucide="receipt" style="width:16px;height:16px;"></i></div>
+            </div>
+            <div class="stat-value" id="inv-stat-total">₹0</div>
+            <div class="stat-footer"><span>Base + GST value</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title">Total Paid</span>
+              <div class="stat-icon green"><i data-lucide="check-check" style="width:16px;height:16px;"></i></div>
+            </div>
+            <div class="stat-value" id="inv-stat-paid">₹0</div>
+            <div class="stat-footer"><span class="stat-trend up">Escrow settled</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title">GST (18%)</span>
+              <div class="stat-icon blue"><i data-lucide="percent" style="width:16px;height:16px;"></i></div>
+            </div>
+            <div class="stat-value" id="inv-stat-gst">₹0</div>
+            <div class="stat-footer"><span>Tax collected / paid</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title">Pending Invoices</span>
+              <div class="stat-icon purple"><i data-lucide="clock" style="width:16px;height:16px;"></i></div>
+            </div>
+            <div class="stat-value" id="inv-stat-pending">0</div>
+            <div class="stat-footer"><span>Draft or in-review</span></div>
+          </div>
+        </div>
+
+        <!-- Invoices Table -->
+        <div class="card-section">
+          <div class="card-section-header">
+            <h3>Invoice Register</h3>
+            <span style="font-size:0.78rem; color:var(--text-muted);">SAC Code 998314 • GST Compliant</span>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Invoice ID</th>
+                  <th>Project / Milestone</th>
+                  <th>Client / Contractor</th>
+                  <th>Base Amount</th>
+                  <th>GST (18%)</th>
+                  <th>Total Amount</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="invoices-table-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -951,6 +1055,37 @@
       <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:0.5rem;">
         <button class="btn-secondary" onclick="closeModal('modal-url-import')">Cancel</button>
         <button class="btn-primary" onclick="simulateJobImport()">Extract Scopes &amp; Import</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: View GST Tax Invoice -->
+  <div class="modal-overlay" id="modal-view-invoice">
+    <div class="modal-card" style="max-width: 680px; width: 92%; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header" style="border-bottom: 2px solid var(--border-subtle); padding-bottom: 1rem;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="background:var(--primary); color:white; width:28px; height:28px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.9rem;">भ</div>
+          <div>
+            <h3 style="margin:0; font-size:1.1rem;">Official Tax Invoice</h3>
+            <span style="font-size:0.7rem; color:var(--text-muted);">GST Rule 46 Compliant • Indian Goods &amp; Services Tax</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modal-view-invoice')">&times;</button>
+      </div>
+
+      <div class="modal-body" id="invoice-modal-content" style="padding: 1.5rem 0;">
+        <!-- Injected dynamically by viewInvoiceDetails(id) -->
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+        <span style="font-size:0.75rem; color:var(--text-muted);"><i data-lucide="shield-check" style="width:14px;height:14px;color:var(--success);vertical-align:-2px;"></i> Tamper-proof milestone escrow release</span>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn-secondary" onclick="window.print()">
+            <i data-lucide="printer" style="width:14px;height:14px;"></i>
+            <span>Print / PDF</span>
+          </button>
+          <button class="btn-primary" onclick="closeModal('modal-view-invoice')">Close</button>
+        </div>
       </div>
     </div>
   </div>

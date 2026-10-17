@@ -1655,6 +1655,63 @@ body {
 }
 
 /* ==========================================================================
+   TAX INVOICE & GST PRINT STYLES
+   ========================================================================== */
+.invoice-paper {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.invoice-table th, .invoice-table td {
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border-subtle);
+  text-align: left;
+}
+
+.invoice-table th {
+  background: var(--bg-surface-elevated);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #modal-view-invoice, #modal-view-invoice * {
+    visibility: visible;
+  }
+  #modal-view-invoice {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    background: white !important;
+    color: black !important;
+  }
+  .modal-card {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+  }
+  .modal-close-btn, .modal-footer {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
    ENHANCED UI/UX FIXES STYLES
    ========================================================================== */
 

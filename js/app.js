@@ -113,6 +113,12 @@ function routeView(pathname) {
   } else if (pathname === '/freelancer/messages') {
     showSection('view-freelancer-messages');
     loadFreelancerMessages();
+  } else if (pathname === '/freelancer/projects' || pathname === '/client/projects') {
+    showSection('view-projects');
+    loadProjectsDirectory();
+  } else if (pathname === '/freelancer/invoices' || pathname === '/client/invoices') {
+    showSection('view-invoices');
+    loadInvoicesLedger();
   } else if (pathname.startsWith('/freelancer/dashboard') || pathname === '/freelancer') {
     showSection('view-freelancer-dashboard');
     loadFreelancerDashboard();
@@ -289,6 +295,10 @@ function updateHeaderAndSidebar(user) {
         <span class="icon"><i data-lucide="layout-dashboard" style="width:18px;height:18px;"></i></span>
         <span>Dashboard</span>
       </a>
+      <a class="nav-item ${appState.currentRoute === '/freelancer/projects' ? 'active' : ''}" onclick="navigateTo('/freelancer/projects')">
+        <span class="icon"><i data-lucide="kanban-square" style="width:18px;height:18px;"></i></span>
+        <span>Projects</span>
+      </a>
       <a class="nav-item ${appState.currentRoute === '/freelancer/find-work' ? 'active' : ''}" onclick="navigateTo('/freelancer/find-work')">
         <span class="icon"><i data-lucide="compass" style="width:18px;height:18px;"></i></span>
         <span>Find Work</span>
@@ -303,19 +313,15 @@ function updateHeaderAndSidebar(user) {
         <span>Messages</span>
       </a>
       <div class="nav-section-label">Trust & Finance</div>
-      <a class="nav-item" onclick="navigateTo('/freelancer/dashboard')">
-        <span class="icon"><i data-lucide="kanban-square" style="width:18px;height:18px;"></i></span>
-        <span>Projects</span>
-      </a>
-      <a class="nav-item" onclick="navigateTo('/freelancer/dashboard')">
+      <a class="nav-item ${appState.currentRoute === '/freelancer/invoices' ? 'active' : ''}" onclick="navigateTo('/freelancer/invoices')">
         <span class="icon"><i data-lucide="receipt" style="width:18px;height:18px;"></i></span>
-        <span>Invoices</span>
+        <span>Tax Invoices</span>
       </a>
-      <a class="nav-item" onclick="navigateTo('/freelancer/dashboard')">
+      <a class="nav-item" onclick="navigateTo('/projects/PRJ-101')">
         <span class="icon"><i data-lucide="shield-alert" style="width:18px;height:18px;"></i></span>
         <span>Evidence Timeline</span>
       </a>
-      <a class="nav-item" onclick="showToast('Profile settings — Coming soon', 'info')">
+      <a class="nav-item" onclick="showToast('Profile settings — Priya Sharma (Contractor)', 'info')">
         <span class="icon"><i data-lucide="settings" style="width:18px;height:18px;"></i></span>
         <span>Settings</span>
       </a>
@@ -327,7 +333,7 @@ function updateHeaderAndSidebar(user) {
         <span class="icon"><i data-lucide="layout-dashboard" style="width:18px;height:18px;"></i></span>
         <span>Dashboard</span>
       </a>
-      <a class="nav-item" onclick="navigateTo('/client/dashboard')">
+      <a class="nav-item ${appState.currentRoute === '/client/projects' ? 'active' : ''}" onclick="navigateTo('/client/projects')">
         <span class="icon"><i data-lucide="folder" style="width:18px;height:18px;"></i></span>
         <span>Projects</span>
       </a>
@@ -335,16 +341,16 @@ function updateHeaderAndSidebar(user) {
         <span class="icon"><i data-lucide="check-circle" style="width:18px;height:18px;"></i></span>
         <span>Approvals Queue</span>
       </a>
-      <a class="nav-item" onclick="showToast('Client invoices: GST breakdowns available for accounting audits.', 'info')">
+      <a class="nav-item ${appState.currentRoute === '/client/invoices' ? 'active' : ''}" onclick="navigateTo('/client/invoices')">
         <span class="icon"><i data-lucide="receipt" style="width:18px;height:18px;"></i></span>
-        <span>Invoices</span>
+        <span>Tax Invoices</span>
       </a>
       <div class="nav-section-label">Contracts & Security</div>
-      <a class="nav-item" onclick="showToast('All SOWs and approved scope amendments stored securely.', 'info')">
+      <a class="nav-item" onclick="navigateTo('/client/projects')">
         <span class="icon"><i data-lucide="file-text" style="width:18px;height:18px;"></i></span>
-        <span>Documents</span>
+        <span>Documents & SOWs</span>
       </a>
-      <a class="nav-item" onclick="showToast('Contractor communication channel active.', 'info')">
+      <a class="nav-item" onclick="navigateTo('/freelancer/messages')">
         <span class="icon"><i data-lucide="message-square" style="width:18px;height:18px;"></i></span>
         <span>Messages</span>
       </a>
@@ -505,9 +511,9 @@ function renderFreelancerDashboardUI(data) {
   const tableBody = document.getElementById('fl-projects-table-body');
   if (tableBody) {
     tableBody.innerHTML = projects.map(p => `
-      <tr>
+      <tr style="cursor:pointer;" onclick="navigateTo('/projects/${p.id}')">
         <td>
-          <div style="font-weight:700; color:var(--text-primary); cursor:pointer;" onclick="navigateTo('/projects/${p.id}')">${p.title}</div>
+          <div style="font-weight:700; color:var(--text-primary); cursor:pointer;">${p.title}</div>
           <div style="font-size:0.72rem; color:var(--text-muted);">${p.id}</div>
         </td>
         <td>
@@ -530,8 +536,9 @@ function renderFreelancerDashboardUI(data) {
           <div style="font-size:0.65rem; color:var(--text-muted); margin-top:2px;">Payment via provider (simulated)</div>
         </td>
         <td>
-          <button class="btn-secondary" style="font-size:0.72rem; padding:4px 8px;" onclick="navigateTo('/projects/${p.id}')">
-            Workspace
+          <button class="btn-primary" style="font-size:0.74rem; padding:5px 12px; display:inline-flex; align-items:center; gap:4px;" onclick="event.stopPropagation(); navigateTo('/projects/${p.id}')">
+            <span>Workspace</span>
+            <i data-lucide="arrow-right" style="width:13px;height:13px;"></i>
           </button>
         </td>
       </tr>
@@ -673,7 +680,7 @@ function renderClientDashboardUI(data) {
   const projGridEl = document.getElementById('cl-projects-grid');
   if (projGridEl) {
     projGridEl.innerHTML = projects.map(p => `
-      <div class="cl-project-card">
+      <div class="cl-project-card" style="cursor:pointer; display:flex; flex-direction:column; justify-content:space-between;" onclick="navigateTo('/projects/${p.id}')">
         <div>
           <div style="display:flex; justify-content:space-between; align-items:flex-start;">
             <h4 style="font-size:0.95rem; font-weight:700; color:var(--text-primary);">${p.title}</h4>
@@ -692,10 +699,11 @@ function renderClientDashboardUI(data) {
             </div>
           </div>
         </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:0.75rem; font-size:0.78rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:0.75rem; margin-top:0.75rem; font-size:0.78rem;">
           <span>Spent: <strong>₹${p.spentBudget.toLocaleString('en-IN')}</strong> / ₹${p.totalBudget.toLocaleString('en-IN')}</span>
-          <button class="btn-secondary" style="font-size:0.74rem; padding:4px 9px;" onclick="navigateTo('/projects/${p.id}')">
-            Project Details →
+          <button class="btn-primary" style="font-size:0.74rem; padding:4px 10px; display:inline-flex; align-items:center; gap:4px;" onclick="event.stopPropagation(); navigateTo('/projects/${p.id}')">
+            <span>Project Details</span>
+            <i data-lucide="arrow-right" style="width:13px;height:13px;"></i>
           </button>
         </div>
       </div>
@@ -706,14 +714,17 @@ function renderClientDashboardUI(data) {
   const invListEl = document.getElementById('cl-invoices-list');
   if (invListEl) {
     invListEl.innerHTML = invoices.map(i => `
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0; border-bottom:1px solid var(--border-subtle); font-size:0.8rem;">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 0; border-bottom:1px solid var(--border-subtle); font-size:0.8rem;">
         <div>
-          <div style="font-weight:700;">${i.id} · ${i.milestoneTitle}</div>
+          <div style="font-weight:700; color:var(--text-primary);">${i.id} · ${i.milestoneTitle}</div>
           <div style="font-size:0.7rem; color:var(--text-muted);">Base: ₹${i.baseAmount.toLocaleString('en-IN')} + 18% GST (₹${i.gstAmount.toLocaleString('en-IN')})</div>
         </div>
-        <div style="text-align:right;">
+        <div style="text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
           <div style="font-weight:800; color:var(--text-primary);">₹${i.totalAmount.toLocaleString('en-IN')}</div>
-          <span class="status-pill ${i.status === 'paid' ? 'paid' : 'pending'}" style="font-size:0.65rem;">${i.status.toUpperCase()}</span>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span class="status-pill ${i.status === 'paid' ? 'paid' : 'pending'}" style="font-size:0.65rem;">${i.status.toUpperCase()}</span>
+            <button class="btn-secondary" style="font-size:0.68rem; padding:2px 7px;" onclick="viewInvoiceDetails('${i.id}')">View Invoice</button>
+          </div>
         </div>
       </div>
     `).join('');
@@ -803,6 +814,12 @@ function renderProjectWorkspaceUI(data) {
       `;
     }
   }
+
+  // Ensure active tab button reflects current selection
+  const currentTab = appState.activePwSubtab || 'overview';
+  document.querySelectorAll('.admin-subnav-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById(`pw-tab-btn-${currentTab}`);
+  if (activeBtn) activeBtn.classList.add('active');
 
   // Render Subtab Content
   renderPwSubtabContent(data);
@@ -933,6 +950,199 @@ function renderPwSubtabContent(data) {
         </table>
       </div>
     `;
+  } else if (tab === 'invoices') {
+    container.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <div>
+          <h4 style="font-weight:700; margin:0;">Project Tax Invoices</h4>
+          <span style="font-size:0.75rem; color:var(--text-muted);">GST Rule 46 Compliant • Indian Goods &amp; Services Tax</span>
+        </div>
+        <button class="btn-primary" style="font-size:0.75rem;" onclick="navigateTo(userRoleInProject === 'freelancer' ? '/freelancer/invoices' : '/client/invoices')">
+          <i data-lucide="receipt" style="width:13px;height:13px;"></i>
+          <span>View All Invoices</span>
+        </button>
+      </div>
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Invoice ID</th>
+              <th>Milestone Phase</th>
+              <th>Base Value</th>
+              <th>GST (18%)</th>
+              <th>Total Amount</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${(invoices && invoices.length > 0) ? invoices.map(i => `
+              <tr>
+                <td><strong style="color:var(--primary); font-family:monospace; cursor:pointer;" onclick="viewInvoiceDetails('${i.id}')">${i.id}</strong></td>
+                <td><strong>${i.milestoneTitle}</strong></td>
+                <td>₹${i.baseAmount.toLocaleString('en-IN')}</td>
+                <td>₹${i.gstAmount.toLocaleString('en-IN')}</td>
+                <td><strong style="color:var(--text-primary); font-size:0.95rem;">₹${i.totalAmount.toLocaleString('en-IN')}</strong></td>
+                <td><span class="status-pill ${i.status === 'paid' ? 'paid' : 'pending'}">${i.status.toUpperCase()}</span></td>
+                <td>
+                  <button class="btn-primary" style="font-size:0.75rem; padding:4px 10px;" onclick="viewInvoiceDetails('${i.id}')">
+                    <i data-lucide="eye" style="width:13px;height:13px;"></i>
+                    <span>View Tax Invoice</span>
+                  </button>
+                </td>
+              </tr>
+            `).join('') : `
+              <tr>
+                <td colspan="7" style="text-align:center; padding:2rem; color:var(--text-muted);">
+                  No invoices generated yet. Invoices are automatically drafted with 18% GST upon milestone approval.
+                </td>
+              </tr>
+            `}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } else if (tab === 'deliverables') {
+    const allDeliverables = [];
+    project.milestones.forEach(m => {
+      (m.deliverables || []).forEach(d => {
+        allDeliverables.push({ ...d, milestoneTitle: m.title, milestoneStatus: m.status });
+      });
+    });
+    container.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <div>
+          <h4 style="font-weight:700; margin:0;">Submitted Deliverables &amp; Integrity Hashes</h4>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Tamper-evident cryptographically signed files</span>
+        </div>
+        ${userRoleInProject === 'freelancer' ? `
+          <button class="btn-primary" style="font-size:0.75rem;" onclick="navigateTo('/freelancer/submit-work')">
+            <i data-lucide="upload-cloud" style="width:13px;height:13px;"></i> Submit Deliverables
+          </button>
+        ` : ''}
+      </div>
+      ${allDeliverables.length === 0 ? `
+        <div style="text-align:center; padding:3rem; color:var(--text-muted);">
+          <div style="font-size:2rem; margin-bottom:0.5rem;">📂</div>
+          <p>No deliverables submitted yet for this project.</p>
+          ${userRoleInProject === 'freelancer' ? `
+            <button class="btn-primary" style="margin-top:0.75rem;" onclick="navigateTo('/freelancer/submit-work')">Submit First Milestone Work</button>
+          ` : ''}
+        </div>
+      ` : `
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          ${allDeliverables.map(d => `
+            <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1rem; display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="font-size:1.8rem;">📦</div>
+                <div>
+                  <div style="font-weight:700; color:var(--text-primary); font-size:0.92rem;">${d.name}</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">${d.milestoneTitle} • ${d.size || '3.5 MB'}</div>
+                  <div style="margin-top:4px;">
+                    <span class="btn-tag" style="font-size:0.68rem; font-family:monospace; background:var(--success-bg); color:var(--success); border-color:var(--success-border);">
+                      SHA-256: ${d.hash || 'sha256-verified-file-hash'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <button class="btn-secondary" style="font-size:0.75rem; padding:5px 12px;" onclick="showToast('Downloading verified copy of ${d.name}...', 'info')">
+                <i data-lucide="download" style="width:13px;height:13px;"></i> Download
+              </button>
+            </div>
+          `).join('')}
+        </div>
+      `}
+    `;
+  } else if (tab === 'documents') {
+    container.innerHTML = `
+      <div style="margin-bottom:1rem;">
+        <h4 style="font-weight:700; margin:0;">Signed Agreements &amp; Scope Amendments</h4>
+        <span style="font-size:0.75rem; color:var(--text-muted);">Legally binding milestone contracts and approved adjustments</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr; gap:1rem;">
+        <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <span class="brand-badge" style="background:var(--primary-light); color:var(--primary); font-size:0.7rem;">MASTER SOW AGREEMENT</span>
+              <h4 style="margin:6px 0 2px; color:var(--text-primary); font-size:1rem;">${project.title} — Statement of Work</h4>
+              <p style="font-size:0.78rem; color:var(--text-muted);">Signed on ${project.startDate || 'Oct 01, 2026'} • Legally binding milestone contract</p>
+            </div>
+            <span class="status-pill paid" style="font-size:0.7rem;">SIGNED &amp; ACTIVE</span>
+          </div>
+          <p style="font-size:0.84rem; color:var(--text-secondary); line-height:1.5; margin:0.75rem 0;">${project.description}</p>
+          <div style="font-size:0.78rem; color:var(--text-muted); padding-top:0.5rem; border-top:1px dashed var(--border-subtle);">
+            Total Contract Value: <strong>₹${project.totalBudget.toLocaleString('en-IN')} INR</strong> • Total Phases: ${project.milestones.length}
+          </div>
+        </div>
+
+        ${scopeAmendments.map(amd => `
+          <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1.25rem; border-left:3px solid ${amd.status === 'approved' ? 'var(--success)' : 'var(--warning)'};">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <span class="brand-badge" style="font-size:0.7rem;">SCOPE AMENDMENT (${amd.id})</span>
+                <h4 style="margin:6px 0 2px; color:var(--text-primary); font-size:0.95rem;">${amd.title}</h4>
+                <p style="font-size:0.78rem; color:var(--text-muted);">Requested by ${amd.requesterName} (+₹${amd.additionalCost.toLocaleString('en-IN')} INR · +${amd.additionalDays} days)</p>
+              </div>
+              <span class="status-pill ${amd.status === 'approved' ? 'paid' : 'warning'}" style="font-size:0.7rem;">${amd.status.toUpperCase()}</span>
+            </div>
+            <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5; margin:0.75rem 0;">${amd.description}</p>
+            ${userRoleInProject === 'client' && amd.status === 'pending_client_approval' ? `
+              <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.75rem;">
+                <button class="btn-primary" style="font-size:0.75rem;" onclick="clientApproveAmendment('${amd.id}')">Approve Amendment</button>
+              </div>
+            ` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } else if (tab === 'files') {
+    container.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <h4 style="font-weight:700; margin:0;">Project Assets &amp; Deliverable Files</h4>
+        <button class="btn-primary" style="font-size:0.75rem;" onclick="showToast('File upload simulator: select deliverables via Submit Work.', 'info')">
+          <i data-lucide="upload" style="width:13px;height:13px;"></i> Upload File
+        </button>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1rem;">
+        <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1rem;">
+          <div style="font-size:1.5rem; margin-bottom:6px;">🎨</div>
+          <div style="font-weight:600; color:var(--text-primary); font-size:0.88rem;">fintech_design_system_v2.fig</div>
+          <div style="font-size:0.72rem; color:var(--text-muted); margin:4px 0 8px;">Figma File • 18.4 MB</div>
+          <button class="btn-secondary" style="font-size:0.72rem; width:100%;" onclick="showToast('Downloading Figma file...', 'info')">Download File</button>
+        </div>
+        <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1rem;">
+          <div style="font-size:1.5rem; margin-bottom:6px;">📄</div>
+          <div style="font-weight:600; color:var(--text-primary); font-size:0.88rem;">architecture_and_user_flows.pdf</div>
+          <div style="font-size:0.72rem; color:var(--text-muted); margin:4px 0 8px;">PDF Document • 3.2 MB</div>
+          <button class="btn-secondary" style="font-size:0.72rem; width:100%;" onclick="showToast('Downloading Architecture PDF...', 'info')">Download File</button>
+        </div>
+        <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1rem;">
+          <div style="font-size:1.5rem; margin-bottom:6px;">🗜️</div>
+          <div style="font-weight:600; color:var(--text-primary); font-size:0.88rem;">icons_and_tokens_bundle.zip</div>
+          <div style="font-size:0.72rem; color:var(--text-muted); margin:4px 0 8px;">ZIP Archive • 8.1 MB</div>
+          <button class="btn-secondary" style="font-size:0.72rem; width:100%;" onclick="showToast('Downloading Tokens Bundle...', 'info')">Download File</button>
+        </div>
+      </div>
+    `;
+  } else if (tab === 'messages') {
+    container.innerHTML = `
+      <div style="display:flex; flex-direction:column; min-height:420px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+          <h4 style="font-weight:700; margin:0;">Project Chat Channel</h4>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Direct Contractor-Client Communication</span>
+        </div>
+        <div id="pw-chat-messages-container" style="flex:1; overflow-y:auto; padding:1rem; background:var(--bg-surface-elevated); border-radius:var(--radius-md); border:1px solid var(--border-subtle); margin-bottom:0.75rem; min-height:260px;">
+          <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; padding:2rem 0;">Loading conversation...</p>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <input type="text" id="pw-chat-input" placeholder="Type a message regarding ${project.title}..." style="flex:1; padding:0.65rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-size:0.88rem;" onkeydown="if(event.key==='Enter')sendPwProjectMessage('${project.id}')">
+          <button class="btn-primary" onclick="sendPwProjectMessage('${project.id}')" style="padding:0.65rem 1.25rem;">
+            <i data-lucide="send" style="width:15px;height:15px;"></i>
+          </button>
+        </div>
+      </div>
+    `;
+    loadPwProjectMessages(project.id);
   } else {
     container.innerHTML = `
       <div style="text-align:center; padding:2rem; color:var(--text-muted);">
@@ -1895,12 +2105,469 @@ async function sendProjectMessage() {
   }
 }
 
+// ==============================================================================
+// PROJECTS DIRECTORY CONTROLLER (/freelancer/projects & /client/projects)
+// ==============================================================================
+
+async function loadProjectsDirectory() {
+  const user = getSessionUser();
+  if (!user) return;
+
+  const container = document.getElementById('projects-directory-list');
+  const headerActions = document.getElementById('projects-header-actions');
+  if (!container) return;
+
+  container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:2rem; color:var(--text-muted);">Loading projects...</div>`;
+
+  if (headerActions) {
+    if (user.role === 'freelancer') {
+      headerActions.innerHTML = `
+        <button class="btn-primary" onclick="navigateTo('/freelancer/find-work')">
+          <i data-lucide="compass" style="width:15px;height:15px;"></i>
+          <span>Find Work</span>
+        </button>
+        <button class="btn-secondary" onclick="navigateTo('/freelancer/submit-work')">
+          <i data-lucide="upload-cloud" style="width:15px;height:15px;"></i>
+          <span>Submit Work</span>
+        </button>
+      `;
+    } else {
+      headerActions.innerHTML = `
+        <button class="btn-primary" onclick="openCreateProjectModal()">
+          <i data-lucide="plus-circle" style="width:15px;height:15px;"></i>
+          <span>Create Project</span>
+        </button>
+      `;
+    }
+  }
+
+  try {
+    const res = await fetch('/api/projects', {
+      headers: { 'x-user-id': user.id }
+    });
+    const data = await res.json();
+    const projects = data.projects || [];
+
+    if (projects.length === 0) {
+      container.innerHTML = `
+        <div style="grid-column: 1/-1; text-align:center; padding:3rem; color:var(--text-muted);">
+          <h3>No Projects Found</h3>
+          <p style="font-size:0.85rem; margin-top:0.5rem;">You do not have any active projects yet.</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = projects.map(p => {
+      const completedCount = (p.milestones || []).filter(m => m.status === 'Released' || m.status === 'Invoiced').length;
+      const progressPct = Math.round((completedCount / (p.milestones ? p.milestones.length : 1)) * 100);
+      const activeMilestone = (p.milestones || []).find(m => m.status !== 'Invoiced' && m.status !== 'Released') || p.milestones[p.milestones.length - 1];
+
+      return `
+        <div class="card-section" style="display:flex; flex-direction:column; justify-content:space-between; border-left: 3px solid var(--primary); transition:all 0.2s; cursor:pointer;" onclick="navigateTo('/projects/${p.id}')">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+              <div>
+                <span class="brand-badge" style="font-size:0.68rem;">${p.clientOrg || 'Client Organization'}</span>
+                <h3 style="margin-top:0.35rem; font-size:1.05rem; color:var(--text-primary); cursor:pointer;" onclick="navigateTo('/projects/${p.id}')">${p.title}</h3>
+                <p style="font-size:0.76rem; color:var(--text-muted);">Client: ${p.clientName} • Contractor: ${p.freelancerName}</p>
+              </div>
+              <span class="status-pill in-progress" style="font-size:0.68rem;">Active</span>
+            </div>
+
+            <!-- Progress Bar -->
+            <div style="margin:1rem 0;">
+              <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">
+                <span>Milestone Progress</span>
+                <span style="font-weight:700; color:var(--text-primary);">${progressPct}% (${completedCount}/${p.milestones.length})</span>
+              </div>
+              <div style="width:100%; height:6px; background:var(--bg-surface-elevated); border-radius:999px; overflow:hidden;">
+                <div style="width:${progressPct}%; height:100%; background:var(--primary-gradient); border-radius:999px;"></div>
+              </div>
+            </div>
+
+            <div style="background:var(--bg-surface-elevated); padding:0.65rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle); margin-bottom:1rem; font-size:0.78rem;">
+              <span style="color:var(--text-muted);">Current Phase:</span>
+              <strong style="color:var(--text-primary); margin-left:4px;">${activeMilestone ? activeMilestone.title : 'All Milestones Completed'}</strong>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.75rem; border-top:1px solid var(--border-subtle);">
+            <div>
+              <div style="font-size:1.1rem; font-weight:800; color:var(--success);">₹${p.totalBudget.toLocaleString('en-IN')}</div>
+              <span style="font-size:0.68rem; color:var(--text-muted);">Total Budget</span>
+            </div>
+            <button class="btn-primary" style="font-size:0.82rem; padding:0.5rem 1rem;" onclick="event.stopPropagation(); navigateTo('/projects/${p.id}')">
+              <span>Open Workspace</span>
+              <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    if (window.lucide) window.lucide.createIcons();
+  } catch (err) {
+    console.error('Error loading projects directory:', err);
+    container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:2rem; color:var(--danger);">Error loading projects.</div>`;
+  }
+}
+
+// ==============================================================================
+// INVOICES LEDGER CONTROLLER (/freelancer/invoices & /client/invoices)
+// ==============================================================================
+
+async function loadInvoicesLedger() {
+  const user = getSessionUser();
+  if (!user) return;
+
+  const tableBody = document.getElementById('invoices-table-body');
+  if (!tableBody) return;
+
+  tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:2rem; color:var(--text-muted);">Loading tax invoices...</td></tr>`;
+
+  try {
+    const res = await fetch('/api/invoices', {
+      headers: { 'x-user-id': user.id }
+    });
+    const data = await res.json();
+    const invoices = data.invoices || [];
+
+    let totalInvoiced = 0;
+    let totalPaid = 0;
+    let totalGst = 0;
+    let pendingCount = 0;
+
+    invoices.forEach(i => {
+      totalInvoiced += i.totalAmount;
+      totalGst += (i.gstAmount || Math.round(i.baseAmount * (i.gstRate || 0.18)));
+      if (i.status === 'paid') {
+        totalPaid += i.totalAmount;
+      } else {
+        pendingCount++;
+      }
+    });
+
+    const totEl = document.getElementById('inv-stat-total');
+    const paidEl = document.getElementById('inv-stat-paid');
+    const gstEl = document.getElementById('inv-stat-gst');
+    const pendEl = document.getElementById('inv-stat-pending');
+
+    if (totEl) totEl.textContent = `₹${totalInvoiced.toLocaleString('en-IN')}`;
+    if (paidEl) paidEl.textContent = `₹${totalPaid.toLocaleString('en-IN')}`;
+    if (gstEl) gstEl.textContent = `₹${totalGst.toLocaleString('en-IN')}`;
+    if (pendEl) pendEl.textContent = `${pendingCount}`;
+
+    if (invoices.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align:center; padding:3rem; color:var(--text-muted);">
+            No invoices generated yet. Invoices are automatically generated with 18% GST when milestones are approved and settled.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tableBody.innerHTML = invoices.map(i => `
+      <tr>
+        <td>
+          <strong style="color:var(--primary); font-family:monospace; cursor:pointer;" onclick="viewInvoiceDetails('${i.id}')">${i.id}</strong>
+          <div style="font-size:0.7rem; color:var(--text-muted);">${new Date(i.issuedAt || Date.now()).toLocaleDateString('en-IN')}</div>
+        </td>
+        <td>
+          <div style="font-weight:600; color:var(--text-primary);">${i.milestoneTitle}</div>
+          <div style="font-size:0.72rem; color:var(--text-muted);">${i.projectId}</div>
+        </td>
+        <td>
+          <div style="font-weight:600;">${user.role === 'freelancer' ? i.clientName : i.freelancerName}</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">${user.role === 'freelancer' ? (i.clientOrg || 'Client') : 'Contractor'}</div>
+        </td>
+        <td>₹${i.baseAmount.toLocaleString('en-IN')}</td>
+        <td><span style="color:var(--text-muted);">₹${(i.gstAmount || Math.round(i.baseAmount * 0.18)).toLocaleString('en-IN')}</span></td>
+        <td><strong style="color:var(--text-primary); font-size:0.95rem;">₹${i.totalAmount.toLocaleString('en-IN')}</strong></td>
+        <td><span class="status-pill ${i.status === 'paid' ? 'paid' : 'pending'}">${i.status.toUpperCase()}</span></td>
+        <td>
+          <button class="btn-primary" style="font-size:0.75rem; padding:4px 10px;" onclick="viewInvoiceDetails('${i.id}')">
+            <i data-lucide="eye" style="width:13px;height:13px;"></i>
+            <span>View Tax Invoice</span>
+          </button>
+        </td>
+      </tr>
+    `).join('');
+
+    if (window.lucide) window.lucide.createIcons();
+  } catch (err) {
+    console.error('Error loading invoices ledger:', err);
+    tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:2rem; color:var(--danger);">Error loading invoices.</td></tr>`;
+  }
+}
+
+// ==============================================================================
+// VIEW TAX INVOICE DETAILS MODAL
+// ==============================================================================
+
+async function viewInvoiceDetails(invoiceId) {
+  const user = getSessionUser();
+  if (!user) return;
+
+  try {
+    const res = await fetch('/api/invoices', {
+      headers: { 'x-user-id': user.id }
+    });
+    const data = await res.json();
+    const invoice = (data.invoices || []).find(i => i.id === invoiceId) || {
+      id: invoiceId,
+      milestoneTitle: 'Milestone 1: Wireframes & Architecture Map',
+      projectId: 'PRJ-101',
+      clientName: 'Rahul Verma',
+      clientOrg: 'GrowthNest Media Pvt Ltd',
+      freelancerName: 'Priya Sharma',
+      baseAmount: 25000,
+      gstRate: 0.18,
+      gstAmount: 4500,
+      totalAmount: 29500,
+      status: 'paid',
+      issuedAt: new Date().toISOString(),
+      simulatedPaymentProvider: 'Razorpay Sandbox (Simulated)'
+    };
+
+    const container = document.getElementById('invoice-modal-content');
+    if (!container) return;
+
+    container.innerHTML = `
+      <div class="invoice-paper" style="border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1.5rem; background:var(--bg-surface);">
+        <!-- Top Invoice Header -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; border-bottom:2px solid var(--border-subtle); padding-bottom:1rem;">
+          <div>
+            <div style="font-size:1.3rem; font-weight:800; color:var(--text-primary); letter-spacing:-0.02em;">TAX INVOICE</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Original for Recipient • GST Rule 46</div>
+            <div style="margin-top:6px; font-weight:700; color:var(--primary); font-size:0.95rem;">${invoice.id}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="brand-badge" style="font-size:0.75rem; background:var(--success-bg); color:var(--success); border:1px solid var(--success-border); font-weight:700;">
+              STATUS: ${invoice.status.toUpperCase()}
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">
+              Date of Issue: <strong>${new Date(invoice.issuedAt || Date.now()).toLocaleDateString('en-IN', { year:'numeric', month:'short', day:'numeric' })}</strong>
+            </div>
+            <div style="font-size:0.72rem; color:var(--text-muted);">
+              Place of Supply: <strong>Karnataka (29)</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Supplier & Buyer 2-Column Info -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem; background:var(--bg-surface-elevated); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+          <div>
+            <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Supplier (Service Provider)</div>
+            <div style="font-weight:700; color:var(--text-primary); font-size:0.95rem;">${invoice.freelancerName || 'Priya Sharma'}</div>
+            <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">Senior Product Designer &amp; UI Specialist</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Maharashtra, India (State Code: 27)</div>
+            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">GSTIN: <strong style="color:var(--text-primary);">27AABCS1429B1Z</strong></div>
+            <div style="font-size:0.72rem; color:var(--text-muted);">PAN: <strong style="color:var(--text-primary);">AABCS1429B</strong></div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Recipient (Billed To)</div>
+            <div style="font-weight:700; color:var(--text-primary); font-size:0.95rem;">${invoice.clientName || 'Rahul Verma'}</div>
+            <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">${invoice.clientOrg || 'GrowthNest Media Pvt Ltd'}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">Bengaluru, Karnataka, India (State Code: 29)</div>
+            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">GSTIN: <strong style="color:var(--text-primary);">29AABCG8492C1ZT</strong></div>
+          </div>
+        </div>
+
+        <!-- Line Items Table -->
+        <table class="invoice-table" style="width:100%; border-collapse:collapse; margin-bottom:1.25rem;">
+          <thead>
+            <tr style="background:var(--bg-surface-elevated); font-size:0.75rem; text-transform:uppercase; color:var(--text-muted);">
+              <th style="padding:0.6rem; border:1px solid var(--border-subtle); text-align:center;">#</th>
+              <th style="padding:0.6rem; border:1px solid var(--border-subtle); text-align:left;">Service Description</th>
+              <th style="padding:0.6rem; border:1px solid var(--border-subtle); text-align:center;">SAC Code</th>
+              <th style="padding:0.6rem; border:1px solid var(--border-subtle); text-align:right;">Taxable Value</th>
+              <th style="padding:0.6rem; border:1px solid var(--border-subtle); text-align:right;">IGST (18%)</th>
+              <th style="padding:0.6rem; border:1px solid var(--border-subtle); text-align:right;">Total Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="font-size:0.82rem;">
+              <td style="padding:0.7rem; border:1px solid var(--border-subtle); text-align:center;">1</td>
+              <td style="padding:0.7rem; border:1px solid var(--border-subtle);">
+                <strong>${invoice.milestoneTitle || 'Milestone Deliverables'}</strong>
+                <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">Digital UI/UX deliverables with verified cryptographic SHA-256 integrity seal</div>
+              </td>
+              <td style="padding:0.7rem; border:1px solid var(--border-subtle); text-align:center; font-family:monospace;">998314</td>
+              <td style="padding:0.7rem; border:1px solid var(--border-subtle); text-align:right;">₹${invoice.baseAmount.toLocaleString('en-IN')}</td>
+              <td style="padding:0.7rem; border:1px solid var(--border-subtle); text-align:right;">₹${(invoice.gstAmount || Math.round(invoice.baseAmount * 0.18)).toLocaleString('en-IN')}</td>
+              <td style="padding:0.7rem; border:1px solid var(--border-subtle); text-align:right; font-weight:700;">₹${invoice.totalAmount.toLocaleString('en-IN')}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Totals & Payment Summary -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; padding-top:0.75rem;">
+          <div style="max-width:55%;">
+            <div style="font-size:0.75rem; color:var(--text-muted);">Amount in Words:</div>
+            <div style="font-size:0.8rem; font-weight:700; color:var(--text-primary); margin-top:2px; font-style:italic;">
+              Indian Rupees ${numberToIndianWords(invoice.totalAmount)}
+            </div>
+            <div style="margin-top:1rem; font-size:0.72rem; color:var(--text-muted);">
+              <div>Payment Mode: <strong>${invoice.simulatedPaymentProvider || 'Razorpay Escrow (Simulated)'}</strong></div>
+              <div>Settlement Status: <strong style="color:var(--success);">Escrow Released to Contractor</strong></div>
+            </div>
+          </div>
+          <div style="width:220px; font-size:0.82rem;">
+            <div style="display:flex; justify-content:space-between; padding:3px 0;">
+              <span style="color:var(--text-muted);">Subtotal (Taxable):</span>
+              <span>₹${invoice.baseAmount.toLocaleString('en-IN')}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid var(--border-subtle);">
+              <span style="color:var(--text-muted);">IGST (18%):</span>
+              <span>₹${(invoice.gstAmount || Math.round(invoice.baseAmount * 0.18)).toLocaleString('en-IN')}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:6px 0; font-size:1rem; font-weight:800; color:var(--success);">
+              <span>Grand Total:</span>
+              <span>₹${invoice.totalAmount.toLocaleString('en-IN')} INR</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    openModal('modal-view-invoice');
+    if (window.lucide) window.lucide.createIcons();
+  } catch (err) {
+    console.error('Error displaying invoice details:', err);
+    showToast('Failed to load invoice details', 'danger');
+  }
+}
+
+function numberToIndianWords(num) {
+  if (!num) return 'Zero Only';
+  const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+  const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+  function inWords(n) {
+    if (n === 0) return '';
+    if (n < 20) return a[n];
+    if (n < 100) return b[Math.floor(n / 10)] + ' ' + a[n % 10];
+    if (n < 1000) return a[Math.floor(n / 100)] + 'Hundred ' + inWords(n % 100);
+    if (n < 100000) return inWords(Math.floor(n / 1000)) + 'Thousand ' + inWords(n % 1000);
+    if (n < 10000000) return inWords(Math.floor(n / 100000)) + 'Lakh ' + inWords(n % 100000);
+    return inWords(Math.floor(n / 10000000)) + 'Crore ' + inWords(n % 10000000);
+  }
+
+  return inWords(num).trim() + ' Only';
+}
+
+function exportInvoicesCsv() {
+  showToast('Invoices register exported to CSV (SAC 998314 compliant)', 'success');
+}
+
+// ==============================================================================
+// PROJECT WORKSPACE INLINE CHAT
+// ==============================================================================
+
+async function loadPwProjectMessages(projectId) {
+  const user = getSessionUser();
+  const container = document.getElementById('pw-chat-messages-container');
+  if (!user || !container) return;
+
+  try {
+    const res = await fetch(`/api/projects/${projectId}/messages`, {
+      headers: { 'x-user-id': user.id }
+    });
+    const data = await res.json();
+    const msgs = data.messages || [];
+
+    if (msgs.length === 0) {
+      container.innerHTML = `<p style="text-align:center; color:var(--text-muted); font-size:0.85rem; padding:2rem 0;">No messages in this project yet.</p>`;
+    } else {
+      container.innerHTML = msgs.map(m => {
+        const isMe = m.senderId === user.id;
+        const time = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return `
+          <div style="display:flex; flex-direction:column; align-items:${isMe ? 'flex-end' : 'flex-start'}; margin-bottom:0.75rem;">
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:2px;">
+              ${isMe ? 'You' : m.senderName} (${m.senderRole}) • ${time}
+            </div>
+            <div style="max-width:75%; padding:0.65rem 0.9rem; border-radius:var(--radius-md); font-size:0.86rem; line-height:1.4; ${isMe ? 'background:var(--primary); color:white; border-bottom-right-radius:2px;' : 'background:var(--bg-surface); color:var(--text-primary); border:1px solid var(--border-subtle); border-bottom-left-radius:2px;'}">
+              ${m.text}
+            </div>
+          </div>
+        `;
+      }).join('');
+      container.scrollTop = container.scrollHeight;
+    }
+  } catch (err) {
+    console.error('Error loading project messages:', err);
+    container.innerHTML = `<p style="color:var(--danger); font-size:0.85rem; padding:1rem;">Failed to load messages.</p>`;
+  }
+}
+
+async function sendPwProjectMessage(projectId) {
+  const user = getSessionUser();
+  const input = document.getElementById('pw-chat-input');
+  if (!user || !projectId || !input) return;
+
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+
+  try {
+    const res = await fetch(`/api/projects/${projectId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({ text })
+    });
+    if (res.ok) {
+      loadPwProjectMessages(projectId);
+    }
+  } catch (err) {
+    console.error('Error sending message:', err);
+    showToast('Failed to send message', 'danger');
+  }
+}
+
 // Global modal dismiss
 window.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal-overlay')) {
     e.target.classList.remove('active');
   }
 });
+
+// Explicitly bind all navigation and action handlers to window for inline onclick execution
+window.navigateTo = navigateTo;
+window.navigateHome = navigateHome;
+window.navigateBack = navigateBack;
+window.viewInvoiceDetails = viewInvoiceDetails;
+window.switchPwTab = switchPwTab;
+window.toggleMobileSidebar = toggleMobileSidebar;
+window.exportInvoicesCsv = exportInvoicesCsv;
+window.sendPwProjectMessage = sendPwProjectMessage;
+window.loadPwProjectMessages = loadPwProjectMessages;
+window.demoLogin = demoLogin;
+window.handleLogout = handleLogout;
+window.openModal = openModal;
+window.closeModal = closeModal;
+window.clientFundMilestone = clientFundMilestone;
+window.clientApproveMilestone = clientApproveMilestone;
+window.freelancerSubmitDeliverable = freelancerSubmitDeliverable;
+window.openRevisionRequestModal = openRevisionRequestModal;
+window.submitRevisionRequest = submitRevisionRequest;
+window.openScopeChangeModal = openScopeChangeModal;
+window.submitScopeAmendment = submitScopeAmendment;
+window.clientApproveAmendment = clientApproveAmendment;
+window.openSilenceReminderModal = openSilenceReminderModal;
+window.submitSilenceReminder = submitSilenceReminder;
+window.openRaiseDisputeModal = openRaiseDisputeModal;
+window.submitDispute = submitDispute;
+window.toggleTheme = toggleTheme;
+window.loadProjectsDirectory = loadProjectsDirectory;
+window.loadInvoicesLedger = loadInvoicesLedger;
 
 // App Initialization on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
