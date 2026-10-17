@@ -2,7 +2,6 @@
   "name": "bharosa-freelance-os",
   "version": "1.0.0",
   "description": "Bharosa - AI-Powered Freelance Operating System, Project Management & Trust Platform",
-  "main": "index.html",
   "scripts": {
     "start": "npx -y serve .",
     "dev": "npx -y serve ."
