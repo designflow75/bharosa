@@ -209,7 +209,83 @@ function getInitialSeed() {
       }
     ],
 
-    disputes: []
+    disputes: [],
+
+    opportunities: [
+      {
+        id: 'OPP-101',
+        title: 'SaaS Billing Dashboard & Analytics Portal',
+        clientName: 'Rahul Verma',
+        clientOrg: 'GrowthNest Media',
+        clientId: 'USR-102',
+        totalBudget: 85000,
+        timeline: '14 Days',
+        category: 'Product Design & Frontend Tokens',
+        description: 'Complete redesign of enterprise subscription management, invoice breakdown views, and responsive charts.',
+        milestonesCount: 3,
+        milestonesPreview: [
+          { title: 'Information Architecture & Wireframes', amount: 30000 },
+          { title: 'Interactive Prototype & Component Library', amount: 30000 },
+          { title: 'Production Token Export & QA Handoff', amount: 25000 }
+        ],
+        protection: 'Payment via provider (simulated in demo) • File hashes recorded for integrity'
+      },
+      {
+        id: 'OPP-102',
+        title: 'Mobile Wallet Biometric Checkout Flow',
+        clientName: 'Ananya Deshmukh',
+        clientOrg: 'PayZen Global',
+        clientId: 'USR-103',
+        totalBudget: 60000,
+        timeline: '10 Days',
+        category: 'Fintech Mobile UX',
+        description: 'Native iOS & Android payment authorization screens with biometric confirmation and fallback PIN authentication.',
+        milestonesCount: 2,
+        milestonesPreview: [
+          { title: 'User Flow Diagrams & Low-Fi Prototyping', amount: 25000 },
+          { title: 'High-Fi Interactive Prototypes with Micro-interactions', amount: 35000 }
+        ],
+        protection: 'Payment via provider (simulated in demo) • Revision Quota: 2 Rounds'
+      },
+      {
+        id: 'OPP-103',
+        title: 'D2C Brand Identity & Packaging Guidelines',
+        clientName: 'Karan Mehra',
+        clientOrg: 'Artisan Botanics',
+        clientId: 'USR-104',
+        totalBudget: 45000,
+        timeline: '7 Days',
+        category: 'Brand Strategy & Visual Assets',
+        description: 'Minimalist sustainable packaging layout, typography scale, logo vector assets, and social template library.',
+        milestonesCount: 2,
+        milestonesPreview: [
+          { title: 'Brand Guidelines & Logo Variations', amount: 20000 },
+          { title: 'Packaging Dielines & Social Kit', amount: 25000 }
+        ],
+        protection: 'Payment via provider (simulated in demo) • SOW Protected'
+      }
+    ],
+
+    messages: [
+      {
+        id: 'MSG-001',
+        projectId: 'PRJ-101',
+        senderId: 'USR-102',
+        senderName: 'Rahul Verma',
+        senderRole: 'client',
+        text: 'Hi Priya, reviewed Milestone 1 wireframes — architecture looks solid. Looking forward to the interactive prototype on Milestone 2.',
+        timestamp: '2026-10-15T10:15:00Z'
+      },
+      {
+        id: 'MSG-002',
+        projectId: 'PRJ-101',
+        senderId: 'USR-101',
+        senderName: 'Priya Sharma',
+        senderRole: 'freelancer',
+        text: 'Thanks Rahul! The interactive prototype has been uploaded to Milestone 2 with cryptographic SHA-256 integrity hashes.',
+        timestamp: '2026-10-16T11:35:00Z'
+      }
+    ]
   };
 }
 
@@ -762,6 +838,64 @@ app.post('/api/milestones/:id/transition', authenticateUser, (req, res) => {
   });
 });
 
+app.post('/api/milestones/:id/submit', authenticateUser, (req, res) => {
+  const milestoneId = req.params.id;
+  let targetProject = null;
+  let targetMilestone = null;
+
+  for (const p of DB.projects) {
+    const m = p.milestones.find(item => item.id === milestoneId);
+    if (m) {
+      targetProject = p;
+      targetMilestone = m;
+      break;
+    }
+  }
+
+  if (!targetProject || !targetMilestone) {
+    return res.status(404).json({ error: 'Milestone not found' });
+  }
+
+  if (targetProject.freelancerId !== req.user.id && req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden: Only the assigned freelancer can submit work.' });
+  }
+
+  const { deliverables, notes } = req.body;
+  if (deliverables && Array.isArray(deliverables)) {
+    targetMilestone.deliverables = deliverables.map(f => ({
+      name: f.name || 'Deliverable_File.zip',
+      hash: f.hash || ('sha256-' + Math.random().toString(36).substring(2, 18)),
+      size: f.size || '3.5 MB',
+      type: f.type || 'FILE',
+      submittedAt: new Date().toISOString()
+    }));
+  }
+
+  targetMilestone.status = 'In review';
+  targetMilestone.lastActivityAt = new Date().toISOString();
+  if (notes) targetMilestone.submissionNotes = notes;
+
+  const logEntry = {
+    id: `AUD-${Date.now().toString().slice(-4)}`,
+    timestamp: new Date().toISOString(),
+    actorId: req.user.id,
+    actorName: req.user.name,
+    actorRole: req.user.role,
+    projectId: targetProject.id,
+    milestoneId: targetMilestone.id,
+    action: 'SUBMIT_DELIVERABLES',
+    reason: notes ? `Deliverables submitted: ${notes}` : `Freelancer submitted ${targetMilestone.deliverables.length} deliverable file(s) for review.`,
+    evidenceHash: targetMilestone.deliverables?.[0]?.hash || ('sha256-' + Math.random().toString(36).substring(2, 18))
+  };
+  DB.auditLogs.unshift(logEntry);
+
+  res.json({
+    success: true,
+    milestone: targetMilestone,
+    auditEntry: logEntry
+  });
+});
+
 // ==============================================================================
 // 8. SCOPE CHANGE DRAFTS & APPROVALS (/api/milestones/:id/scope-change)
 // ==============================================================================
@@ -871,6 +1005,104 @@ app.get('/api/invoices', authenticateUser, (req, res) => {
     invs = invs.filter(i => i.clientId === req.user.id);
   }
   res.json({ invoices: invs });
+});
+
+// ==============================================================================
+// 10. OPPORTUNITIES (FIND WORK)
+// ==============================================================================
+
+app.get('/api/opportunities', authenticateUser, requireRole('freelancer', 'admin'), (req, res) => {
+  res.json({ opportunities: DB.opportunities || [] });
+});
+
+app.post('/api/opportunities/:id/accept', authenticateUser, requireRole('freelancer', 'admin'), (req, res) => {
+  const opp = (DB.opportunities || []).find(o => o.id === req.params.id);
+  if (!opp) return res.status(404).json({ error: 'Opportunity not found' });
+
+  // Create a new project from the opportunity
+  const newProjectId = `PRJ-${Date.now().toString().slice(-5)}`;
+  const newProject = {
+    id: newProjectId,
+    title: opp.title,
+    description: opp.description,
+    clientId: opp.clientId || 'USR-102',
+    clientName: opp.clientName,
+    clientOrg: opp.clientOrg,
+    freelancerId: req.user.id,
+    freelancerName: req.user.name,
+    totalBudget: opp.totalBudget,
+    spentBudget: 0,
+    status: 'active',
+    startDate: new Date().toISOString().slice(0, 10),
+    freelancerPrivateNotes: '',
+    milestones: (opp.milestonesPreview || []).map((m, i) => ({
+      id: `MS-${newProjectId}-${i + 1}`,
+      title: `Milestone ${i + 1}: ${m.title}`,
+      amount: m.amount,
+      status: 'Agreed',
+      deadline: new Date(Date.now() + (i + 1) * 7 * 86400000).toISOString(),
+      completedAt: null,
+      deliverables: [],
+      revisionsAllowed: 2,
+      revisionsUsed: 0
+    }))
+  };
+
+  DB.projects.push(newProject);
+
+  // Remove from opportunities
+  DB.opportunities = DB.opportunities.filter(o => o.id !== req.params.id);
+
+  DB.auditLogs.unshift({
+    id: `AUD-${Date.now().toString().slice(-4)}`,
+    timestamp: new Date().toISOString(),
+    actorId: req.user.id,
+    actorName: req.user.name,
+    actorRole: req.user.role,
+    projectId: newProjectId,
+    milestoneId: null,
+    action: 'PROJECT_CREATED_FROM_OPPORTUNITY',
+    reason: `Accepted opportunity "${opp.title}". New project created with ₹${opp.totalBudget} budget.`
+  });
+
+  res.json({ success: true, project: newProject });
+});
+
+// ==============================================================================
+// 11. MESSAGES (PER PROJECT)
+// ==============================================================================
+
+app.get('/api/projects/:id/messages', authenticateUser, (req, res) => {
+  const project = DB.projects.find(p => p.id === req.params.id);
+  if (!project) return res.status(404).json({ error: 'Project not found' });
+
+  const isParticipant = project.freelancerId === req.user.id || project.clientId === req.user.id || req.user.role === 'admin';
+  if (!isParticipant) return res.status(403).json({ error: 'Forbidden' });
+
+  const msgs = (DB.messages || []).filter(m => m.projectId === req.params.id);
+  res.json({ messages: msgs });
+});
+
+app.post('/api/projects/:id/messages', authenticateUser, (req, res) => {
+  const project = DB.projects.find(p => p.id === req.params.id);
+  if (!project) return res.status(404).json({ error: 'Project not found' });
+
+  const isParticipant = project.freelancerId === req.user.id || project.clientId === req.user.id || req.user.role === 'admin';
+  if (!isParticipant) return res.status(403).json({ error: 'Forbidden' });
+
+  const msg = {
+    id: `MSG-${Date.now().toString().slice(-5)}`,
+    projectId: req.params.id,
+    senderId: req.user.id,
+    senderName: req.user.name,
+    senderRole: req.user.role,
+    text: req.body.text || '',
+    timestamp: new Date().toISOString()
+  };
+  if (!DB.messages) DB.messages = [];
+  DB.messages.push(msg);
+
+  res.json({ success: true, message: msg });
 });
 
 module.exports = app;

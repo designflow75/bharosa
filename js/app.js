@@ -104,7 +104,16 @@ function routeView(pathname) {
   updateHeaderAndSidebar(user);
 
   // Route Views
-  if (pathname.startsWith('/freelancer/dashboard') || pathname === '/freelancer') {
+  if (pathname === '/freelancer/find-work') {
+    showSection('view-freelancer-find-work');
+    loadOpportunities();
+  } else if (pathname === '/freelancer/submit-work') {
+    showSection('view-freelancer-submit-work');
+    loadSubmitWork();
+  } else if (pathname === '/freelancer/messages') {
+    showSection('view-freelancer-messages');
+    loadFreelancerMessages();
+  } else if (pathname.startsWith('/freelancer/dashboard') || pathname === '/freelancer') {
     showSection('view-freelancer-dashboard');
     loadFreelancerDashboard();
   } else if (pathname.startsWith('/client/dashboard') || pathname === '/client') {
@@ -280,29 +289,33 @@ function updateHeaderAndSidebar(user) {
         <span class="icon"><i data-lucide="layout-dashboard" style="width:18px;height:18px;"></i></span>
         <span>Dashboard</span>
       </a>
-      <a class="nav-item ${appState.currentRoute === '/freelancer/projects' ? 'active' : ''}" onclick="navigateTo('/freelancer/dashboard')">
-        <span class="icon"><i data-lucide="kanban-square" style="width:18px;height:18px;"></i></span>
-        <span>Projects</span>
-      </a>
-      <a class="nav-item" onclick="openUrlImportModal()">
+      <a class="nav-item ${appState.currentRoute === '/freelancer/find-work' ? 'active' : ''}" onclick="navigateTo('/freelancer/find-work')">
         <span class="icon"><i data-lucide="compass" style="width:18px;height:18px;"></i></span>
-        <span>Opportunities</span>
-        <span class="badge-count" style="background:var(--primary-light); color:var(--primary);">Demo</span>
+        <span>Find Work</span>
+        <span class="badge-count" style="background:var(--success-bg); color:var(--success);">New</span>
       </a>
-      <a class="nav-item" onclick="showToast('Invoicing ledger loaded with GST compliance fields.', 'info')">
-        <span class="icon"><i data-lucide="receipt" style="width:18px;height:18px;"></i></span>
-        <span>Invoices</span>
+      <a class="nav-item ${appState.currentRoute === '/freelancer/submit-work' ? 'active' : ''}" onclick="navigateTo('/freelancer/submit-work')">
+        <span class="icon"><i data-lucide="upload-cloud" style="width:18px;height:18px;"></i></span>
+        <span>Submit Work</span>
       </a>
-      <div class="nav-section-label">Trust & Protection</div>
-      <a class="nav-item" onclick="showToast('Evidence vault: All deliverable hashes recorded for integrity.', 'info')">
-        <span class="icon"><i data-lucide="shield-alert" style="width:18px;height:18px;"></i></span>
-        <span>Evidence Timeline</span>
-      </a>
-      <a class="nav-item" onclick="showToast('Direct client messaging channel active.', 'info')">
+      <a class="nav-item ${appState.currentRoute === '/freelancer/messages' ? 'active' : ''}" onclick="navigateTo('/freelancer/messages')">
         <span class="icon"><i data-lucide="message-square" style="width:18px;height:18px;"></i></span>
         <span>Messages</span>
       </a>
-      <a class="nav-item" onclick="showToast('Freelancer profile settings: Priya Sharma.', 'info')">
+      <div class="nav-section-label">Trust & Finance</div>
+      <a class="nav-item" onclick="navigateTo('/freelancer/dashboard')">
+        <span class="icon"><i data-lucide="kanban-square" style="width:18px;height:18px;"></i></span>
+        <span>Projects</span>
+      </a>
+      <a class="nav-item" onclick="navigateTo('/freelancer/dashboard')">
+        <span class="icon"><i data-lucide="receipt" style="width:18px;height:18px;"></i></span>
+        <span>Invoices</span>
+      </a>
+      <a class="nav-item" onclick="navigateTo('/freelancer/dashboard')">
+        <span class="icon"><i data-lucide="shield-alert" style="width:18px;height:18px;"></i></span>
+        <span>Evidence Timeline</span>
+      </a>
+      <a class="nav-item" onclick="showToast('Profile settings — Coming soon', 'info')">
         <span class="icon"><i data-lucide="settings" style="width:18px;height:18px;"></i></span>
         <span>Settings</span>
       </a>
@@ -438,9 +451,14 @@ function renderFreelancerDashboardUI(data) {
           <div class="action-item-desc">${item.message}</div>
           <div class="action-item-footer">
             <span>Due: ${new Date(item.deadline).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</span>
-            <button class="btn-primary" style="font-size:0.74rem; padding:4px 10px;" onclick="navigateTo('/projects/${item.projectId}')">
-              Open Workspace →
-            </button>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-primary" style="font-size:0.74rem; padding:4px 10px;" onclick="navigateTo('/freelancer/submit-work')">
+                Submit Work
+              </button>
+              <button class="btn-secondary" style="font-size:0.74rem; padding:4px 10px;" onclick="navigateTo('/projects/${item.projectId}')">
+                Workspace →
+              </button>
+            </div>
           </div>
         </div>
       `).join('');
@@ -1293,6 +1311,588 @@ function initTheme() {
 
 function handleGlobalSearch(e) {
   // Simple filter helper
+}
+
+// Mobile Menu Toggle
+function toggleMobileSidebar(force) {
+  const sidebar = document.getElementById('app-sidebar');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  if (!sidebar) return;
+  const shouldOpen = typeof force === 'boolean' ? force : !sidebar.classList.contains('mobile-open');
+  if (shouldOpen) {
+    sidebar.classList.add('mobile-open');
+    if (backdrop) backdrop.classList.add('active');
+  } else {
+    sidebar.classList.remove('mobile-open');
+    if (backdrop) backdrop.classList.remove('active');
+  }
+}
+
+// Close mobile sidebar on route navigation
+const originalNavigateTo = navigateTo;
+window.navigateTo = function(path, pushState = true) {
+  toggleMobileSidebar(false);
+  originalNavigateTo(path, pushState);
+};
+
+// ==============================================================================
+// OPPORTUNITIES CONTROLLER (FIND WORK)
+// ==============================================================================
+
+async function loadOpportunities() {
+  const user = getSessionUser();
+  if (!user) return;
+
+  const container = document.getElementById('opportunities-list');
+  const emptyEl = document.getElementById('opportunities-empty');
+  if (!container) return;
+
+  container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:2rem; color:var(--text-muted);">Loading available opportunities...</div>`;
+
+  try {
+    const res = await fetch('/api/opportunities', {
+      headers: { 'x-user-id': user.id }
+    });
+    if (!res.ok) throw new Error('Failed to fetch opportunities');
+    const data = await res.json();
+    const opps = data.opportunities || [];
+
+    if (opps.length === 0) {
+      container.innerHTML = '';
+      if (emptyEl) emptyEl.style.display = 'block';
+      return;
+    }
+
+    if (emptyEl) emptyEl.style.display = 'none';
+    container.innerHTML = opps.map(opp => `
+      <div class="card-section" style="display:flex; flex-direction:column; justify-content:space-between; border-left: 3px solid var(--primary); transition:transform 0.2s, box-shadow 0.2s;">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+            <div>
+              <span class="brand-badge" style="background:var(--primary-light); color:var(--primary); font-size:0.7rem; font-weight:700;">${opp.clientOrg}</span>
+              <h3 style="margin-top:0.4rem; font-size:1.1rem; color:var(--text-primary);">${opp.title}</h3>
+              <p style="font-size:0.78rem; color:var(--text-muted);">Posted by ${opp.clientName} • Verified Client</p>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:1.2rem; font-weight:800; color:var(--success);">₹${opp.totalBudget.toLocaleString('en-IN')}</div>
+              <span style="font-size:0.7rem; color:var(--text-muted);">Fixed Budget</span>
+            </div>
+          </div>
+
+          <p style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin-bottom:1rem;">${opp.description}</p>
+
+          <!-- Milestone Preview Breakdown -->
+          <div style="background:var(--bg-surface-elevated); border-radius:var(--radius-md); padding:0.75rem; margin-bottom:1rem; border:1px solid var(--border-subtle);">
+            <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.5rem; letter-spacing:0.05em;">
+              Milestone Breakdown (${opp.milestonesPreview ? opp.milestonesPreview.length : 0} Phases)
+            </div>
+            ${(opp.milestonesPreview || []).map((m, idx) => `
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; padding:4px 0; ${idx > 0 ? 'border-top:1px dashed var(--border-subtle);' : ''}">
+                <span style="color:var(--text-secondary);"><strong style="color:var(--text-primary);">M${idx + 1}:</strong> ${m.title}</span>
+                <span style="font-weight:600; color:var(--text-primary);">₹${m.amount.toLocaleString('en-IN')}</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Tags -->
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:1.25rem;">
+            <span class="btn-tag" style="font-size:0.7rem; background:rgba(99,102,241,0.08); color:var(--primary);"><i data-lucide="shield" style="width:12px;height:12px;margin-right:3px;"></i> Escrow Protected</span>
+            <span class="btn-tag" style="font-size:0.7rem;">Milestone Locked</span>
+            <span class="btn-tag" style="font-size:0.7rem;">GST Compliant</span>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.75rem; border-top:1px solid var(--border-subtle);">
+          <span style="font-size:0.78rem; color:var(--text-muted);"><i data-lucide="clock" style="width:13px;height:13px;vertical-align:-2px;"></i> Est. 3-4 Weeks</span>
+          <button class="btn-primary" onclick="acceptOpportunity('${opp.id}')" id="btn-accept-${opp.id}" style="padding:0.5rem 1rem; font-size:0.82rem;">
+            <i data-lucide="check" style="width:14px;height:14px;"></i>
+            <span>Accept &amp; Begin Work</span>
+          </button>
+        </div>
+      </div>
+    `).join('');
+
+    if (window.lucide) window.lucide.createIcons();
+  } catch (err) {
+    console.error('Error loading opportunities:', err);
+    container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:2rem; color:var(--danger);">Error loading opportunities. Please try again.</div>`;
+  }
+}
+
+async function acceptOpportunity(oppId) {
+  const user = getSessionUser();
+  if (!user) return;
+
+  const btn = document.getElementById(`btn-accept-${oppId}`);
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<span>Accepting...</span>`;
+  }
+
+  try {
+    const res = await fetch(`/api/opportunities/${oppId}/accept`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      }
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('Opportunity accepted! New project workspace created.', 'success');
+      navigateTo(`/projects/${data.project.id}`);
+    } else {
+      showToast(data.error || 'Failed to accept opportunity', 'danger');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="check" style="width:14px;height:14px;"></i><span>Accept &amp; Begin Work</span>`;
+      }
+    }
+  } catch (err) {
+    console.error('Error accepting opportunity:', err);
+    showToast('Failed to accept opportunity', 'danger');
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<i data-lucide="check" style="width:14px;height:14px;"></i><span>Accept &amp; Begin Work</span>`;
+    }
+  }
+}
+
+// ==============================================================================
+// SUBMIT WORK CONTROLLER
+// ==============================================================================
+
+const submitWorkState = {
+  projects: [],
+  selectedProjectId: null,
+  selectedMilestoneId: null,
+  attachedFiles: []
+};
+
+async function loadSubmitWork() {
+  const user = getSessionUser();
+  if (!user) return;
+
+  resetSubmitWorkUI();
+
+  const selector = document.getElementById('sw-project-milestone-selector');
+  if (!selector) return;
+
+  selector.innerHTML = `<div style="color:var(--text-muted); padding:1rem; text-align:center;">Loading active milestones...</div>`;
+
+  try {
+    const res = await fetch('/api/projects', {
+      headers: { 'x-user-id': user.id }
+    });
+    if (!res.ok) throw new Error('Failed to load projects');
+    const data = await res.json();
+    const projects = (data.projects || []).filter(p => p.freelancerId === user.id);
+    submitWorkState.projects = projects;
+
+    if (projects.length === 0) {
+      selector.innerHTML = `
+        <div style="text-align:center; padding:2rem; color:var(--text-muted);">
+          <p style="margin-bottom:1rem;">You don't have any active projects yet.</p>
+          <button class="btn-primary" onclick="navigateTo('/freelancer/find-work')">Find Work Opportunities</button>
+        </div>
+      `;
+      return;
+    }
+
+    let html = `<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1rem;">`;
+    projects.forEach(project => {
+      const activeMilestones = (project.milestones || []).filter(m => ['Agreed', 'In progress', 'Revision requested'].includes(m.status));
+      html += `
+        <div class="card-section" style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); padding:1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.5rem;">
+            <h4 style="color:var(--text-primary); font-size:0.95rem;">${project.title}</h4>
+            <span class="brand-badge" style="font-size:0.68rem;">${project.clientOrg}</span>
+          </div>
+          <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.75rem;">
+            Budget: ₹${project.totalBudget.toLocaleString('en-IN')} • Client: ${project.clientName}
+          </div>
+          <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.4rem;">
+            Select Milestone to Submit:
+          </div>
+          <div style="display:flex; flex-direction:column; gap:0.4rem;">
+            ${activeMilestones.length === 0 ? `
+              <span style="font-size:0.78rem; color:var(--text-muted); font-style:italic;">All current milestones completed or in review.</span>
+            ` : activeMilestones.map(m => `
+              <div onclick="selectMilestoneForSubmission('${project.id}', '${m.id}')" id="sw-ms-card-${m.id}" style="padding:0.6rem 0.75rem; border:1px solid var(--border-subtle); border-radius:var(--radius-md); background:var(--bg-surface); cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:all 0.2s;">
+                <div>
+                  <div style="font-weight:600; font-size:0.84rem; color:var(--text-primary);">${m.title}</div>
+                  <span class="status-pill ${m.status === 'Revision requested' ? 'warning' : 'in-progress'}" style="font-size:0.65rem;">${m.status}</span>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-weight:700; color:var(--success); font-size:0.84rem;">₹${m.amount.toLocaleString('en-IN')}</div>
+                  <span style="font-size:0.68rem; color:var(--primary); font-weight:600;">Click to select →</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+    selector.innerHTML = html;
+
+    if (window.lucide) window.lucide.createIcons();
+  } catch (err) {
+    console.error('Error loading submit work projects:', err);
+    selector.innerHTML = `<div style="color:var(--danger); padding:1rem;">Failed to load projects.</div>`;
+  }
+}
+
+function selectMilestoneForSubmission(projectId, milestoneId) {
+  submitWorkState.selectedProjectId = projectId;
+  submitWorkState.selectedMilestoneId = milestoneId;
+
+  // Highlight selected card
+  document.querySelectorAll('[id^="sw-ms-card-"]').forEach(el => {
+    el.style.borderColor = 'var(--border-subtle)';
+    el.style.background = 'var(--bg-surface)';
+  });
+  const selectedEl = document.getElementById(`sw-ms-card-${milestoneId}`);
+  if (selectedEl) {
+    selectedEl.style.borderColor = 'var(--primary)';
+    selectedEl.style.background = 'var(--primary-light)';
+  }
+
+  // Show Step 2
+  const step2 = document.getElementById('sw-step-2');
+  if (step2) {
+    step2.style.display = 'block';
+    step2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function handleSubmitWorkFiles(event) {
+  const files = Array.from(event.target.files || []);
+  if (files.length === 0) return;
+
+  const mockDeliverables = files.map(f => {
+    const mockHash = 'sha256-' + Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
+    return {
+      name: f.name,
+      size: (f.size / 1024 / 1024).toFixed(2) + ' MB',
+      type: f.name.split('.').pop().toUpperCase(),
+      hash: mockHash,
+      uploadedAt: new Date().toISOString()
+    };
+  });
+
+  submitWorkState.attachedFiles = [...submitWorkState.attachedFiles, ...mockDeliverables];
+  renderAttachedFilesList();
+  updateSubmitWorkSummary();
+}
+
+function renderAttachedFilesList() {
+  const fileListEl = document.getElementById('sw-file-list');
+  if (!fileListEl) return;
+
+  if (submitWorkState.attachedFiles.length === 0) {
+    fileListEl.innerHTML = '';
+    return;
+  }
+
+  fileListEl.innerHTML = `
+    <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.5rem;">
+      Attached Files (${submitWorkState.attachedFiles.length})
+    </div>
+    <div style="display:flex; flex-direction:column; gap:0.4rem;">
+      ${submitWorkState.attachedFiles.map((f, idx) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); font-size:0.8rem;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <i data-lucide="file-check" style="width:16px;height:16px;color:var(--success);"></i>
+            <div>
+              <span style="font-weight:600; color:var(--text-primary);">${f.name}</span>
+              <span style="color:var(--text-muted); font-size:0.7rem; margin-left:6px;">${f.size}</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="btn-tag" style="font-size:0.65rem; font-family:monospace; background:var(--success-bg); color:var(--success); border-color:var(--success-border);" title="Integrity Hash">${f.hash.slice(0, 16)}...</span>
+            <button onclick="removeAttachedFile(${idx})" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:2px;" title="Remove file">
+              <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+            </button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function removeAttachedFile(index) {
+  submitWorkState.attachedFiles.splice(index, 1);
+  renderAttachedFilesList();
+  updateSubmitWorkSummary();
+}
+
+function updateSubmitWorkSummary() {
+  const step3 = document.getElementById('sw-step-3');
+  const summaryEl = document.getElementById('sw-review-summary');
+  if (!step3 || !summaryEl) return;
+
+  if (submitWorkState.attachedFiles.length === 0) {
+    step3.style.display = 'none';
+    return;
+  }
+
+  const project = submitWorkState.projects.find(p => p.id === submitWorkState.selectedProjectId);
+  const milestone = project ? (project.milestones || []).find(m => m.id === submitWorkState.selectedMilestoneId) : null;
+
+  summaryEl.innerHTML = `
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:0.75rem;">
+      <div>
+        <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase;">Project</div>
+        <div style="font-weight:600; color:var(--text-primary);">${project ? project.title : 'Selected Project'}</div>
+      </div>
+      <div>
+        <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase;">Target Milestone</div>
+        <div style="font-weight:600; color:var(--text-primary);">${milestone ? milestone.title : 'Milestone'}</div>
+      </div>
+      <div>
+        <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase;">Milestone Escrow Value</div>
+        <div style="font-weight:700; color:var(--success); font-size:1rem;">₹${milestone ? milestone.amount.toLocaleString('en-IN') : '0'} INR</div>
+      </div>
+      <div>
+        <div style="font-size:0.72rem; color:var(--text-muted); text-transform:uppercase;">Files Attached</div>
+        <div style="font-weight:600; color:var(--text-primary);">${submitWorkState.attachedFiles.length} file(s) with SHA-256 integrity hashes</div>
+      </div>
+    </div>
+    <div style="font-size:0.78rem; color:var(--text-muted); background:var(--bg-surface); padding:0.6rem 0.8rem; border-radius:var(--radius-sm); border-left:3px solid var(--info);">
+      <strong style="color:var(--text-primary);">What happens next:</strong> Milestone state transitions from "${milestone ? milestone.status : 'In progress'}" to <strong>"In review"</strong>. Client is notified to review and release funds or request a scoped revision.
+    </div>
+  `;
+
+  step3.style.display = 'block';
+  if (window.lucide) window.lucide.createIcons();
+}
+
+async function executeSubmitWork() {
+  const user = getSessionUser();
+  if (!user || !submitWorkState.selectedMilestoneId) return;
+
+  const submitBtn = document.getElementById('sw-submit-btn');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span>Submitting Deliverables...</span>`;
+  }
+
+  const notes = document.getElementById('sw-notes-input') ? document.getElementById('sw-notes-input').value : '';
+
+  try {
+    const res = await fetch(`/api/milestones/${submitWorkState.selectedMilestoneId}/submit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({
+        deliverables: submitWorkState.attachedFiles,
+        notes: notes
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      showToast('Deliverables submitted successfully! Milestone is now in review.', 'success');
+      document.getElementById('sw-step-1').style.display = 'none';
+      document.getElementById('sw-step-2').style.display = 'none';
+      document.getElementById('sw-step-3').style.display = 'none';
+      const successEl = document.getElementById('sw-success');
+      if (successEl) {
+        successEl.style.display = 'block';
+        successEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      showToast(data.error || 'Failed to submit deliverables', 'danger');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i data-lucide="send" style="width:15px;height:15px;"></i><span>Submit for Client Review</span>`;
+      }
+    }
+  } catch (err) {
+    console.error('Error submitting deliverables:', err);
+    showToast('Failed to submit deliverables', 'danger');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<i data-lucide="send" style="width:15px;height:15px;"></i><span>Submit for Client Review</span>`;
+    }
+  }
+}
+
+function resetSubmitWork() {
+  resetSubmitWorkUI();
+  loadSubmitWork();
+}
+
+function resetSubmitWorkUI() {
+  submitWorkState.selectedProjectId = null;
+  submitWorkState.selectedMilestoneId = null;
+  submitWorkState.attachedFiles = [];
+
+  const step1 = document.getElementById('sw-step-1');
+  const step2 = document.getElementById('sw-step-2');
+  const step3 = document.getElementById('sw-step-3');
+  const successEl = document.getElementById('sw-success');
+  const notesInput = document.getElementById('sw-notes-input');
+  const fileInput = document.getElementById('sw-file-input');
+
+  if (step1) step1.style.display = 'block';
+  if (step2) step2.style.display = 'none';
+  if (step3) step3.style.display = 'none';
+  if (successEl) successEl.style.display = 'none';
+  if (notesInput) notesInput.value = '';
+  if (fileInput) fileInput.value = '';
+
+  const fileListEl = document.getElementById('sw-file-list');
+  if (fileListEl) fileListEl.innerHTML = '';
+}
+
+// ==============================================================================
+// MESSAGES CONTROLLER
+// ==============================================================================
+
+let activeMsgProjectId = null;
+
+async function loadFreelancerMessages() {
+  const user = getSessionUser();
+  if (!user) return;
+
+  const threadListEl = document.getElementById('msg-thread-list');
+  if (!threadListEl) return;
+
+  threadListEl.innerHTML = `<div style="color:var(--text-muted); padding:1rem; font-size:0.85rem;">Loading threads...</div>`;
+
+  try {
+    const res = await fetch('/api/projects', {
+      headers: { 'x-user-id': user.id }
+    });
+    if (!res.ok) throw new Error('Failed to load projects');
+    const data = await res.json();
+    const projects = data.projects || [];
+
+    if (projects.length === 0) {
+      threadListEl.innerHTML = `<div style="color:var(--text-muted); padding:1rem; font-size:0.85rem;">No active project threads.</div>`;
+      return;
+    }
+
+    threadListEl.innerHTML = projects.map(p => `
+      <div onclick="openMessageThread('${p.id}')" id="msg-thread-${p.id}" class="msg-thread-item" style="padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle); margin-bottom:0.5rem; cursor:pointer; transition:all 0.2s;">
+        <div style="font-weight:600; font-size:0.88rem; color:var(--text-primary); margin-bottom:2px;">${p.title}</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted);">
+          <span>${p.clientOrg}</span>
+          <span class="status-pill in-progress" style="font-size:0.65rem;">Active</span>
+        </div>
+      </div>
+    `).join('');
+
+    // Open first thread by default
+    if (projects.length > 0) {
+      openMessageThread(projects[0].id);
+    }
+  } catch (err) {
+    console.error('Error loading message threads:', err);
+    threadListEl.innerHTML = `<div style="color:var(--danger); padding:1rem; font-size:0.85rem;">Failed to load message threads.</div>`;
+  }
+}
+
+async function openMessageThread(projectId) {
+  const user = getSessionUser();
+  if (!user) return;
+
+  activeMsgProjectId = projectId;
+
+  // Highlight active thread item
+  document.querySelectorAll('.msg-thread-item').forEach(el => {
+    el.style.borderColor = 'var(--border-subtle)';
+    el.style.background = 'transparent';
+  });
+  const currentThread = document.getElementById(`msg-thread-${projectId}`);
+  if (currentThread) {
+    currentThread.style.borderColor = 'var(--primary)';
+    currentThread.style.background = 'var(--primary-light)';
+  }
+
+  const titleEl = document.getElementById('msg-chat-project-title');
+  const chatMessagesEl = document.getElementById('msg-chat-messages');
+  const inputAreaEl = document.getElementById('msg-chat-input-area');
+
+  if (inputAreaEl) inputAreaEl.style.display = 'block';
+
+  try {
+    const res = await fetch(`/api/projects/${projectId}/messages`, {
+      headers: { 'x-user-id': user.id }
+    });
+    const data = await res.json();
+    const msgs = data.messages || [];
+
+    if (titleEl) {
+      const threadEl = document.getElementById(`msg-thread-${projectId}`);
+      const title = threadEl ? threadEl.querySelector('div').textContent : 'Project Thread';
+      titleEl.textContent = title;
+    }
+
+    if (msgs.length === 0) {
+      chatMessagesEl.innerHTML = `
+        <div style="text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem;">
+          No messages yet. Send a message to start the discussion.
+        </div>
+      `;
+    } else {
+      chatMessagesEl.innerHTML = msgs.map(m => {
+        const isMe = m.senderId === user.id;
+        const time = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return `
+          <div style="display:flex; flex-direction:column; align-items:${isMe ? 'flex-end' : 'flex-start'}; margin-bottom:0.75rem;">
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:2px;">
+              ${isMe ? 'You' : m.senderName} (${m.senderRole}) • ${time}
+            </div>
+            <div style="max-width:70%; padding:0.65rem 0.9rem; border-radius:var(--radius-md); font-size:0.86rem; line-height:1.4; ${isMe ? 'background:var(--primary); color:white; border-bottom-right-radius:2px;' : 'background:var(--bg-surface-elevated); color:var(--text-primary); border:1px solid var(--border-subtle); border-bottom-left-radius:2px;'}">
+              ${m.text}
+            </div>
+          </div>
+        `;
+      }).join('');
+      chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+    }
+  } catch (err) {
+    console.error('Error loading project messages:', err);
+    if (chatMessagesEl) {
+      chatMessagesEl.innerHTML = `<div style="color:var(--danger); padding:1rem; font-size:0.85rem;">Failed to load messages.</div>`;
+    }
+  }
+}
+
+async function sendProjectMessage() {
+  const user = getSessionUser();
+  const input = document.getElementById('msg-chat-input');
+  if (!user || !activeMsgProjectId || !input) return;
+
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+
+  try {
+    const res = await fetch(`/api/projects/${activeMsgProjectId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({ text })
+    });
+    if (res.ok) {
+      openMessageThread(activeMsgProjectId);
+    }
+  } catch (err) {
+    console.error('Error sending message:', err);
+    showToast('Failed to send message', 'danger');
+  }
 }
 
 // Global modal dismiss

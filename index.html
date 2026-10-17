@@ -169,7 +169,10 @@
 
     <!-- Top Navigation Header -->
     <header class="top-header">
-      <div style="display: flex; align-items: center; gap: 1rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <button class="mobile-menu-toggle" id="btn-mobile-menu" onclick="toggleMobileSidebar()" title="Toggle Navigation Menu">
+          <i data-lucide="menu" style="width:20px;height:20px;"></i>
+        </button>
         <div class="auth-brand" style="cursor: pointer;" onclick="navigateHome()">
           <div class="brand-icon" style="width: 36px; height: 36px; font-size: 1.1rem;">भ</div>
           <div class="brand-text">
@@ -229,12 +232,20 @@
     </header>
 
 
+    <!-- Mobile Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleMobileSidebar(false)"></div>
+
     <!-- Sidebar Navigation: Dynamically Rendered by Role -->
-    <aside class="app-sidebar">
+    <aside class="app-sidebar" id="app-sidebar">
       <div class="sidebar-header">
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
           <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em;" id="sidebar-suite-title">FREELANCER SUITE</span>
-          <span class="brand-badge" style="font-size: 0.65rem;" id="sidebar-role-badge">Freelancer</span>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span class="brand-badge" style="font-size: 0.65rem;" id="sidebar-role-badge">Freelancer</span>
+            <button class="mobile-close-btn" onclick="toggleMobileSidebar(false)" title="Close menu">
+              <i data-lucide="x" style="width:16px;height:16px;"></i>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -270,17 +281,25 @@
             <p>What do I deliver next and when do I get paid?</p>
           </div>
           <div class="header-action-group">
+            <button class="btn-primary" onclick="navigateTo('/freelancer/find-work')">
+              <i data-lucide="compass" style="width:15px;height:15px;"></i>
+              <span>Find Work</span>
+            </button>
+            <button class="btn-secondary" onclick="navigateTo('/freelancer/submit-work')">
+              <i data-lucide="upload-cloud" style="width:15px;height:15px;"></i>
+              <span>Submit Work</span>
+            </button>
+            <button class="btn-secondary" onclick="navigateTo('/freelancer/messages')">
+              <i data-lucide="message-square" style="width:15px;height:15px;"></i>
+              <span>Messages</span>
+            </button>
             <button class="btn-secondary" onclick="openUrlImportModal()">
               <i data-lucide="link-2" style="width:15px;height:15px;"></i>
-              <span>Import Job by URL</span>
+              <span>Import URL</span>
             </button>
-            <button class="btn-ai" onclick="openNewProjectBriefModal()">
-              <i data-lucide="sparkles" style="width:15px;height:15px;"></i>
-              <span>New Project Brief</span>
-            </button>
-            <button class="btn-primary" onclick="openCreateInvoiceModal()">
+            <button class="btn-secondary" onclick="openCreateInvoiceModal()">
               <i data-lucide="receipt" style="width:15px;height:15px;"></i>
-              <span>Create Invoice</span>
+              <span>New Invoice</span>
             </button>
           </div>
         </div>
@@ -526,6 +545,175 @@
             </div>
             <div id="cl-activity-timeline">
               <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           VIEW 2B: FREELANCER — FIND WORK (/freelancer/find-work)
+           Browse available opportunities, accept gigs, view milestone previews
+           ================================================================== -->
+      <section id="view-freelancer-find-work" class="view-section">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>Find Work & Opportunities</h2>
+            <p>Browse protected project briefs from verified clients. Accept to begin a milestone-locked engagement.</p>
+          </div>
+          <div class="header-action-group">
+            <button class="btn-secondary" onclick="navigateTo('/freelancer/dashboard')">
+              <i data-lucide="arrow-left" style="width:15px;height:15px;"></i>
+              <span>Back to Dashboard</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="opportunities-list" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(380px, 1fr)); gap:1.25rem;">
+          <!-- Dynamically populated by loadOpportunities() -->
+        </div>
+
+        <div id="opportunities-empty" style="display:none; text-align:center; padding:3rem; color:var(--text-muted);">
+          <div style="font-size:2.5rem; margin-bottom:1rem;">🎯</div>
+          <h3 style="margin-bottom:0.5rem;">No Open Opportunities</h3>
+          <p style="font-size:0.85rem;">All available gigs have been accepted. Check back later or import from an external platform.</p>
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           VIEW 2C: FREELANCER — SUBMIT WORK (/freelancer/submit-work)
+           Select project & milestone, upload deliverables, see state machine feedback
+           ================================================================== -->
+      <section id="view-freelancer-submit-work" class="view-section">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>Submit Work & Deliverables</h2>
+            <p>Choose a project and milestone, attach your files, and submit for client review.</p>
+          </div>
+          <div class="header-action-group">
+            <button class="btn-secondary" onclick="navigateTo('/freelancer/dashboard')">
+              <i data-lucide="arrow-left" style="width:15px;height:15px;"></i>
+              <span>Back to Dashboard</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 1: Pick Project & Milestone -->
+        <div class="card-section" style="margin-bottom:1.5rem;" id="sw-step-1">
+          <div class="card-section-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="background:var(--primary);color:white;font-size:0.75rem;font-weight:700;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;">1</span>
+              <h3>Select Project & Milestone</h3>
+            </div>
+          </div>
+          <div id="sw-project-milestone-selector" style="padding:1rem;">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Step 2: Upload & Details -->
+        <div class="card-section" style="margin-bottom:1.5rem; display:none;" id="sw-step-2">
+          <div class="card-section-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="background:var(--primary);color:white;font-size:0.75rem;font-weight:700;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;">2</span>
+              <h3>Attach Deliverables</h3>
+            </div>
+          </div>
+          <div style="padding:1rem;">
+            <div style="border:2px dashed var(--border-subtle);border-radius:var(--radius-lg);padding:2rem;text-align:center;cursor:pointer;transition:all 0.2s;" id="sw-drop-zone" onclick="document.getElementById('sw-file-input').click()">
+              <div style="font-size:2rem;margin-bottom:0.5rem;">📁</div>
+              <p style="font-weight:600;color:var(--text-primary);margin-bottom:4px;">Drop files here or click to browse</p>
+              <p style="font-size:0.78rem;color:var(--text-muted);">Supports .fig, .pdf, .zip, .png, .psd (Demo: simulated upload)</p>
+              <input type="file" id="sw-file-input" multiple style="display:none;" onchange="handleSubmitWorkFiles(event)">
+            </div>
+            <div id="sw-file-list" style="margin-top:1rem;">
+              <!-- File chips will appear here -->
+            </div>
+            <div class="auth-input-group" style="margin-top:1rem;">
+              <label for="sw-notes-input">Submission Notes (Optional)</label>
+              <textarea id="sw-notes-input" rows="2" style="width:100%;padding:0.65rem;background:var(--bg-surface-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);color:var(--text-primary);font-family:inherit;" placeholder="Any notes about the deliverables for the client..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Submit Confirmation -->
+        <div class="card-section" style="margin-bottom:1.5rem; display:none;" id="sw-step-3">
+          <div class="card-section-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="background:var(--primary);color:white;font-size:0.75rem;font-weight:700;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;">3</span>
+              <h3>Review & Submit</h3>
+            </div>
+          </div>
+          <div style="padding:1rem;">
+            <div id="sw-review-summary" style="background:var(--bg-surface-elevated);border-radius:var(--radius-md);padding:1rem;margin-bottom:1rem;">
+              <!-- Summary injected dynamically -->
+            </div>
+            <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+              <button class="btn-secondary" onclick="resetSubmitWork()">Cancel</button>
+              <button class="btn-primary" id="sw-submit-btn" onclick="executeSubmitWork()">
+                <i data-lucide="send" style="width:15px;height:15px;"></i>
+                <span>Submit for Client Review</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Success State -->
+        <div id="sw-success" style="display:none;text-align:center;padding:3rem;">
+          <div style="font-size:3rem;margin-bottom:1rem;">✅</div>
+          <h3 style="color:var(--success);margin-bottom:0.5rem;">Deliverables Submitted Successfully!</h3>
+          <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1.5rem;">The client has been notified. Your milestone status changed to "In review". File integrity hashes have been recorded.</p>
+          <div style="display:flex;gap:0.75rem;justify-content:center;">
+            <button class="btn-secondary" onclick="navigateTo('/freelancer/dashboard')">Return to Dashboard</button>
+            <button class="btn-primary" onclick="resetSubmitWork()">Submit More Work</button>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           VIEW 2D: FREELANCER — MESSAGES (/freelancer/messages)
+           List project message threads, send and receive messages
+           ================================================================== -->
+      <section id="view-freelancer-messages" class="view-section">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>Project Messages</h2>
+            <p>Communicate directly with your clients. All messages are linked to specific projects.</p>
+          </div>
+          <div class="header-action-group">
+            <button class="btn-secondary" onclick="navigateTo('/freelancer/dashboard')">
+              <i data-lucide="arrow-left" style="width:15px;height:15px;"></i>
+              <span>Back to Dashboard</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:320px 1fr;gap:1.25rem;min-height:450px;">
+          <!-- Thread List -->
+          <div class="card-section" style="overflow-y:auto;">
+            <div class="card-section-header"><h3>Project Threads</h3></div>
+            <div id="msg-thread-list" style="padding:0.5rem;">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Chat Area -->
+          <div class="card-section" style="display:flex;flex-direction:column;">
+            <div class="card-section-header">
+              <h3 id="msg-chat-project-title">Select a project</h3>
+            </div>
+            <div id="msg-chat-messages" style="flex:1;overflow-y:auto;padding:1rem;max-height:350px;">
+              <p style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:2rem 0;">← Select a project thread to view messages</p>
+            </div>
+            <div id="msg-chat-input-area" style="border-top:1px solid var(--border-subtle);padding:0.75rem;display:none;">
+              <div style="display:flex;gap:0.5rem;">
+                <input type="text" id="msg-chat-input" placeholder="Type your message..." style="flex:1;padding:0.65rem;background:var(--bg-surface-elevated);border:1px solid var(--border-subtle);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.88rem;" onkeydown="if(event.key==='Enter')sendProjectMessage()">
+                <button class="btn-primary" onclick="sendProjectMessage()" style="padding:0.65rem 1.25rem;">
+                  <i data-lucide="send" style="width:15px;height:15px;"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>

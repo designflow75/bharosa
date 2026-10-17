@@ -159,6 +159,89 @@ async function runTests() {
   assert.strictEqual(clApproveAmd.body.amendment.status, 'approved');
   console.log('✓ Scope amendment drafted by freelancer, updated contract only upon client approval');
 
+  console.log('=== TEST 7: Opportunities & Find Work Workflow ===');
+  // Client forbidden from browsing freelancer opportunities
+  const clTryOpps = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/opportunities',
+    method: 'GET',
+    headers: { 'x-user-id': 'USR-102' }
+  });
+  assert.strictEqual(clTryOpps.status, 403);
+
+  // Freelancer gets opportunities
+  const flOpps = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/opportunities',
+    method: 'GET',
+    headers: { 'x-user-id': 'USR-101' }
+  });
+  assert.strictEqual(flOpps.status, 200);
+  assert.ok(Array.isArray(flOpps.body.opportunities));
+  assert.ok(flOpps.body.opportunities.length > 0);
+  const targetOpp = flOpps.body.opportunities[0];
+  console.log(`✓ Freelancer can browse open work briefs (${flOpps.body.opportunities.length} available), client is 403 Forbidden`);
+
+  // Freelancer accepts opportunity -> creates new project
+  const acceptRes = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: `/api/opportunities/${targetOpp.id}/accept`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-user-id': 'USR-101' }
+  });
+  assert.strictEqual(acceptRes.status, 200);
+  assert.strictEqual(acceptRes.body.success, true);
+  assert.ok(acceptRes.body.project.id);
+  assert.strictEqual(acceptRes.body.project.freelancerId, 'USR-101');
+  console.log(`✓ Freelancer accepts opportunity "${targetOpp.title}" -> New escrow project created (${acceptRes.body.project.id})`);
+
+  console.log('=== TEST 8: Submit Work & Deliverables State Transition ===');
+  // Freelancer submits deliverables for milestone MS-101
+  const submitRes = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/milestones/MS-101/submit',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-user-id': 'USR-101' }
+  }, {
+    deliverables: [
+      { name: 'fintech_flow_v2.fig', size: '14.2 MB', hash: 'sha256-a9b8c7d6e5f41234' },
+      { name: 'design_specs_tokens.pdf', size: '2.8 MB', hash: 'sha256-1234567890abcdef' }
+    ],
+    notes: 'Uploaded final components and Figma link for client review.'
+  });
+  assert.strictEqual(submitRes.status, 200);
+  assert.strictEqual(submitRes.body.milestone.status, 'In review');
+  assert.strictEqual(submitRes.body.milestone.deliverables.length, 2);
+  console.log('✓ Freelancer submits deliverables -> Milestone transitions to "In review" with tamper-proof file hashes');
+
+  console.log('=== TEST 9: Project Messaging Channel ===');
+  // Post a message in the project
+  const msgPost = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/projects/PRJ-101/messages',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-user-id': 'USR-101' }
+  }, { text: 'Hi Rahul, I have submitted the design files for Milestone 1. Let me know if you need any adjustments!' });
+  assert.strictEqual(msgPost.status, 200);
+  assert.strictEqual(msgPost.body.message.senderRole, 'freelancer');
+
+  // Client reads messages
+  const clReadMsgs = await request({
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/projects/PRJ-101/messages',
+    method: 'GET',
+    headers: { 'x-user-id': 'USR-102' }
+  });
+  assert.strictEqual(clReadMsgs.status, 200);
+  assert.ok(clReadMsgs.body.messages.some(m => m.text.includes('Hi Rahul')));
+  console.log('✓ Project messaging works bidirectionally between freelancer and client');
+
   console.log('\n=== ALL SERVER & STATE MACHINE API TESTS PASSED ===\n');
 }
 
@@ -166,3 +249,4 @@ runTests().catch(err => {
   console.error('Test failed:', err);
   process.exit(1);
 });
+
