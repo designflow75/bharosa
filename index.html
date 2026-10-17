@@ -205,6 +205,12 @@
           </select>
         </div>
 
+        <!-- Reset Demo Data Button (Unobtrusive) -->
+        <button class="btn-secondary" id="btn-reset-demo" onclick="resetDemoStore()" style="padding: 0.4rem 0.65rem; font-size: 0.76rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="Reset Demo Data">
+          <i data-lucide="rotate-ccw" style="width:13px;height:13px;"></i>
+          <span>Reset Demo</span>
+        </button>
+
         <!-- Light / Dark Theme Switcher Button -->
         <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Light and Dark Theme">
           <span class="icon" id="theme-icon">
@@ -404,7 +410,7 @@
 
           <div class="stat-card">
             <div class="stat-card-header">
-              <span class="stat-title">Monthly Settled Earnings</span>
+              <span class="stat-title" id="stat-title-settled">Monthly Settled Earnings</span>
               <div class="stat-icon green"><i data-lucide="wallet" style="width:16px;height:16px;"></i></div>
             </div>
             <div class="stat-value" id="stat-settled-earnings">₹51,000</div>
@@ -416,7 +422,7 @@
 
           <div class="stat-card">
             <div class="stat-card-header">
-              <span class="stat-title">Protected in Escrow</span>
+              <span class="stat-title" id="stat-title-escrow">Protected in Escrow</span>
               <div class="stat-icon amber"><i data-lucide="shield-check" style="width:16px;height:16px;"></i></div>
             </div>
             <div class="stat-value" id="stat-escrow-payouts">₹20,000</div>
@@ -441,13 +447,13 @@
         <!-- Recent Projects Overview with Escrow Stepper -->
         <div class="card-section">
           <div class="card-section-header">
-            <h3>Active Project Pipeline</h3>
+            <h3 id="dashboard-projects-title">Active Project Pipeline</h3>
             <button class="btn-secondary" onclick="switchTab('projects')">View Full Kanban →</button>
           </div>
           <div class="data-table-wrapper">
             <table class="data-table">
               <thead>
-                <tr>
+                <tr id="dashboard-projects-thead-tr">
                   <th>Project Name</th>
                   <th>Client</th>
                   <th>Next Milestone & Escrow Status</th>
@@ -787,7 +793,7 @@
             <span style="font-size: 0.78rem; color: var(--text-muted);">Immutable decision logs for this workspace</span>
           </div>
 
-          <div class="vault-timeline">
+          <div class="vault-timeline" id="vault-timeline-container">
             <div class="vault-event-card">
               <div class="vault-event-dot"></div>
               <div class="vault-event-header">
@@ -912,21 +918,21 @@
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
               <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
                 <div style="font-size: 0.75rem; color: var(--text-muted);">Deliverables Approved</div>
-                <div style="font-size: 1.3rem; font-weight: 800; color: var(--success); margin-top: 4px;">4 / 8 Items</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: var(--success); margin-top: 4px;" id="portal-approved-disp">4 / 8 Items</div>
               </div>
               <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
                 <div style="font-size: 0.75rem; color: var(--text-muted);">Next Client Review Due</div>
-                <div style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">Oct 20, 2026</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;" id="portal-review-due-disp">Oct 20, 2026</div>
               </div>
               <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
                 <div style="font-size: 0.75rem; color: var(--text-muted);">Protected Escrow</div>
-                <div style="font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-top: 4px;">₹20,000 Held</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: var(--primary); margin-top: 4px;" id="portal-escrow-disp">₹20,000 Held</div>
               </div>
             </div>
 
             <div style="margin-bottom: 1.5rem; background: var(--bg-surface); padding: 1rem 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
               <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">Milestone 2 Escrow Lifecycle</div>
-              <div class="escrow-stepper">
+              <div class="escrow-stepper" id="portal-stepper-disp">
                 <span class="escrow-step done"><span class="escrow-step-dot"></span><span>1. Funded (₹20,000)</span></span>
                 <span class="escrow-step-sep">───</span>
                 <span class="escrow-step active"><span class="escrow-step-dot"></span><span>2. In Progress</span></span>
@@ -939,7 +945,7 @@
 
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <span style="font-size: 0.82rem; color: var(--text-muted);">Client permissions strictly limited to project reviews and payment approval.</span>
-              <button class="btn-primary" style="width: auto;" onclick="showToast('Review approved by client! Next: Escrow release authorized.', 'success')">Simulate Client Approval</button>
+              <button class="btn-primary" style="width: auto;" id="btn-portal-approval" onclick="approveMilestone('MS-102')">Simulate Client Approval</button>
             </div>
           </div>
         </div>
