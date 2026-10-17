@@ -624,10 +624,381 @@ function getEscrowStepperHtml(escrowState) {
 }
 
 /**
+ * Render Page Header & Actions based on active role
+ */
+function renderDashboardHeader() {
+  const heading = document.getElementById('dashboard-main-heading');
+  const subtitle = document.getElementById('dashboard-welcome-subtitle');
+  const actionGroup = document.getElementById('dashboard-header-actions');
+  if (!heading) return;
+
+  const isClient = state.currentRole === 'client';
+  const isAgency = state.currentRole === 'agency';
+
+  if (isClient) {
+    heading.textContent = 'Client Escrow & Approvals Portal';
+    if (subtitle) {
+      subtitle.textContent = 'GrowthNest Media (Rahul Verma) • Review contractor deliverables, authorize milestone payouts, and manage secure escrow deposits.';
+    }
+    if (actionGroup) {
+      actionGroup.innerHTML = `
+        <button class="btn-secondary" onclick="switchTab('client-portal')">
+          <i data-lucide="eye" style="width:15px;height:15px;"></i>
+          <span>Contractor Hub Preview</span>
+        </button>
+        <button class="btn-primary" style="width: auto;" onclick="openScopeChangeModal()">
+          <i data-lucide="shield-check" style="width:15px;height:15px;"></i>
+          <span>Review Scope Change (+₹6,500)</span>
+        </button>
+      `;
+    }
+  } else if (isAgency) {
+    heading.textContent = 'Agency Command Center';
+    if (subtitle) {
+      subtitle.textContent = 'Apex Creative • Multi-contractor workload, client billing, and distributed milestone payouts.';
+    }
+    if (actionGroup) {
+      actionGroup.innerHTML = `
+        <button class="btn-secondary" onclick="switchTab('client-portal')">
+          <i data-lucide="building-2" style="width:15px;height:15px;"></i>
+          <span>Agency Portal</span>
+        </button>
+        <button class="btn-ai" onclick="switchTab('ai-assistant')">
+          <i data-lucide="sparkles" style="width:15px;height:15px;"></i>
+          <span>Team Project Brief</span>
+        </button>
+      `;
+    }
+  } else {
+    // Freelancer
+    heading.textContent = 'Freelancer Workspace Overview';
+    if (subtitle) {
+      subtitle.textContent = 'Priya Sharma • Track project milestones, monitor 72-hour review windows, and receive verified escrow payouts.';
+    }
+    if (actionGroup) {
+      actionGroup.innerHTML = `
+        <button class="btn-secondary" onclick="openUrlImportModal()">
+          <i data-lucide="link-2" style="width:15px;height:15px;"></i>
+          <span>Import Job by URL</span>
+        </button>
+        <button class="btn-ai" onclick="switchTab('ai-assistant')">
+          <i data-lucide="sparkles" style="width:15px;height:15px;"></i>
+          <span>New AI Project Brief</span>
+        </button>
+      `;
+    }
+  }
+}
+
+/**
+ * Render Protection Alerts Row dynamically based on role
+ */
+function renderDashboardAlerts() {
+  const container = document.getElementById('dashboard-alerts-row');
+  if (!container) return;
+
+  const isClient = state.currentRole === 'client';
+  const isAgency = state.currentRole === 'agency';
+
+  const m2 = store.milestones.find(m => m.id === 'MS-102');
+  const isM2Released = m2 && m2.status === 'Released';
+
+  if (isClient) {
+    container.innerHTML = `
+      <!-- Client Deliverable Review Banner -->
+      <div class="alert-banner silence">
+        <div class="alert-icon-box">
+          <i data-lucide="clock-alert" style="width:22px;height:22px;color:var(--warning);"></i>
+        </div>
+        <div class="alert-content">
+          <h4>Action Required: Deliverable Review Pending</h4>
+          <p>Contractor <strong>Priya Sharma</strong> submitted <strong>"Milestone 2: Design System & 3D Assets"</strong> for <strong>Fintech Mobile App Redesign</strong>. 72-hour review window active. Review assets against SOW and authorize payment from secure escrow.</p>
+          <div class="alert-actions">
+            ${isM2Released 
+              ? `<span style="color:var(--success); font-weight:700; font-size:0.85rem;">✓ Milestone 2 Approved & Released to Priya Sharma</span>`
+              : `<button class="btn-tag" style="background:var(--success); color:white; font-weight:700;" onclick="approveMilestone('MS-102')">Approve & Release Payment (₹20,000)</button>`
+            }
+            <button class="btn-tag" onclick="switchTab('protection')">Inspect in Evidence Vault →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scope Amendment Request for Client -->
+      <div class="alert-banner fairness">
+        <div class="alert-icon-box">
+          <i data-lucide="scale" style="width:22px;height:22px;color:var(--primary);"></i>
+        </div>
+        <div class="alert-content">
+          <h4>Scope Amendment Quote: +₹6,500</h4>
+          <p><strong>Project: Fintech Mobile Redesign</strong> — 2 of 2 included revisions utilized. Your request for <em>"Interactive 3D coin animation"</em> exceeds base 2D scope (Clause 3.2). Contractor generated formal AI Scope Amendment quote.</p>
+          <div class="alert-actions">
+            <button class="btn-tag" onclick="openScopeChangeModal()">Review Scope Amendment (+₹6,500)</button>
+            <button class="btn-tag" onclick="switchTab('projects')">View Task in Kanban →</button>
+          </div>
+        </div>
+      </div>
+    `;
+  } else if (isAgency) {
+    container.innerHTML = `
+      <div class="alert-banner silence">
+        <div class="alert-icon-box">
+          <i data-lucide="users" style="width:22px;height:22px;color:var(--warning);"></i>
+        </div>
+        <div class="alert-content">
+          <h4>Team Workload Alert: 8 Members Active</h4>
+          <p>Priya Sharma and Rohan Mehta have deliverable milestones due this week. Escrow secured across 3 enterprise client accounts.</p>
+          <div class="alert-actions">
+            <button class="btn-tag" onclick="switchTab('projects')">Inspect Team Kanban →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert-banner fairness">
+        <div class="alert-icon-box">
+          <i data-lucide="scale" style="width:22px;height:22px;color:var(--primary);"></i>
+        </div>
+        <div class="alert-content">
+          <h4>Revision Fairness Monitor</h4>
+          <p>GrowthNest Media project has 1 out-of-scope request pending client approval (+₹6,500).</p>
+          <div class="alert-actions">
+            <button class="btn-tag" onclick="openScopeChangeModal()">Review Scope Amendment (+₹6,500)</button>
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    // Freelancer
+    container.innerHTML = `
+      <!-- Client Silence Protection Banner -->
+      <div class="alert-banner silence">
+        <div class="alert-icon-box">
+          <i data-lucide="clock-alert" style="width:22px;height:22px;color:var(--warning);"></i>
+        </div>
+        <div class="alert-content">
+          <h4>72-Hour Client Silence Protocol Triggered</h4>
+          <p>Client Rahul Verma has not provided feedback on <strong>Deliverable #3 (Brand Motion Package)</strong> for <strong>72 consecutive hours</strong>. Automatic silence protocol paused contractual penalty countdown on Day 3. Proposed timeline extended +2 days.</p>
+          <div class="alert-actions">
+            <button class="btn-tag" onclick="showToast('Automated polite reminder sent to Rahul Verma with decision timestamp.', 'success')">Send Friendly Reminder</button>
+            <button class="btn-tag" onclick="switchTab('protection')">Inspect in Evidence Vault →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revision Fairness Meter Quick Widget -->
+      <div class="alert-banner fairness">
+        <div class="alert-icon-box">
+          <i data-lucide="scale" style="width:22px;height:22px;color:var(--primary);"></i>
+        </div>
+        <div class="alert-content">
+          <h4>Revision Fairness Meter: Limit Reached</h4>
+          <p><strong>Project: Fintech Mobile Redesign</strong> — 2 of 2 included revisions utilized. Client's latest request for <em>"Interactive 3D coin animation"</em> has been automatically flagged as an <strong>Out-of-Scope Change</strong>.</p>
+          <div class="alert-actions">
+            <button class="btn-tag" onclick="openScopeChangeModal()">Review Scope Amendment (+₹6,500)</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+/**
+ * Render Guided Demo Banner based on role
+ */
+function renderDashboardGuidedDemo() {
+  const title = document.getElementById('demo-banner-title');
+  const badge = document.getElementById('demo-banner-badge');
+  const stepsGrid = document.getElementById('demo-steps-grid');
+  if (!title || !stepsGrid) return;
+
+  const isClient = state.currentRole === 'client';
+
+  if (isClient) {
+    title.textContent = 'Client Protection Workflow: 100% Refund & Milestone Security';
+    if (badge) badge.textContent = 'Zero Risk Escrow';
+    stepsGrid.innerHTML = `
+      <div class="guided-step-item current" onclick="showToast('Step 1: All deliverables and revision limits are verified upfront.', 'info')">
+        <div class="guided-step-num">Step 1</div>
+        <div class="guided-step-label">Defined Scope</div>
+        <div class="guided-step-desc">Transparent deliverables locked before starting</div>
+      </div>
+      <div class="guided-step-item" onclick="showToast('Step 2: Funds held safely with ICICI/Razorpay Trustee until approval.', 'info')">
+        <div class="guided-step-num">Step 2</div>
+        <div class="guided-step-label">Trustee Escrow</div>
+        <div class="guided-step-desc">₹20,000 held in secure escrow; never released early</div>
+      </div>
+      <div class="guided-step-item" onclick="showToast('Step 3: 72-hour window to inspect Figma files and code.', 'info')">
+        <div class="guided-step-num">Step 3</div>
+        <div class="guided-step-label">Quality Review</div>
+        <div class="guided-step-desc">Inspect deliverables and test before authorizing payout</div>
+      </div>
+      <div class="guided-step-item" onclick="approveMilestone('MS-102')">
+        <div class="guided-step-num">Step 4</div>
+        <div class="guided-step-label">One-Click Release</div>
+        <div class="guided-step-desc">Single tap to release payout with GST compliance</div>
+      </div>
+    `;
+  } else {
+    title.textContent = 'Interactive Guided Demo: How Bharosa Eliminates Freelance Payment Risk';
+    if (badge) badge.textContent = 'Click any step to simulate';
+    stepsGrid.innerHTML = `
+      <div class="guided-step-item current" onclick="runGuidedDemo(1)" title="Step 1: Client sends scope change">
+        <div class="guided-step-num">Step 1</div>
+        <div class="guided-step-label">Scope Request</div>
+        <div class="guided-step-desc">Client requests 3D animation exceeding 2D scope</div>
+      </div>
+      <div class="guided-step-item" onclick="runGuidedDemo(2)" title="Step 2: Auto-generate amendment">
+        <div class="guided-step-num">Step 2</div>
+        <div class="guided-step-label">AI Amendment</div>
+        <div class="guided-step-desc">Auto-creates formal change quote (+₹6,500)</div>
+      </div>
+      <div class="guided-step-item" onclick="runGuidedDemo(3)" title="Step 3: Client deposits escrow">
+        <div class="guided-step-num">Step 3</div>
+        <div class="guided-step-label">Client Escrow</div>
+        <div class="guided-step-desc">Client signs & deposits ₹6,500 into secure escrow</div>
+      </div>
+      <div class="guided-step-item" onclick="runGuidedDemo(4)" title="Step 4: Payout released">
+        <div class="guided-step-num">Step 4</div>
+        <div class="guided-step-label">Escrow Release</div>
+        <div class="guided-step-desc">Deliverables approved; payout disbursed instantly</div>
+      </div>
+    `;
+  }
+}
+
+/**
+ * Render Sidebar Navigation text based on active role
+ */
+function renderSidebarNav() {
+  const navCoreLabel = document.getElementById('sidebar-core-label');
+  const navTextDashboard = document.getElementById('nav-text-dashboard');
+  const navTextAi = document.getElementById('nav-text-ai');
+  const navTextJobs = document.getElementById('nav-text-jobs');
+  const navTextProjects = document.getElementById('nav-text-projects');
+  const navBadgeProjects = document.getElementById('nav-badge-projects');
+  const navTextProtection = document.getElementById('nav-text-protection');
+  const navTextInvoicing = document.getElementById('nav-text-invoicing');
+  const navTextPortal = document.getElementById('nav-text-portal');
+
+  const isClient = state.currentRole === 'client';
+  const isAgency = state.currentRole === 'agency';
+
+  if (isClient) {
+    if (navCoreLabel) navCoreLabel.textContent = 'Client Workspace';
+    if (navTextDashboard) navTextDashboard.textContent = 'Approvals & Escrow';
+    if (navTextAi) navTextAi.textContent = 'AI SOW & Contract Creator';
+    if (navTextJobs) navTextJobs.textContent = 'Find Top Freelancers';
+    if (navTextProjects) navTextProjects.textContent = 'Deliverables & Kanban';
+    if (navBadgeProjects) navBadgeProjects.textContent = '1';
+    if (navTextProtection) navTextProtection.textContent = 'Audit Vault & Escrow';
+    if (navTextInvoicing) navTextInvoicing.textContent = 'Escrow & Tax Invoices';
+    if (navTextPortal) navTextPortal.textContent = 'Contractor Portal';
+  } else if (isAgency) {
+    if (navCoreLabel) navCoreLabel.textContent = 'Agency Workspace';
+    if (navTextDashboard) navTextDashboard.textContent = 'Agency Dashboard';
+    if (navTextAi) navTextAi.textContent = 'Team Scope Assistant';
+    if (navTextJobs) navTextJobs.textContent = 'Opportunity Pipeline';
+    if (navTextProjects) navTextProjects.textContent = 'Team Projects & Kanban';
+    if (navBadgeProjects) navBadgeProjects.textContent = '3';
+    if (navTextProtection) navTextProtection.textContent = 'Agency Evidence Vault';
+    if (navTextInvoicing) navTextInvoicing.textContent = 'Consolidated Billing';
+    if (navTextPortal) navTextPortal.textContent = 'Client Portals';
+  } else {
+    if (navCoreLabel) navCoreLabel.textContent = 'Core Workspace';
+    if (navTextDashboard) navTextDashboard.textContent = 'Dashboard';
+    if (navTextAi) navTextAi.textContent = 'AI Project Assistant';
+    if (navTextJobs) navTextJobs.textContent = 'Job & Opportunity Finder';
+    if (navTextProjects) navTextProjects.textContent = 'Projects & Kanban';
+    if (navBadgeProjects) navBadgeProjects.textContent = '3';
+    if (navTextProtection) navTextProtection.textContent = 'Evidence Vault & Scope';
+    if (navTextInvoicing) navTextInvoicing.textContent = 'Invoicing & Payments';
+    if (navTextPortal) navTextPortal.textContent = 'Branded Client Portals';
+  }
+}
+
+/**
+ * Render Dashboard Metric Cards from Shared Store
+ */
+function renderDashboardStats() {
+  const statSettled = document.getElementById('stat-settled-earnings');
+  const statEscrow = document.getElementById('stat-escrow-payouts');
+  const statTrust = document.getElementById('stat-trust-index');
+  const statTrustFooter = document.getElementById('stat-trust-footer');
+  const statTrustTrend = document.getElementById('stat-trust-trend');
+  const statProjectsCount = document.getElementById('stat-projects-count');
+  const statProjectsFooter = document.getElementById('stat-projects-footer');
+  const invoicesTotalDisp = document.getElementById('invoices-total-display');
+
+  const statTitleProjects = document.getElementById('stat-title-projects');
+  const statTitleSettled = document.getElementById('stat-title-settled');
+  const statTitleEscrow = document.getElementById('stat-title-escrow');
+  const statTitleTrust = document.getElementById('stat-title-trust');
+
+  const isClient = state.currentRole === 'client';
+
+  if (isClient) {
+    if (statTitleProjects) statTitleProjects.textContent = 'Active Engagements';
+    if (statProjectsCount) statProjectsCount.textContent = '1 Active';
+    if (statProjectsFooter) {
+      statProjectsFooter.innerHTML = `<span class="stat-trend up">On Schedule</span> <span>• Priya Sharma (Fintech App)</span>`;
+    }
+
+    if (statTitleSettled) statTitleSettled.textContent = 'Total Released to Contractors';
+    if (statSettled) statSettled.textContent = `₹${store.stats.monthlyEarnings.toLocaleString('en-IN')}`;
+    const settledFooter = document.getElementById('stat-settled-footer');
+    if (settledFooter) {
+      settledFooter.innerHTML = `<span class="stat-trend up">↑ Verified</span> <span>All GST tax invoices cleared</span>`;
+    }
+
+    if (statTitleEscrow) statTitleEscrow.textContent = 'Escrow Deposited (Protected)';
+    if (statEscrow) statEscrow.textContent = `₹${store.stats.escrowBalance.toLocaleString('en-IN')}`;
+    const escrowFooter = document.getElementById('stat-escrow-footer');
+    if (escrowFooter) {
+      escrowFooter.innerHTML = `<span class="stat-trend neutral">Held in ICICI/Razorpay Trustee Escrow</span>`;
+    }
+
+    if (statTitleTrust) statTitleTrust.textContent = 'Contractor Trust Rating';
+    if (statTrust) statTrust.textContent = `${store.stats.trustIndex}%`;
+    if (statTrustTrend) statTrustTrend.textContent = 'Top Rated';
+    if (statTrustFooter) statTrustFooter.textContent = 'Priya Sharma • 18/18 On-Time';
+
+  } else {
+    // Freelancer
+    if (statTitleProjects) statTitleProjects.textContent = 'Active Projects';
+    if (statProjectsCount) statProjectsCount.textContent = '3 Active';
+    if (statProjectsFooter) {
+      statProjectsFooter.innerHTML = `<span class="stat-trend up">↑ 1 on target</span> <span>• 12 deliverables remaining</span>`;
+    }
+
+    if (statTitleSettled) statTitleSettled.textContent = 'Monthly Settled Earnings';
+    if (statSettled) statSettled.textContent = `₹${store.stats.monthlyEarnings.toLocaleString('en-IN')}`;
+    const settledFooter = document.getElementById('stat-settled-footer');
+    if (settledFooter) {
+      settledFooter.innerHTML = `<span class="stat-trend up">↑ Verified</span> <span>Gross Settled: ₹60,180 (with GST)</span>`;
+    }
+
+    if (statTitleEscrow) statTitleEscrow.textContent = 'Protected in Escrow (Pending)';
+    if (statEscrow) statEscrow.textContent = `₹${store.stats.escrowBalance.toLocaleString('en-IN')}`;
+    const escrowFooter = document.getElementById('stat-escrow-footer');
+    if (escrowFooter) {
+      escrowFooter.innerHTML = `<span class="stat-trend neutral">Fintech App (Milestone 2 Held)</span>`;
+    }
+
+    if (statTitleTrust) statTitleTrust.textContent = 'Fairness & Trust Index';
+    if (statTrust) statTrust.textContent = `${store.stats.trustIndex}%`;
+    if (statTrustTrend) statTrustTrend.textContent = 'Dispute-Free';
+    if (statTrustFooter) statTrustFooter.textContent = store.stats.milestonesDelivered;
+  }
+
+  if (invoicesTotalDisp) {
+    invoicesTotalDisp.textContent = `Total Settled: ₹${store.stats.monthlyEarnings.toLocaleString('en-IN')} | In Escrow: ₹${store.stats.escrowBalance.toLocaleString('en-IN')}`;
+  }
+}
+
+/**
  * Render Active Project Pipeline & Milestones Table
  * Dual role behavior:
  * - Freelancer: Shows all milestones with their status, "Submit for Review" on Pending, "Paid" badge on Released
- * - Client: Shows ONLY the milestones waiting for approval with "Approve & Release Payment" button
+ * - Client: Shows Rahul Verma's project milestones with "Approve & Release Payment" on In Review
  */
 function renderDashboardProjects() {
   const tbody = document.getElementById('dashboard-projects-body');
@@ -637,24 +1008,116 @@ function renderDashboardProjects() {
 
   const isClient = state.currentRole === 'client';
 
-  if (tableTitle) {
-    tableTitle.textContent = isClient 
-      ? 'Milestones Awaiting Approval (Action Required)' 
-      : 'Active Project Pipeline & Milestones';
-  }
+  if (isClient) {
+    if (tableTitle) {
+      tableTitle.textContent = 'Contractor Milestones & Escrow Approvals (Fintech Mobile Redesign)';
+    }
 
-  if (theadTr) {
-    if (isClient) {
+    if (theadTr) {
       theadTr.innerHTML = `
-        <th>Project Name</th>
+        <th>Project Deliverable</th>
         <th>Contractor</th>
-        <th>Milestone Deliverable</th>
+        <th>Lifecycle & Stepper</th>
         <th>Review Deadline</th>
         <th>Escrow Amount</th>
         <th>Escrow Status</th>
         <th>Action</th>
       `;
-    } else {
+    }
+
+    // Show GrowthNest Media (Rahul Verma's) milestones
+    const clientMilestones = store.milestones.filter(m => 
+      m.projectId === 'PRJ-101' || m.client.includes('GrowthNest') || m.client.includes('Rahul')
+    );
+
+    if (clientMilestones.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7">
+            <div class="table-empty-state">
+              <div class="table-empty-icon">✓</div>
+              <div class="table-empty-title">All Milestones Reviewed</div>
+              <div class="table-empty-desc">No milestones are currently in your pipeline.</div>
+            </div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = clientMilestones.map(m => {
+      let statusPillHtml = '';
+      let actionBtnHtml = '';
+      let stepperState = 'in_progress';
+
+      if (m.status === 'Released') {
+        stepperState = 'released';
+        statusPillHtml = `
+          <span class="status-pill paid" title="Funds released to contractor">
+            Paid & Released • ${m.releasedAt || 'Oct 14, 17:45'}
+          </span>
+        `;
+        actionBtnHtml = `<span style="font-size:0.75rem; color:var(--success); font-weight:700;">✓ Funds Released</span>`;
+      } else if (m.status === 'In Review') {
+        stepperState = 'review';
+        statusPillHtml = `
+          <span class="status-pill pending" style="background:var(--warning-bg); color:var(--warning); border:1px solid var(--warning-border);">
+            In Review • Action Required
+          </span>
+        `;
+        actionBtnHtml = `
+          <button class="btn-tag" style="background:var(--success); color:white; font-weight:700; padding:6px 14px;" onclick="approveMilestone('${m.id}')">
+            Approve & Release Payment
+          </button>
+        `;
+      } else {
+        stepperState = 'funded';
+        statusPillHtml = `
+          <span class="status-pill draft">
+            Upcoming Delivery
+          </span>
+        `;
+        actionBtnHtml = `<span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Awaiting Contractor</span>`;
+      }
+
+      return `
+        <tr>
+          <td>
+            <div style="font-weight: 700; color: var(--text-primary);">${m.title}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">${m.projectTitle} • ${m.projectId}</div>
+          </td>
+          <td>
+            <div style="font-weight: 600;">Priya Sharma</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Senior Product Designer</div>
+          </td>
+          <td>
+            ${getEscrowStepperHtml(stepperState)}
+          </td>
+          <td>
+            <div style="font-size: 0.82rem; font-weight: 600; color: ${m.status === 'In Review' ? 'var(--warning)' : 'var(--text-secondary)'};">
+              ${m.deadline} ${m.status === 'In Review' ? '⚠️ (Action Required)' : ''}
+            </div>
+          </td>
+          <td>
+            <div style="font-weight: 700; color: var(--primary);">₹${m.amount.toLocaleString('en-IN')}</div>
+          </td>
+          <td>
+            ${statusPillHtml}
+          </td>
+          <td>
+            ${actionBtnHtml}
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+  } else {
+    // Freelancer view (Priya Sharma): Shows all milestones with their status
+    if (tableTitle) {
+      tableTitle.textContent = 'Active Project Pipeline & Milestones';
+    }
+
+    if (theadTr) {
       theadTr.innerHTML = `
         <th>Project Name</th>
         <th>Client</th>
@@ -665,63 +1128,7 @@ function renderDashboardProjects() {
         <th>Action</th>
       `;
     }
-  }
 
-  if (isClient) {
-    // Client view: ONLY milestones waiting for approval (status === 'In Review')
-    const waitingMilestones = store.milestones.filter(m => m.status === 'In Review');
-
-    if (waitingMilestones.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="7">
-            <div class="table-empty-state">
-              <div class="table-empty-icon">✓</div>
-              <div class="table-empty-title">All Milestones Reviewed</div>
-              <div class="table-empty-desc">No milestones are currently awaiting your approval. You will be notified as soon as Priya Sharma submits deliverables for review.</div>
-            </div>
-          </td>
-        </tr>
-      `;
-      return;
-    }
-
-    tbody.innerHTML = waitingMilestones.map(m => `
-      <tr>
-        <td>
-          <div style="font-weight: 700; color: var(--text-primary);">${m.projectTitle}</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted);">${m.projectId} • ${m.category}</div>
-        </td>
-        <td>
-          <div style="font-weight: 600;">Priya Sharma (Senior Product Designer)</div>
-        </td>
-        <td>
-          <div style="font-size: 0.82rem; font-weight: 600;">${m.title}</div>
-          ${getEscrowStepperHtml('review')}
-        </td>
-        <td>
-          <div style="font-size: 0.82rem; font-weight: 600; color: var(--warning);">
-            ${m.deadline} ⚠️ (Review Pending)
-          </div>
-        </td>
-        <td>
-          <div style="font-weight: 700; color: var(--primary);">₹${m.amount.toLocaleString('en-IN')}</div>
-        </td>
-        <td>
-          <span class="status-pill pending">
-            In Review • Funds Secured
-          </span>
-        </td>
-        <td>
-          <button class="btn-tag" style="background:var(--success); color:white; font-weight:700; padding:6px 14px;" onclick="approveMilestone('${m.id}')">
-            Approve & Release Payment
-          </button>
-        </td>
-      </tr>
-    `).join('');
-
-  } else {
-    // Freelancer view (Priya Sharma): Shows all milestones with their status
     if (store.milestones.length === 0) {
       tbody.innerHTML = `
         <tr>
@@ -806,38 +1213,6 @@ function renderDashboardProjects() {
   }
 
   if (typeof window !== 'undefined' && window.lucide) window.lucide.createIcons();
-}
-
-/**
- * Render Dashboard Metric Cards from Shared Store
- */
-function renderDashboardStats() {
-  const statSettled = document.getElementById('stat-settled-earnings');
-  const statEscrow = document.getElementById('stat-escrow-payouts');
-  const statTrust = document.getElementById('stat-trust-index');
-  const statTrustFooter = document.getElementById('stat-trust-footer');
-  const invoicesTotalDisp = document.getElementById('invoices-total-display');
-
-  const statTitleSettled = document.getElementById('stat-title-settled');
-  const statTitleEscrow = document.getElementById('stat-title-escrow');
-
-  const isClient = state.currentRole === 'client';
-
-  if (statTitleSettled) {
-    statTitleSettled.textContent = isClient ? 'Total Released to Contractors' : 'Monthly Settled Earnings';
-  }
-  if (statTitleEscrow) {
-    statTitleEscrow.textContent = isClient ? 'Escrow Deposited' : 'Protected in Escrow (Pending)';
-  }
-
-  if (statSettled) statSettled.textContent = `₹${store.stats.monthlyEarnings.toLocaleString('en-IN')}`;
-  if (statEscrow) statEscrow.textContent = `₹${store.stats.escrowBalance.toLocaleString('en-IN')}`;
-  if (statTrust) statTrust.textContent = `${store.stats.trustIndex}%`;
-  if (statTrustFooter) statTrustFooter.textContent = store.stats.milestonesDelivered;
-
-  if (invoicesTotalDisp) {
-    invoicesTotalDisp.textContent = `Total Settled: ₹${store.stats.monthlyEarnings.toLocaleString('en-IN')} | In Escrow: ₹${store.stats.escrowBalance.toLocaleString('en-IN')}`;
-  }
 }
 
 /**
@@ -1018,6 +1393,10 @@ function renderInvoices() {
 
 // Master View Render
 function renderAllViews() {
+  renderDashboardHeader();
+  renderDashboardAlerts();
+  renderDashboardGuidedDemo();
+  renderSidebarNav();
   renderDashboardStats();
   renderDashboardProjects();
   renderKanban();
@@ -1598,6 +1977,8 @@ if (typeof module !== 'undefined' && module.exports) {
     getDefaultSharedStore,
     approveMilestone,
     submitMilestoneForReview,
-    resetDemoStore
+    resetDemoStore,
+    renderAllViews,
+    onRoleChange
   };
 }

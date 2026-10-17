@@ -90,4 +90,41 @@ assert(auditSubmit.title.includes('Deliverables Submitted'), 'Evidence vault mus
 
 console.log('✓ Test 3 passed: Freelancer submit milestone works');
 
+console.log('--- TEST 4: Role Differentiated Perspectives ---');
+// Mock DOM elements for test 4
+const elements = {};
+function getMockElement(id) {
+  if (!elements[id]) {
+    elements[id] = { textContent: '', innerHTML: '', style: {}, classList: { add: ()=>{}, remove: ()=>{} } };
+  }
+  return elements[id];
+}
+global.document.getElementById = (id) => getMockElement(id);
+
+// Switch to Client mode
+app.state.currentRole = 'client';
+app.renderAllViews();
+
+assert.strictEqual(getMockElement('dashboard-main-heading').textContent, 'Client Escrow & Approvals Portal');
+assert.strictEqual(getMockElement('stat-title-projects').textContent, 'Active Engagements');
+assert.strictEqual(getMockElement('stat-projects-count').textContent, '1 Active');
+assert.strictEqual(getMockElement('stat-title-settled').textContent, 'Total Released to Contractors');
+assert.strictEqual(getMockElement('nav-text-dashboard').textContent, 'Approvals & Escrow');
+assert(getMockElement('dashboard-alerts-row').innerHTML.includes('Deliverable Review Pending'), 'Client alert must show pending review');
+assert(getMockElement('dashboard-projects-body').innerHTML.includes('Priya Sharma'), 'Client table must show contractor deliverables');
+
+// Switch to Freelancer mode
+app.state.currentRole = 'freelancer';
+app.renderAllViews();
+
+assert.strictEqual(getMockElement('dashboard-main-heading').textContent, 'Freelancer Workspace Overview');
+assert.strictEqual(getMockElement('stat-title-projects').textContent, 'Active Projects');
+assert.strictEqual(getMockElement('stat-projects-count').textContent, '3 Active');
+assert.strictEqual(getMockElement('stat-title-settled').textContent, 'Monthly Settled Earnings');
+assert.strictEqual(getMockElement('nav-text-dashboard').textContent, 'Dashboard');
+assert(getMockElement('dashboard-alerts-row').innerHTML.includes('72-Hour Client Silence Protocol'), 'Freelancer alert must show silence protocol');
+
+console.log('✓ Test 4 passed: Client and Freelancer dashboards are completely differentiated');
+
 console.log('--- ALL AUTOMATED LOGIC TESTS PASSED ---');
+
