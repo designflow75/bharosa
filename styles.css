@@ -2140,7 +2140,7 @@ body {
 
 /* ==========================================================================
    BHAROSA - MOBILE-FIRST & FULLY RESPONSIVE DESIGN SYSTEM
-   Supports: 360px, 390px, 768px, 1024px+
+   Supports: 360px, 375px, 390px, 412px, 768px
    All mobile changes scoped strictly to max-width: 768px (laptop view untouched)
    ========================================================================== */
 
@@ -2153,211 +2153,78 @@ body {
   --touch-target: 44px;
 }
 
-html, body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-  position: relative;
+html {
   -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
-
-body {
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
-/* Responsive Media & Embeds: zero horizontal overflow */
-img, svg, canvas, video, iframe {
-  max-width: 100%;
-  height: auto;
   box-sizing: border-box;
 }
 
-/* Tables: horizontal scroll inside their own container */
-.data-table-wrapper {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  margin-bottom: 1.25rem;
-  background: var(--bg-surface);
-  box-sizing: border-box;
-}
-
-.data-table {
-  width: 100%;
-  min-width: 580px;
-  border-collapse: collapse;
-}
-
-.data-table th, .data-table td {
-  white-space: nowrap;
-}
-
-/* Form Controls: 16px minimum font size on touch devices prevents iOS auto-zoom */
-@media (max-width: 768px) {
-  input,
-  select,
-  textarea,
-  .auth-input-group input,
-  .header-search input {
-    font-size: 16px !important;
-  }
-}
-
-/* Universal Tap Highlight & Touch States */
-button, a, input, select, textarea, [onclick] {
-  -webkit-tap-highlight-color: transparent;
+*, *::before, *::after {
+  box-sizing: inherit;
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   BREAKPOINT: TABLET & DESKTOP COLLAPSE (max-width: 1024px)
+   MOBILE VIEWPORT BREAKPOINT: TABLETS & MOBILE PHONES (max-width: 768px)
    ══════════════════════════════════════════════════════════════════════════ */
-@media (max-width: 1024px) {
-  .app-shell {
-    grid-template-columns: 1fr;
-    grid-template-rows: var(--header-height, 60px) 1fr;
-    grid-template-areas:
-      "header"
-      "main";
+@media (max-width: 768px) {
+  /* Prevent horizontal overflow globally */
+  html, body {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    position: relative;
     width: 100%;
-    max-width: 100vw;
-    overflow-x: hidden;
   }
 
-  .mobile-menu-toggle {
-    display: inline-flex !important;
-    width: 44px;
-    height: 44px;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-
-  .mobile-close-btn {
-    display: inline-flex !important;
-    width: 36px;
-    height: 36px;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
-
-  /* Drawer Sidebar Navigation */
-  .app-sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 280px;
-    max-width: 85vw;
-    height: 100vh;
-    height: 100dvh;
-    z-index: 150;
-    box-shadow: 0 0 35px rgba(0, 0, 0, 0.45);
-    transform: translateX(-100%);
-    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-    display: flex !important;
-    flex-direction: column;
+  /* Prevent text zoom on iOS Safari */
+  input, select, textarea {
+    font-size: 16px !important;
+    max-width: 100%;
     box-sizing: border-box;
   }
 
-  .app-sidebar.mobile-open {
-    transform: translateX(0);
-  }
-
-  .sidebar-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    z-index: 140;
-  }
-
-  .sidebar-backdrop.active {
-    display: block !important;
-  }
-
-  .header-search {
-    max-width: 240px;
-  }
-
-  .guided-steps-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* ══════════════════════════════════════════════════════════════════════════
-   BREAKPOINT: MOBILE SCREENS (max-width: 768px) - SPACIOUS & BREATHABLE
-   (Applies ONLY to mobile screens, leaving laptop view untouched)
-   ══════════════════════════════════════════════════════════════════════════ */
-@media (max-width: 768px) {
-  :root {
-    --header-height: 58px;
-    --mobile-bottom-nav-height: 66px;
-  }
-
-  /* ── 1. TYPOGRAPHY: RELAXED, UNCONGESTED & READABLE ── */
+  /* Relaxed, readable fluid mobile typography */
   h1 {
-    font-size: clamp(1.35rem, 4.5vw, 1.75rem);
-    letter-spacing: -0.01em;
+    font-size: clamp(1.3rem, 5vw, 1.75rem);
     line-height: 1.35;
+    letter-spacing: -0.01em;
   }
 
   h2 {
-    font-size: clamp(1.2rem, 3.8vw, 1.5rem);
-    letter-spacing: -0.01em;
+    font-size: clamp(1.15rem, 4vw, 1.45rem);
     line-height: 1.35;
+    letter-spacing: -0.01em;
   }
 
   h3 {
-    font-size: clamp(1.05rem, 3vw, 1.25rem);
-    letter-spacing: -0.005em;
+    font-size: clamp(1rem, 3.2vw, 1.25rem);
     line-height: 1.4;
+    letter-spacing: -0.005em;
   }
 
-  h4 {
-    font-size: clamp(0.92rem, 2.5vw, 1.05rem);
-    letter-spacing: 0;
-    line-height: 1.45;
-  }
-
-  p, span, li, label {
+  p {
     line-height: 1.55;
-    letter-spacing: 0;
   }
 
-  /* ── 2. LOGIN PAGE: CENTERED, AIRY & BREATHABLE ── */
+  /* ── 1. AUTHENTICATION & DEMO LOGIN SCREEN ── */
   .auth-wrapper {
+    padding: 1.25rem 0.85rem !important;
     min-height: 100vh;
     min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2.5rem 1.25rem;
-    overflow-y: auto;
-    overscroll-behavior-y: contain;
-    -webkit-overflow-scrolling: touch;
-    width: 100%;
-    max-width: 100%;
     box-sizing: border-box;
+    width: 100%;
   }
 
   .auth-card {
-    width: 100%;
-    max-width: 420px;
-    margin: auto;
-    grid-template-columns: 1fr;
-    border-radius: 20px;
-    box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.45);
-    overflow: hidden;
-    box-sizing: border-box;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
+    grid-template-columns: 1fr !important;
+    max-width: 440px !important;
+    width: 100% !important;
+    border-radius: 20px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35) !important;
   }
 
   .auth-hero-pane {
@@ -2365,21 +2232,20 @@ button, a, input, select, textarea, [onclick] {
   }
 
   .auth-form-pane {
-    padding: 2.25rem 1.5rem;
-    width: 100%;
-    box-sizing: border-box;
+    padding: 2rem 1.35rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .auth-form-header {
-    text-align: center;
-    margin-bottom: 1.6rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
   }
 
   .auth-form-header h2 {
     font-size: 1.45rem;
     font-weight: 800;
-    letter-spacing: -0.01em;
-    margin-bottom: 0.45rem;
+    margin-bottom: 0.4rem;
   }
 
   .auth-form-header p {
@@ -2399,15 +2265,24 @@ button, a, input, select, textarea, [onclick] {
 
   .one-click-role-btn {
     width: 100%;
-    min-height: 60px;
-    padding: 1rem 1.15rem;
+    min-height: 64px;
+    padding: 0.95rem 1.15rem;
     border-radius: 14px;
     box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.85rem;
+    gap: 0.75rem;
     transition: all var(--transition-fast);
+  }
+
+  .one-click-role-btn .role-info {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
   }
 
   .one-click-role-btn .role-avatar {
@@ -2421,19 +2296,37 @@ button, a, input, select, textarea, [onclick] {
   .one-click-role-btn .role-meta {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
   }
 
   .one-click-role-btn .role-meta h4 {
     font-size: 0.92rem;
     font-weight: 700;
     line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .one-click-role-btn .role-meta p {
     font-size: 0.76rem;
     line-height: 1.4;
     color: var(--text-muted);
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .one-click-role-btn .role-enter-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--primary);
+    flex-shrink: 0;
   }
 
   .auth-input-group {
@@ -2459,12 +2352,16 @@ button, a, input, select, textarea, [onclick] {
     border-radius: 12px;
   }
 
-  .btn-primary,
-  .btn-secondary {
+  /* Form & Single-Action Submit Buttons Full Width */
+  .auth-form-pane .btn-primary,
+  .auth-form-pane .btn-secondary,
+  .modal-footer .btn-primary,
+  .modal-footer .btn-secondary,
+  #login-form button[type="submit"] {
     min-height: 48px;
     font-size: 16px;
     font-weight: 700;
-    width: 100%;
+    width: 100% !important;
     box-sizing: border-box;
     padding: 0.85rem 1.25rem;
     border-radius: 12px;
@@ -2474,14 +2371,41 @@ button, a, input, select, textarea, [onclick] {
     gap: 0.5rem;
   }
 
-  /* ── 3. TOP NAVIGATION HEADER ── */
+  /* ── 2. TOP NAVIGATION HEADER (NO OVERFLOW) ── */
   .top-header {
-    height: 58px;
-    padding: 0 1rem;
-    gap: 0.75rem;
-    width: 100%;
-    max-width: 100vw;
-    box-sizing: border-box;
+    height: 58px !important;
+    padding: 0 0.85rem !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    overflow: hidden !important;
+  }
+
+  .top-header > div:first-child {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    min-width: 0 !important;
+    flex-shrink: 1 !important;
+  }
+
+  .mobile-menu-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 10px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    cursor: pointer;
+    flex-shrink: 0;
   }
 
   .header-search,
@@ -2491,43 +2415,141 @@ button, a, input, select, textarea, [onclick] {
     display: none !important;
   }
 
+  .header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.45rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .header-actions .notif-bell-btn,
+  .notif-bell-btn {
+    width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    flex-shrink: 0 !important;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+  }
+
   .theme-toggle-btn {
-    padding: 0.5rem 0.65rem;
-    min-height: 38px;
-    border-radius: 10px;
+    width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    flex-shrink: 0 !important;
   }
 
   .user-profile-badge {
-    padding: 0.35rem 0.5rem;
-    gap: 0.4rem;
+    padding: 3px 6px !important;
+    min-height: 36px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+    gap: 0.35rem !important;
+    border-radius: 10px !important;
   }
 
   .user-avatar {
-    width: 34px;
-    height: 34px;
-    font-size: 0.82rem;
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 0.78rem !important;
+  }
+
+  /* ── 3. OFF-CANVAS SIDEBAR DRAWER ── */
+  .app-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 285px !important;
+    max-width: 85vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    z-index: 1000 !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.45) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .app-sidebar.mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 999;
+  }
+
+  .sidebar-backdrop.active {
+    display: block;
+  }
+
+  .mobile-close-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.4rem;
+    padding: 0.4rem;
+    cursor: pointer;
+    margin-left: auto;
   }
 
   /* ── 4. MAIN CONTENT & SPACING ── */
-  .main-content {
-    padding: 1.35rem 1.15rem;
-    padding-bottom: calc(var(--mobile-bottom-nav-height) + var(--mobile-safe-bottom) + 1.75rem);
-    min-height: calc(100vh - 58px);
-    min-height: calc(100dvh - 58px);
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    overflow-x: hidden;
+  .app-shell {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
   }
 
-  /* ── 5. PAGE HEADERS & ACTION BUTTONS ── */
+  .main-content {
+    padding: 1.25rem 1rem !important;
+    padding-bottom: calc(var(--mobile-bottom-nav-height) + var(--mobile-safe-bottom) + 2rem) !important;
+    min-height: calc(100vh - 58px);
+    min-height: calc(100dvh - 58px);
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  /* ── 5. PAGE HEADERS & ACTION BUTTONS (NO BUTTONS CUT OFF) ── */
   .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.85rem;
-    margin-bottom: 1.5rem;
-    width: 100%;
-    box-sizing: border-box;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 1rem !important;
+    margin-bottom: 1.5rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .page-header-text {
+    width: 100% !important;
   }
 
   .page-header-text h2 {
@@ -2543,50 +2565,61 @@ button, a, input, select, textarea, [onclick] {
     color: var(--text-muted);
   }
 
+  /* Action buttons arranged in an accessible 2-column grid so ALL buttons are 100% visible */
   .header-action-group {
-    width: 100%;
-    display: flex;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    gap: 0.65rem;
-    padding-bottom: 4px;
-    box-sizing: border-box;
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.65rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
   }
 
-  .header-action-group::-webkit-scrollbar {
-    display: none;
-  }
-
+  .header-action-group > button,
   .header-action-group .btn-primary,
   .header-action-group .btn-secondary,
   .header-action-group .btn-ai {
-    white-space: nowrap;
-    flex-shrink: 0;
-    width: auto;
-    font-size: 0.85rem;
-    padding: 0.65rem 1.05rem;
-    min-height: 42px;
-    border-radius: 12px;
+    width: 100% !important;
+    min-height: 44px !important;
+    font-size: 0.82rem !important;
+    padding: 0.65rem 0.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 0.4rem !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
   }
 
-  /* ── 6. STATS GRID: CLEAN, SPACIOUS & READABLE ── */
+  /* Odd last child button spans both columns for perfect symmetry */
+  .header-action-group > button:last-child:nth-child(odd),
+  .header-action-group > .btn-primary:last-child:nth-child(odd),
+  .header-action-group > .btn-secondary:last-child:nth-child(odd) {
+    grid-column: span 2 !important;
+  }
+
+  /* ── 6. STATS GRID: CLEAN & SPACIOUS ── */
   .stats-grid {
     grid-template-columns: repeat(2, 1fr) !important;
-    gap: 0.85rem;
-    margin-bottom: 1.5rem;
-    width: 100%;
-    box-sizing: border-box;
+    gap: 0.85rem !important;
+    margin-bottom: 1.5rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .stat-card {
-    padding: 1.15rem 1rem;
-    border-radius: 16px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 0.65rem;
+    padding: 1.15rem 1rem !important;
+    border-radius: 16px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    gap: 0.65rem !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
   }
 
   .stat-card-header {
@@ -2599,42 +2632,46 @@ button, a, input, select, textarea, [onclick] {
     font-size: 0.78rem;
     color: var(--text-muted);
     font-weight: 600;
-    line-height: 1.3;
   }
 
   .stat-icon {
     width: 36px;
     height: 36px;
-    font-size: 1rem;
     border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
     flex-shrink: 0;
   }
 
   .stat-value {
     font-size: 1.45rem;
     font-weight: 800;
-    letter-spacing: -0.015em;
-    line-height: 1.25;
+    line-height: 1.2;
+    word-break: break-all;
   }
 
-  .stat-footer {
-    font-size: 0.74rem;
+  .stat-subtext {
+    font-size: 0.76rem;
     line-height: 1.4;
-    color: var(--text-muted);
   }
 
-  /* ── 7. CARD SECTIONS & GRIDS ── */
+  /* ── 7. ACTION ITEMS, ALERTS & OPPORTUNITY CARDS (NO BUTTONS CUT OFF) ── */
   .card-section {
-    padding: 1.25rem 1.15rem;
-    border-radius: 16px;
-    margin-bottom: 1.35rem;
-    width: 100%;
-    box-sizing: border-box;
+    padding: 1.25rem 1.1rem !important;
+    border-radius: 16px !important;
+    margin-bottom: 1.5rem !important;
+    box-sizing: border-box !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
   }
 
   .card-section-header {
-    margin-bottom: 1.15rem;
-    gap: 0.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.65rem;
+    margin-bottom: 1.25rem;
   }
 
   .card-section-header h3 {
@@ -2647,34 +2684,75 @@ button, a, input, select, textarea, [onclick] {
   .protection-alerts-row,
   .ai-playground-layout {
     grid-template-columns: 1fr !important;
-    gap: 1rem;
-    width: 100%;
-    box-sizing: border-box;
+    gap: 1rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .action-item-card {
-    padding: 1.15rem;
-    border-radius: 14px;
-    gap: 0.85rem;
-    box-sizing: border-box;
+    padding: 1.15rem !important;
+    border-radius: 14px !important;
+    gap: 0.85rem !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
   }
 
   .action-item-title {
     font-size: 0.92rem;
     line-height: 1.35;
+    word-break: break-word;
   }
 
   .action-item-desc {
     font-size: 0.8rem;
     line-height: 1.5;
+    word-break: break-word;
   }
 
+  /* Action Item Footer: Stacks cleanly so buttons never push past screen edge */
+  .action-item-footer {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+    padding-top: 0.75rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .action-item-footer > div {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .action-item-footer > div > button,
+  .action-item-footer > button {
+    flex: 1 1 calc(50% - 0.25rem) !important;
+    min-height: 40px !important;
+    font-size: 0.8rem !important;
+    padding: 0.5rem 0.65rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    border-radius: 10px !important;
+  }
+
+  /* Alert Banners */
   .alert-banner {
-    padding: 1.1rem 1.15rem;
-    border-radius: 14px;
-    gap: 0.9rem;
-    box-sizing: border-box;
-    margin-bottom: 1rem;
+    padding: 1.1rem 1.15rem !important;
+    border-radius: 14px !important;
+    gap: 0.85rem !important;
+    box-sizing: border-box !important;
+    margin-bottom: 1rem !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
   }
 
   .alert-content h4 {
@@ -2686,6 +2764,68 @@ button, a, input, select, textarea, [onclick] {
   .alert-content p {
     font-size: 0.8rem;
     line-height: 1.5;
+  }
+
+  .alert-banner .alert-actions {
+    width: 100% !important;
+    margin-top: 0.5rem !important;
+  }
+
+  .alert-banner .alert-actions button {
+    width: 100% !important;
+    min-height: 42px !important;
+    justify-content: center !important;
+    text-align: center !important;
+    white-space: normal !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Opportunity & Project Card Footers: Clean Stacking */
+  #opportunities-grid > div > div[style*="justify-content:space-between"]:last-child,
+  #opportunities-grid > div > div[style*="justify-content: space-between"]:last-child,
+  #projects-list-container > div > div[style*="justify-content:space-between"]:last-child,
+  #projects-list-container > div > div[style*="justify-content: space-between"]:last-child,
+  #cl-projects-grid > div > div[style*="justify-content:space-between"]:last-child,
+  #cl-projects-grid > div > div[style*="justify-content: space-between"]:last-child {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+  }
+
+  #opportunities-grid button,
+  #projects-list-container button,
+  #cl-projects-grid button {
+    width: 100% !important;
+    min-height: 42px !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Project Workspace Milestone Rows with Actions */
+  #pw-subtab-container > div > div[style*="justify-content:space-between"],
+  #pw-subtab-container > div > div[style*="justify-content: space-between"],
+  #pw-subtab-container div[style*="justify-content:space-between"],
+  #pw-subtab-container div[style*="justify-content: space-between"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.85rem !important;
+  }
+
+  #pw-subtab-container div[style*="justify-content:space-between"] > div:last-child,
+  #pw-subtab-container div[style*="justify-content: space-between"] > div:last-child {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+  }
+
+  #pw-subtab-container div[style*="justify-content:space-between"] > div:last-child button,
+  #pw-subtab-container div[style*="justify-content: space-between"] > div:last-child button {
+    flex: 1 1 calc(50% - 0.25rem) !important;
+    min-height: 40px !important;
+    font-size: 0.8rem !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
   }
 
   /* ── 8. KANBAN HORIZONTAL SCROLL ── */
@@ -2737,7 +2877,45 @@ button, a, input, select, textarea, [onclick] {
     color: var(--text-secondary);
   }
 
-  /* ── 9. MODALS: SPACIOUS FIT ── */
+  /* ── 9. DATA TABLES ON MOBILE ── */
+  .table-responsive,
+  .data-table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    border-radius: 12px;
+  }
+
+  .data-table {
+    min-width: 580px;
+    width: 100%;
+    font-size: 0.82rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.85rem 0.75rem;
+    white-space: nowrap;
+  }
+
+  /* Table action buttons never expand or break layout */
+  .data-table td button,
+  .table-responsive td button,
+  .data-table-wrapper td button {
+    width: auto !important;
+    min-height: 32px !important;
+    font-size: 0.75rem !important;
+    padding: 4px 10px !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+
+  /* ── 10. MODALS: SPACIOUS FIT & FULL-WIDTH BUTTONS ── */
   .modal-overlay {
     padding: 1.25rem 1rem;
     align-items: center;
@@ -2770,17 +2948,19 @@ button, a, input, select, textarea, [onclick] {
 
   .modal-footer {
     padding: 1rem 1.35rem;
-    flex-wrap: wrap;
+    flex-direction: column !important;
+    align-items: stretch !important;
     gap: 0.65rem;
   }
 
   .modal-footer .btn-primary,
   .modal-footer .btn-secondary {
-    width: 100%;
+    width: 100% !important;
     min-height: 46px;
+    justify-content: center;
   }
 
-  /* ── 10. TABS & ADMIN SUBNAV ── */
+  /* ── 11. TABS & ADMIN SUBNAV ── */
   .tab-pills,
   .admin-subnav {
     overflow-x: auto;
@@ -2806,7 +2986,7 @@ button, a, input, select, textarea, [onclick] {
     font-size: 0.82rem;
   }
 
-  /* ── 11. MOBILE BOTTOM NAVIGATION ── */
+  /* ── 12. MOBILE BOTTOM NAVIGATION ── */
   .mobile-bottom-nav {
     display: flex;
     align-items: center;
@@ -2884,7 +3064,7 @@ button, a, input, select, textarea, [onclick] {
     position: relative;
   }
 
-  /* ── 12. TOASTS ── */
+  /* ── 13. TOASTS ── */
   .toast-container {
     bottom: calc(var(--mobile-bottom-nav-height) + var(--mobile-safe-bottom) + 0.85rem);
     right: 1rem;
@@ -3005,27 +3185,27 @@ button, a, input, select, textarea, [onclick] {
    ══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 390px) {
   .auth-form-pane {
-    padding: 1.85rem 1.15rem;
+    padding: 1.85rem 1.15rem !important;
   }
 
   .auth-card {
-    max-width: 360px;
+    max-width: 360px !important;
   }
 
   .main-content {
-    padding: 1.15rem 0.85rem;
+    padding: 1.15rem 0.85rem !important;
   }
 
   .stats-grid {
-    gap: 0.75rem;
+    gap: 0.75rem !important;
   }
 
   .stat-card {
-    padding: 1rem 0.85rem;
+    padding: 1rem 0.85rem !important;
   }
 
   .stat-value {
-    font-size: 1.35rem;
+    font-size: 1.35rem !important;
   }
 }
 
@@ -3033,21 +3213,30 @@ button, a, input, select, textarea, [onclick] {
    BREAKPOINT: COMPACT MOBILE (max-width: 360px)
    ══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 360px) {
+  .header-action-group {
+    grid-template-columns: 1fr !important;
+    gap: 0.55rem !important;
+  }
+
+  .header-action-group > button:last-child:nth-child(odd) {
+    grid-column: span 1 !important;
+  }
+
   .stats-grid {
     grid-template-columns: 1fr !important;
-    gap: 0.75rem;
+    gap: 0.75rem !important;
   }
 
   .auth-form-pane {
-    padding: 1.65rem 1rem;
+    padding: 1.65rem 1rem !important;
   }
 
   .page-header-text h2 {
-    font-size: 1.25rem;
+    font-size: 1.25rem !important;
   }
 
   .stat-card {
-    padding: 1rem;
+    padding: 1rem !important;
   }
 
   .action-sheet-grid {
