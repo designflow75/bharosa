@@ -2,14 +2,44 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Bharosa — AI-Powered Freelance OS & Trust Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#0a0d14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="stylesheet" href="/styles.css">
   <!-- Lucide Modern Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    /* Mobile navigation helpers */
+    function openQuickActionSheet() {
+      const sheet = document.getElementById('mobile-action-sheet');
+      if (sheet) sheet.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMobileActionSheet() {
+      const sheet = document.getElementById('mobile-action-sheet');
+      if (sheet) sheet.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    function mobileNavTo(tab) {
+      // Update active state
+      document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
+      const btn = document.getElementById('mbn-' + tab);
+      if (btn) btn.classList.add('active');
+      // Map tab to route
+      const routes = {
+        dashboard: '/freelancer/dashboard',
+        work: '/freelancer/find-work',
+        messages: '/freelancer/messages',
+        profile: '/freelancer/profile'
+      };
+      if (routes[tab] && typeof navigateTo === 'function') navigateTo(routes[tab]);
+    }
+  </script>
 </head>
 <body>
 
@@ -1091,6 +1121,64 @@
   </div>
 
   <div class="toast-container" id="toast-container"></div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+    <button class="mobile-nav-item active" id="mbn-dashboard" onclick="mobileNavTo('dashboard')">
+      <i data-lucide="layout-dashboard" style="width:20px;height:20px;"></i>
+      <span>Home</span>
+    </button>
+    <button class="mobile-nav-item" id="mbn-work" onclick="mobileNavTo('work')">
+      <i data-lucide="briefcase" style="width:20px;height:20px;"></i>
+      <span>Work</span>
+    </button>
+    <button class="mobile-nav-item mobile-nav-fab" onclick="openQuickActionSheet()">
+      <i data-lucide="plus" style="width:22px;height:22px;"></i>
+    </button>
+    <button class="mobile-nav-item" id="mbn-messages" onclick="mobileNavTo('messages')">
+      <i data-lucide="message-square" style="width:20px;height:20px;"></i>
+      <span>Messages</span>
+    </button>
+    <button class="mobile-nav-item" id="mbn-profile" onclick="mobileNavTo('profile')">
+      <i data-lucide="user-circle" style="width:20px;height:20px;"></i>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+  <!-- Mobile Quick Action Sheet -->
+  <div class="mobile-action-sheet-overlay" id="mobile-action-sheet" onclick="closeMobileActionSheet()">
+    <div class="mobile-action-sheet" onclick="event.stopPropagation()">
+      <div class="action-sheet-handle"></div>
+      <h4 class="action-sheet-title">Quick Actions</h4>
+      <div class="action-sheet-grid">
+        <button class="action-sheet-btn" onclick="closeMobileActionSheet(); navigateTo('/freelancer/submit-work')">
+          <div class="asb-icon" style="background:rgba(99,102,241,0.15);color:var(--primary);">
+            <i data-lucide="upload-cloud" style="width:22px;height:22px;"></i>
+          </div>
+          <span>Submit Work</span>
+        </button>
+        <button class="action-sheet-btn" onclick="closeMobileActionSheet(); navigateTo('/freelancer/find-work')">
+          <div class="asb-icon" style="background:rgba(16,185,129,0.15);color:var(--success);">
+            <i data-lucide="compass" style="width:22px;height:22px;"></i>
+          </div>
+          <span>Find Work</span>
+        </button>
+        <button class="action-sheet-btn" onclick="closeMobileActionSheet(); openCreateInvoiceModal()">
+          <div class="asb-icon" style="background:rgba(245,158,11,0.15);color:var(--warning);">
+            <i data-lucide="file-plus" style="width:22px;height:22px;"></i>
+          </div>
+          <span>New Invoice</span>
+        </button>
+        <button class="action-sheet-btn" onclick="closeMobileActionSheet(); navigateTo('/freelancer/messages')">
+          <div class="asb-icon" style="background:rgba(56,189,248,0.15);color:var(--info);">
+            <i data-lucide="message-circle" style="width:22px;height:22px;"></i>
+          </div>
+          <span>Messages</span>
+        </button>
+      </div>
+      <button class="action-sheet-cancel" onclick="closeMobileActionSheet()">Cancel</button>
+    </div>
+  </div>
 
   <!-- Application Logic -->
   <script src="/js/app.js"></script>
