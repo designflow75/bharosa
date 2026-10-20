@@ -854,6 +854,40 @@
           </div>
         </div>
 
+        <!-- Autonomous Escalation & Escrow Review Bar (Stitch Screen 11) -->
+        <div class="client-escalation-banner" style="background:var(--surface-container); border:1px solid var(--border-subtle); border-left:4px solid var(--role-client); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; box-shadow:var(--shadow-sm);">
+          <div style="display:flex; flex-direction:column; gap:0.4rem; max-width:680px;">
+            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+              <span class="escrow-lock-badge" style="font-size:0.75rem; padding:0.2rem 0.6rem;">
+                <span class="material-symbols-outlined" style="font-size:14px;">verified_user</span>
+                ₹85,000 Locked in Bharosa Escrow Vault
+              </span>
+              <span class="countdown-timer-chip" style="font-size:0.72rem; padding:0.15rem 0.55rem;">
+                <span class="material-symbols-outlined" style="font-size:13px;">timer</span>
+                48h 12m auto-release countdown
+              </span>
+              <span class="sha256-chip" title="Click to copy SHA-256 deliverable proof" onclick="navigator.clipboard.writeText('8f9ac412d8a04b12'); showToast('SHA-256 hash copied to clipboard');">
+                sha256:8f9a...c412 Match Verified
+              </span>
+            </div>
+            <h3 style="font-family:var(--font-display); font-size:1.15rem; color:var(--text-primary); margin:0.2rem 0;">
+              Deliverables Ready for Review: Multi-Tenant Component Library &amp; Tokens
+            </h3>
+            <p style="font-size:0.84rem; color:var(--text-secondary); margin:0;">
+              Contractor Priya Sharma submitted 3 files with verifiable cryptographic hashes. Sign-off releases funds from escrow to provider.
+            </p>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <button class="btn-primary" style="background:var(--role-client); font-weight:700;" onclick="scrollToApprovals()">
+              <span class="material-symbols-outlined" style="font-size:16px;">task_alt</span>
+              <span>Inspect &amp; Approve</span>
+            </button>
+            <button class="btn-secondary" onclick="openRevisionRequestModal('MS-102')">
+              <span>Request Revision</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Needs Your Approval Queue -->
         <div class="card-section" style="margin-bottom: 1.5rem;" id="cl-approvals-section">
           <div class="card-section-header">

@@ -282,6 +282,7 @@ function fillDemoCreds(email, password) {
 
 function updateHeaderAndSidebar(user) {
   if (!user) return;
+  if (typeof filterByRole === 'function') filterByRole(user.role);
 
   // Header profile badge
   const nameEl = document.getElementById('nav-user-name');
@@ -2009,22 +2010,140 @@ function markAllNotifsRead(e) {
   showToast('All notifications marked as read', 'info');
 }
 
+function applyThemeMode(theme) {
+  const html = document.documentElement;
+  const darkBtn = document.getElementById('wb-theme-dark');
+  const lightBtn = document.getElementById('wb-theme-light');
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  const label = document.getElementById('theme-label');
+
+  if (theme === 'light') {
+    html.setAttribute('data-theme', 'light');
+    html.classList.remove('dark');
+    html.classList.add('light');
+    if (metaTheme) metaTheme.setAttribute('content', '#f8fafc');
+    if (darkBtn) darkBtn.classList.remove('active');
+    if (lightBtn) lightBtn.classList.add('active');
+    if (label) label.textContent = 'Light';
+    localStorage.setItem(THEME_KEY, 'light');
+  } else {
+    html.setAttribute('data-theme', 'dark');
+    html.classList.remove('light');
+    html.classList.add('dark');
+    if (metaTheme) metaTheme.setAttribute('content', '#090d16');
+    if (darkBtn) darkBtn.classList.add('active');
+    if (lightBtn) lightBtn.classList.remove('active');
+    if (label) label.textContent = 'Dark';
+    localStorage.setItem(THEME_KEY, 'dark');
+  }
+}
+
 function toggleTheme() {
   const html = document.documentElement;
   const current = html.getAttribute('data-theme') || 'dark';
   const next = current === 'dark' ? 'light' : 'dark';
-  html.setAttribute('data-theme', next);
-  localStorage.setItem(THEME_KEY, next);
-
-  const label = document.getElementById('theme-label');
-  if (label) label.textContent = next === 'dark' ? 'Dark' : 'Light';
+  applyThemeMode(next);
 }
 
 function initTheme() {
   const saved = localStorage.getItem(THEME_KEY) || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
-  const label = document.getElementById('theme-label');
-  if (label) label.textContent = saved === 'dark' ? 'Dark' : 'Light';
+  applyThemeMode(saved);
+}
+
+function setViewportMode(mode) {
+  const container = document.getElementById('viewport-frame-container');
+  const chromeBar = document.getElementById('window-chrome-bar');
+  const mobileNotch = document.getElementById('mobile-notch');
+  const chromeTag = document.getElementById('chrome-viewport-tag');
+  const syncLabel = document.getElementById('wb-sync-label');
+
+  if (!container) return;
+
+  const buttons = {
+    'responsive': 'btn-view-responsive',
+    'desktop-1440': 'btn-view-desktop',
+    'tablet-768': 'btn-view-tablet',
+    'mobile-390': 'btn-view-mobile',
+    'tri-viewport': 'btn-view-tri'
+  };
+
+  Object.entries(buttons).forEach(([key, btnId]) => {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+      if (key === mode) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+  });
+
+  container.classList.remove('mode-responsive', 'mode-desktop-1440', 'mode-tablet-768', 'mode-mobile-390', 'mode-tri-viewport');
+  container.classList.add('mode-' + mode);
+
+  if (mode === 'desktop-1440') {
+    if (chromeBar) chromeBar.style.display = 'flex';
+    if (mobileNotch) mobileNotch.style.display = 'none';
+    if (chromeTag) chromeTag.textContent = 'Desktop 1440 × 900';
+    if (syncLabel) syncLabel.textContent = 'Desktop Viewport Active • 1440px Fixed Stage';
+  } else if (mode === 'tablet-768') {
+    if (chromeBar) chromeBar.style.display = 'flex';
+    if (mobileNotch) mobileNotch.style.display = 'none';
+    if (chromeTag) chromeTag.textContent = 'Tablet 768 × 1024 (iPad Air)';
+    if (syncLabel) syncLabel.textContent = 'Tablet Viewport Active • 768px Adaptive Rail';
+  } else if (mode === 'mobile-390') {
+    if (chromeBar) chromeBar.style.display = 'none';
+    if (mobileNotch) mobileNotch.style.display = 'block';
+    if (syncLabel) syncLabel.textContent = 'Mobile Viewport Active • 390px Handheld Dock';
+  } else if (mode === 'tri-viewport') {
+    if (chromeBar) chromeBar.style.display = 'none';
+    if (mobileNotch) mobileNotch.style.display = 'none';
+    if (syncLabel) syncLabel.textContent = 'Multi-Device Stage • Fluid Responsive Matrix';
+  } else {
+    // responsive
+    if (chromeBar) chromeBar.style.display = 'none';
+    if (mobileNotch) mobileNotch.style.display = 'none';
+    if (syncLabel) syncLabel.textContent = 'Synchronized Reactive DOM • 1440px / 768px / 390px';
+  }
+}
+
+function setSimulatorState(state) {
+  const liveBtn = document.getElementById('wb-state-live');
+  if (liveBtn) liveBtn.classList.toggle('active', state === 'live');
+  showToast(`Simulator state: ${state.toUpperCase()}`, 'info');
+}
+
+function toggleOfflineBannerSimulator(forceShow) {
+  const banner = document.getElementById('offline-sim-banner');
+  const offlineBtn = document.getElementById('wb-state-offline');
+  if (!banner) return;
+
+  const currentDisplay = banner.style.display;
+  const shouldShow = (typeof forceShow === 'boolean') ? forceShow : (currentDisplay === 'none');
+  banner.style.display = shouldShow ? 'flex' : 'none';
+  if (offlineBtn) offlineBtn.classList.toggle('active', shouldShow);
+
+  if (shouldShow) {
+    showToast('Cryptographic Offline Mode Simulated: Local event store engaged.', 'warning');
+  } else {
+    showToast('Back online: Reconnection queue synced to ledger.', 'success');
+  }
+}
+
+function filterByRole(role) {
+  const buttons = {
+    'all': 'wb-role-all',
+    'freelancer': 'wb-role-fl',
+    'client': 'wb-role-cl',
+    'admin': 'wb-role-adm'
+  };
+
+  Object.entries(buttons).forEach(([r, id]) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('active', r === role);
+  });
+}
+
+function switchPersonaDemo(role) {
+  filterByRole(role);
+  demoLogin(role);
 }
 
 function handleGlobalSearch(e) {
@@ -3226,6 +3345,13 @@ window.selectMilestoneForSubmission = selectMilestoneForSubmission;
 window.removeAttachedFile = removeAttachedFile;
 window.openMessageThread = openMessageThread;
 window.handleSubmitWorkFiles = handleSubmitWorkFiles;
+window.applyThemeMode = applyThemeMode;
+window.initTheme = initTheme;
+window.setViewportMode = setViewportMode;
+window.setSimulatorState = setSimulatorState;
+window.toggleOfflineBannerSimulator = toggleOfflineBannerSimulator;
+window.filterByRole = filterByRole;
+window.switchPersonaDemo = switchPersonaDemo;
 
 // ==============================================================================
 // SUPABASE CLIENT STATUS & MODAL CONTROLLER
