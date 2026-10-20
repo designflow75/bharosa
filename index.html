@@ -386,6 +386,12 @@
           <span>Sample data in demo</span>
         </span>
 
+        <!-- Supabase Database Status Badge -->
+        <span class="supabase-status-pill" id="supabase-status-pill" onclick="openSupabaseModal()" title="Supabase Database Status" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; cursor: pointer; border: 1px solid rgba(62,207,142,0.3); background: rgba(62,207,142,0.08); color: #3ecf8e; transition: all 0.2s ease;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span id="supabase-pill-text">Supabase: Checking...</span>
+        </span>
+
         <div class="header-search">
           <i data-lucide="search" style="width:16px;height:16px;color:var(--text-muted);" class="search-icon"></i>
           <input type="text" id="global-search" placeholder="Search deliverables, contracts, or projects..." oninput="handleGlobalSearch(event)">
@@ -1522,6 +1528,55 @@
       <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:0.5rem;">
         <button class="btn-secondary" onclick="closeModal('modal-create-invoice')">Cancel</button>
         <button class="btn-primary" onclick="submitCreateInvoice()">Generate Invoice Draft</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Supabase Cloud Database Status & Setup -->
+  <div class="modal-overlay" id="modal-supabase">
+    <div class="modal-box" style="max-width: 620px;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.85rem;">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(62,207,142,0.15); display: flex; align-items: center; justify-content: center; color: #3ecf8e;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.05rem;">Supabase Database Status</h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Real-Time Cloud PostgreSQL Persistence</span>
+          </div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('modal-supabase')" style="font-size:1.1rem; line-height:1;">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.25rem 0;">
+        <div id="supabase-modal-status-card" style="padding: 1rem; border-radius: var(--radius-md); background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); margin-bottom: 1.25rem;">
+          <!-- Dynamically populated -->
+        </div>
+
+        <div style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem;">
+          <h4 style="font-size: 0.88rem; margin: 0 0 0.5rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+            <span>🚀</span> How to Connect Your Supabase Project:
+          </h4>
+          <ol style="margin: 0; padding-left: 1.25rem;">
+            <li style="margin-bottom: 0.35rem;">Go to <strong><a href="https://supabase.com/dashboard" target="_blank" style="color: #3ecf8e; text-decoration: underline;">supabase.com</a></strong> and create or select a project.</li>
+            <li style="margin-bottom: 0.35rem;">Open the <strong>SQL Editor</strong> in Supabase, paste the contents of <code>supabase-schema.sql</code>, and click <strong>Run</strong>.</li>
+            <li style="margin-bottom: 0.35rem;">From <strong>Project Settings &rarr; API</strong>, copy your <strong>Project URL</strong> and <strong>anon public API Key</strong>.</li>
+            <li>Paste them into your local <code>.env</code> file:
+              <pre style="background: var(--bg-surface-elevated); padding: 0.5rem; border-radius: 4px; margin-top: 0.35rem; font-size: 0.75rem; overflow-x: auto; color: var(--text-primary);">SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-anon-or-service-role-key</pre>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 0.85rem;">
+        <button class="btn-secondary" onclick="seedSupabaseData()" id="btn-seed-supabase" style="font-size: 0.8rem; display: flex; align-items: center; gap: 0.35rem;">
+          <span>🌱</span> Seed Database
+        </button>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn-secondary" onclick="closeModal('modal-supabase')">Close</button>
+          <button class="btn-primary" onclick="checkSupabaseStatus(true)" id="btn-test-supabase">Test Connection</button>
+        </div>
       </div>
     </div>
   </div>

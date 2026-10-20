@@ -3033,8 +3033,135 @@ window.toggleTheme = toggleTheme;
 window.loadProjectsDirectory = loadProjectsDirectory;
 window.loadInvoicesLedger = loadInvoicesLedger;
 
+// ==============================================================================
+// SUPABASE CLIENT STATUS & MODAL CONTROLLER
+// ==============================================================================
+
+let currentSupabaseStatus = null;
+
+async function checkSupabaseStatus(showToastOnSuccess = false) {
+  const pill = document.getElementById('supabase-status-pill');
+  const pillText = document.getElementById('supabase-pill-text');
+
+  try {
+    const res = await fetch('/api/supabase/status');
+    const data = await res.json();
+    currentSupabaseStatus = data;
+
+    if (pill && pillText) {
+      if (data.connected) {
+        pill.style.borderColor = 'rgba(62, 207, 142, 0.5)';
+        pill.style.background = 'rgba(62, 207, 142, 0.12)';
+        pill.style.color = '#3ecf8e';
+        pillText.textContent = 'Supabase: Connected';
+      } else if (data.configured) {
+        pill.style.borderColor = 'rgba(234, 179, 8, 0.5)';
+        pill.style.background = 'rgba(234, 179, 8, 0.12)';
+        pill.style.color = '#eab308';
+        pillText.textContent = 'Supabase: Schema Needed';
+      } else {
+        pill.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+        pill.style.background = 'rgba(148, 163, 184, 0.08)';
+        pill.style.color = 'var(--text-muted)';
+        pillText.textContent = 'DB: Local (Connect Supabase)';
+      }
+    }
+
+    renderSupabaseModalContent(data);
+
+    if (showToastOnSuccess) {
+      if (data.connected) {
+        showToast('Supabase connected successfully!', 'success');
+      } else if (data.configured) {
+        showToast(`Supabase connection error: ${data.error || 'Check tables'}`, 'warning');
+      } else {
+        showToast('Running in local memory fallback mode. Configure .env with Supabase credentials to persist.', 'info');
+      }
+    }
+  } catch (err) {
+    if (pillText) pillText.textContent = 'Supabase: Offline';
+  }
+}
+
+function renderSupabaseModalContent(status) {
+  const card = document.getElementById('supabase-modal-status-card');
+  if (!card) return;
+
+  if (status.connected) {
+    card.innerHTML = `
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#3ecf8e; box-shadow:0 0 8px #3ecf8e;"></span>
+        <strong style="color:#3ecf8e; font-size:0.95rem;">Connected to Supabase Cloud PostgreSQL</strong>
+      </div>
+      <div style="font-size:0.8rem; color:var(--text-muted); word-break:break-all; margin-bottom:0.5rem;">
+        <strong>Project URL:</strong> ${status.url || 'Configured via .env'}
+      </div>
+      <div style="display:flex; flex-wrap:wrap; gap:0.5rem; font-size:0.75rem; color:var(--text-secondary); margin-top:0.75rem;">
+        <span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-subtle); padding:0.25rem 0.5rem; border-radius:4px;">Users: ${status.activeCounts?.users || 0}</span>
+        <span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-subtle); padding:0.25rem 0.5rem; border-radius:4px;">Projects: ${status.activeCounts?.projects || 0}</span>
+        <span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-subtle); padding:0.25rem 0.5rem; border-radius:4px;">Invoices: ${status.activeCounts?.invoices || 0}</span>
+        <span class="badge" style="background:var(--bg-surface); border:1px solid var(--border-subtle); padding:0.25rem 0.5rem; border-radius:4px;">Opportunities: ${status.activeCounts?.opportunities || 0}</span>
+      </div>
+    `;
+  } else if (status.configured) {
+    card.innerHTML = `
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#eab308; box-shadow:0 0 8px #eab308;"></span>
+        <strong style="color:#eab308; font-size:0.95rem;">Credentials Detected — Schema Needed</strong>
+      </div>
+      <p style="margin:0 0 0.5rem; font-size:0.8rem; color:var(--text-muted);">${status.message || 'Run supabase-schema.sql in your Supabase SQL Editor.'}</p>
+      ${status.hint ? `<p style="margin:0; font-size:0.75rem; color:#eab308;"><strong>Hint:</strong> ${status.hint}</p>` : ''}
+    `;
+  } else {
+    card.innerHTML = `
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--text-muted);"></span>
+        <strong style="font-size:0.95rem;">Running in-memory database</strong>
+      </div>
+      <p style="margin:0; font-size:0.8rem; color:var(--text-muted);">
+        All actions, state transitions, invoices, and audit trails are fully operational in memory. To persist permanently in the cloud, add your Supabase credentials to <code>.env</code>.
+      </p>
+    `;
+  }
+}
+
+function openSupabaseModal() {
+  openModal('modal-supabase');
+  if (currentSupabaseStatus) {
+    renderSupabaseModalContent(currentSupabaseStatus);
+  } else {
+    checkSupabaseStatus();
+  }
+}
+
+async function seedSupabaseData() {
+  const btn = document.getElementById('btn-seed-supabase');
+  if (btn) btn.disabled = true;
+  showToast('Seeding initial data into Supabase...', 'info');
+
+  try {
+    const res = await fetch('/api/supabase/seed', { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Sample dataset successfully seeded into Supabase!', 'success');
+      await checkSupabaseStatus();
+    } else {
+      showToast(data.error || 'Failed to seed Supabase', 'warning');
+    }
+  } catch (e) {
+    showToast('Failed to seed Supabase: ' + e.message, 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+window.openSupabaseModal = openSupabaseModal;
+window.checkSupabaseStatus = checkSupabaseStatus;
+window.seedSupabaseData = seedSupabaseData;
+
 // App Initialization on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   routeView(window.location.pathname);
+  checkSupabaseStatus();
 });

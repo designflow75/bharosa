@@ -1,5 +1,7 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const supabaseAdapter = require('../lib/supabase.js');
 
 const app = express();
 app.use(cors());
@@ -291,9 +293,59 @@ function getInitialSeed() {
 
 let DB = getInitialSeed();
 
-app.post('/api/reset-demo', (req, res) => {
+// Asynchronous background hydration from Supabase if configured
+async function initDatabase() {
+  if (supabaseAdapter.isConfigured) {
+    try {
+      const status = await supabaseAdapter.getStatus();
+      if (status.connected) {
+        console.log('[Supabase] Initializing state from Supabase...');
+        await supabaseAdapter.autoSeedIfEmpty(getInitialSeed());
+        const loaded = await supabaseAdapter.loadAllFromSupabase();
+        if (loaded && loaded.projects && loaded.projects.length > 0) {
+          DB = loaded;
+          console.log(`[Supabase] Synchronized ${DB.projects.length} projects, ${DB.users.length} users from Supabase.`);
+        }
+      } else {
+        console.log('[Supabase] Configured but status:', status.message);
+      }
+    } catch (e) {
+      console.warn('[Supabase] Init error:', e.message);
+    }
+  }
+}
+initDatabase();
+
+app.post('/api/reset-demo', async (req, res) => {
   DB = getInitialSeed();
+  if (supabaseAdapter.isConfigured) {
+    await supabaseAdapter.autoSeedIfEmpty(getInitialSeed());
+  }
   res.json({ success: true, message: 'Demo database reset to initial seed state.' });
+});
+
+app.get('/api/supabase/status', async (req, res) => {
+  const status = await supabaseAdapter.getStatus();
+  res.json({
+    ...status,
+    activeCounts: {
+      users: DB.users ? DB.users.length : 0,
+      projects: DB.projects ? DB.projects.length : 0,
+      invoices: DB.invoices ? DB.invoices.length : 0,
+      opportunities: DB.opportunities ? DB.opportunities.length : 0,
+      disputes: DB.disputes ? DB.disputes.length : 0
+    }
+  });
+});
+
+app.post('/api/supabase/seed', async (req, res) => {
+  if (!supabaseAdapter.isConfigured) {
+    return res.status(400).json({ error: 'Supabase credentials not configured in .env' });
+  }
+  const seeded = await supabaseAdapter.autoSeedIfEmpty(getInitialSeed());
+  const loaded = await supabaseAdapter.loadAllFromSupabase();
+  if (loaded && loaded.projects) DB = loaded;
+  res.json({ success: true, seeded, count: DB.projects ? DB.projects.length : 0 });
 });
 
 // ==============================================================================
@@ -831,6 +883,14 @@ app.post('/api/milestones/:id/transition', authenticateUser, (req, res) => {
   };
   DB.auditLogs.unshift(logEntry);
 
+  // Sync to Supabase
+  supabaseAdapter.syncProject(targetProject);
+  supabaseAdapter.syncAuditLog(logEntry);
+  if (targetMilestone.invoiceId) {
+    const inv = DB.invoices.find(i => i.id === targetMilestone.invoiceId);
+    if (inv) supabaseAdapter.syncInvoice(inv);
+  }
+
   res.json({
     success: true,
     milestone: targetMilestone,
@@ -889,6 +949,10 @@ app.post('/api/milestones/:id/submit', authenticateUser, (req, res) => {
   };
   DB.auditLogs.unshift(logEntry);
 
+  // Sync to Supabase
+  supabaseAdapter.syncProject(targetProject);
+  supabaseAdapter.syncAuditLog(logEntry);
+
   res.json({
     success: true,
     milestone: targetMilestone,
@@ -928,7 +992,7 @@ app.post('/api/milestones/:id/scope-change', authenticateUser, (req, res) => {
 
   DB.scopeAmendments.push(amendment);
 
-  DB.auditLogs.unshift({
+  const auditLogDraft = {
     id: `AUD-${Date.now().toString().slice(-4)}`,
     timestamp: new Date().toISOString(),
     actorId: req.user.id,
@@ -938,7 +1002,12 @@ app.post('/api/milestones/:id/scope-change', authenticateUser, (req, res) => {
     milestoneId,
     action: 'SCOPE_AMENDMENT_DRAFTED',
     reason: `Drafted scope amendment for ₹${amendment.additionalCost} INR and +${amendment.additionalDays} days. Pending client approval.`
-  });
+  };
+  DB.auditLogs.unshift(auditLogDraft);
+
+  // Sync to Supabase
+  supabaseAdapter.syncScopeAmendment(amendment);
+  supabaseAdapter.syncAuditLog(auditLogDraft);
 
   res.json({ success: true, amendment });
 });
@@ -966,7 +1035,7 @@ app.post('/api/scope-amendments/:id/approve', authenticateUser, (req, res) => {
     milestone.possibleScopeChange = null;
   }
 
-  DB.auditLogs.unshift({
+  const auditLogApprove = {
     id: `AUD-${Date.now().toString().slice(-4)}`,
     timestamp: new Date().toISOString(),
     actorId: req.user.id,
@@ -976,7 +1045,13 @@ app.post('/api/scope-amendments/:id/approve', authenticateUser, (req, res) => {
     milestoneId: amendment.milestoneId,
     action: 'SCOPE_AMENDMENT_APPROVED',
     reason: `Client approved amendment "${amendment.title}". Contract updated: +₹${amendment.additionalCost} INR.`
-  });
+  };
+  DB.auditLogs.unshift(auditLogApprove);
+
+  // Sync to Supabase
+  supabaseAdapter.syncScopeAmendment(amendment);
+  supabaseAdapter.syncProject(project);
+  supabaseAdapter.syncAuditLog(auditLogApprove);
 
   res.json({ success: true, amendment, project });
 });
@@ -1053,7 +1128,7 @@ app.post('/api/opportunities/:id/accept', authenticateUser, requireRole('freelan
   // Remove from opportunities
   DB.opportunities = DB.opportunities.filter(o => o.id !== req.params.id);
 
-  DB.auditLogs.unshift({
+  const auditLogOpp = {
     id: `AUD-${Date.now().toString().slice(-4)}`,
     timestamp: new Date().toISOString(),
     actorId: req.user.id,
@@ -1063,7 +1138,13 @@ app.post('/api/opportunities/:id/accept', authenticateUser, requireRole('freelan
     milestoneId: null,
     action: 'PROJECT_CREATED_FROM_OPPORTUNITY',
     reason: `Accepted opportunity "${opp.title}". New project created with ₹${opp.totalBudget} budget.`
-  });
+  };
+  DB.auditLogs.unshift(auditLogOpp);
+
+  // Sync to Supabase
+  supabaseAdapter.syncProject(newProject);
+  supabaseAdapter.deleteOpportunity(req.params.id);
+  supabaseAdapter.syncAuditLog(auditLogOpp);
 
   res.json({ success: true, project: newProject });
 });
@@ -1101,6 +1182,9 @@ app.post('/api/projects/:id/messages', authenticateUser, (req, res) => {
   };
   if (!DB.messages) DB.messages = [];
   DB.messages.push(msg);
+
+  // Sync to Supabase
+  supabaseAdapter.syncMessage(msg);
 
   res.json({ success: true, message: msg });
 });
@@ -1173,7 +1257,7 @@ app.post('/api/projects', authenticateUser, requireRole('client', 'admin'), (req
 
   DB.projects.unshift(newProject);
 
-  DB.auditLogs.unshift({
+  const auditProject = {
     id: 'AUD-' + Date.now().toString().slice(-4),
     timestamp: new Date().toISOString(),
     actorId: req.user.id,
@@ -1183,7 +1267,12 @@ app.post('/api/projects', authenticateUser, requireRole('client', 'admin'), (req
     action: 'PROJECT_CREATED',
     reason: `Project "${title}" created with ₹${budget.toLocaleString('en-IN')} escrow allocation`,
     evidenceHash: 'verified-contract-hash'
-  });
+  };
+  DB.auditLogs.unshift(auditProject);
+
+  // Sync to Supabase
+  supabaseAdapter.syncProject(newProject);
+  supabaseAdapter.syncAuditLog(auditProject);
 
   res.json({ success: true, project: newProject });
 });
@@ -1211,7 +1300,7 @@ app.post('/api/disputes', authenticateUser, (req, res) => {
   if (!DB.disputes) DB.disputes = [];
   DB.disputes.unshift(newDispute);
 
-  DB.auditLogs.unshift({
+  const auditDispute = {
     id: 'AUD-' + Date.now().toString().slice(-4),
     timestamp: new Date().toISOString(),
     actorId: req.user.id,
@@ -1221,7 +1310,12 @@ app.post('/api/disputes', authenticateUser, (req, res) => {
     action: 'DISPUTE_RAISED',
     reason: `Dispute ${disputeId} logged: ${reason || category}. Neutral mediation dossier assembled.`,
     evidenceHash: newDispute.evidenceHash
-  });
+  };
+  DB.auditLogs.unshift(auditDispute);
+
+  // Sync to Supabase
+  supabaseAdapter.syncDispute(newDispute);
+  supabaseAdapter.syncAuditLog(auditDispute);
 
   res.json({ success: true, dispute: newDispute });
 });
@@ -1234,7 +1328,7 @@ app.post('/api/refunds', authenticateUser, requireRole('client', 'admin'), (req,
   const { projectId, milestoneId, reason } = req.body;
   const refundId = 'REF-' + Math.floor(100 + Math.random() * 900);
 
-  DB.auditLogs.unshift({
+  const auditRefund = {
     id: 'AUD-' + Date.now().toString().slice(-4),
     timestamp: new Date().toISOString(),
     actorId: req.user.id,
@@ -1245,7 +1339,12 @@ app.post('/api/refunds', authenticateUser, requireRole('client', 'admin'), (req,
     action: 'REFUND_REQUESTED',
     reason: `Refund requested for ${milestoneId || 'escrow milestone'}: ${reason}`,
     evidenceHash: 'verified-refund-request'
-  });
+  };
+  DB.auditLogs.unshift(auditRefund);
+
+  // Sync to Supabase
+  supabaseAdapter.syncRefund({ id: refundId, projectId, reason });
+  supabaseAdapter.syncAuditLog(auditRefund);
 
   res.json({ success: true, refundId, status: 'logged_for_escrow_review' });
 });
