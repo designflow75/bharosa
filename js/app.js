@@ -83,20 +83,50 @@ function routeView(pathname) {
     return;
   }
 
-  // Check 403 Forbidden Access
-  if (pathname.startsWith('/freelancer') && user.role !== 'freelancer' && user.role !== 'admin') {
-    showForbiddenPage(`You are signed in as a Client (${user.name}). Accessing Freelancer workspaces (/freelancer/*) is forbidden.`);
-    return;
+  // Universal shared routes accessible by all roles (never 403)
+  const isSharedRoute = 
+    pathname === '/messages' ||
+    pathname === '/freelancer/messages' ||
+    pathname === '/client/messages' ||
+    pathname === '/switch-workspace' ||
+    pathname === '/switch-role' ||
+    pathname === '/freelancer/projects' ||
+    pathname === '/client/projects' ||
+    pathname === '/projects' ||
+    pathname === '/freelancer/invoices' ||
+    pathname === '/client/invoices' ||
+    pathname === '/invoices' ||
+    pathname === '/client/approvals' ||
+    pathname === '/freelancer/approvals' ||
+    pathname === '/approvals' ||
+    pathname === '/client/documents' ||
+    pathname === '/freelancer/documents' ||
+    pathname === '/documents';
+
+  // Check 403 Forbidden Access (Only on strictly segregated paths)
+  if (!isSharedRoute) {
+    if (pathname.startsWith('/freelancer') && user.role !== 'freelancer' && user.role !== 'admin') {
+      showForbiddenPage(`You are signed in as a Client (${user.name}). Accessing Freelancer workspaces (/freelancer/*) is forbidden.`);
+      return;
+    }
+
+    if (pathname.startsWith('/client') && user.role !== 'client' && user.role !== 'admin') {
+      showForbiddenPage(`You are signed in as a Freelancer (${user.name}). Accessing Client approvals and administrative portals (/client/*) is forbidden.`);
+      return;
+    }
+
+    if (pathname.startsWith('/admin') && user.role !== 'admin') {
+      showForbiddenPage(`Super Admin Control Panel (/admin) is restricted to platform operators. Your role is '${user.role}'.`);
+      return;
+    }
   }
 
-  if (pathname.startsWith('/client') && user.role !== 'client' && user.role !== 'admin') {
-    showForbiddenPage(`You are signed in as a Freelancer (${user.name}). Accessing Client approvals and administrative portals (/client/*) is forbidden.`);
-    return;
-  }
-
-  if (pathname.startsWith('/admin') && user.role !== 'admin') {
-    showForbiddenPage(`Super Admin Control Panel (/admin) is restricted to platform operators. Your role is '${user.role}'.`);
-    return;
+  // Clear message auto-refresh poll if leaving messages
+  if (pathname !== '/messages' && pathname !== '/freelancer/messages' && pathname !== '/client/messages') {
+    if (window.msgPollTimer) {
+      clearInterval(window.msgPollTimer);
+      window.msgPollTimer = null;
+    }
   }
 
   // Hide Auth and show App Shell
@@ -110,16 +140,16 @@ function routeView(pathname) {
   } else if (pathname === '/freelancer/submit-work') {
     showSection('view-freelancer-submit-work');
     loadSubmitWork();
-  } else if (pathname === '/freelancer/messages') {
+  } else if (pathname === '/messages' || pathname === '/freelancer/messages' || pathname === '/client/messages') {
     showSection('view-freelancer-messages');
     loadFreelancerMessages();
-  } else if (pathname === '/freelancer/projects' || pathname === '/client/projects') {
+  } else if (pathname === '/freelancer/projects' || pathname === '/client/projects' || pathname === '/projects') {
     showSection('view-projects');
     loadProjectsDirectory();
-  } else if (pathname === '/freelancer/invoices' || pathname === '/client/invoices') {
+  } else if (pathname === '/freelancer/invoices' || pathname === '/client/invoices' || pathname === '/invoices') {
     showSection('view-invoices');
     loadInvoicesLedger();
-  } else if (pathname === '/client/approvals' || pathname === '/freelancer/approvals') {
+  } else if (pathname === '/client/approvals' || pathname === '/freelancer/approvals' || pathname === '/approvals') {
     showSection('view-approvals');
     loadApprovalsQueue();
   } else if (pathname === '/client/documents' || pathname === '/freelancer/documents' || pathname === '/documents') {
@@ -330,7 +360,7 @@ function updateHeaderAndSidebar(user) {
         <span class="icon"><i data-lucide="upload-cloud" style="width:18px;height:18px;"></i></span>
         <span>Submit Work</span>
       </a>
-      <a class="nav-item ${appState.currentRoute === '/freelancer/messages' ? 'active' : ''}" onclick="navigateTo('/freelancer/messages')">
+      <a class="nav-item ${appState.currentRoute === '/messages' || appState.currentRoute === '/freelancer/messages' ? 'active' : ''}" onclick="navigateTo('/messages')">
         <span class="icon"><i data-lucide="message-square" style="width:18px;height:18px;"></i></span>
         <span>Messages</span>
       </a>
@@ -382,7 +412,7 @@ function updateHeaderAndSidebar(user) {
         <span class="icon"><i data-lucide="file-text" style="width:18px;height:18px;"></i></span>
         <span>Documents & SOWs</span>
       </a>
-      <a class="nav-item" onclick="navigateTo('/freelancer/messages')">
+      <a class="nav-item ${appState.currentRoute === '/messages' || appState.currentRoute === '/client/messages' || appState.currentRoute === '/freelancer/messages' ? 'active' : ''}" onclick="navigateTo('/messages')">
         <span class="icon"><i data-lucide="message-square" style="width:18px;height:18px;"></i></span>
         <span>Messages</span>
       </a>
@@ -589,6 +619,7 @@ function renderFreelancerDashboardUI(data) {
     `).join('');
   }
 
+  renderFreelancerDashboardGraph(currentFreelancerChartRange);
   if (window.lucide) window.lucide.createIcons();
 }
 
@@ -791,6 +822,7 @@ function renderClientDashboardUI(data) {
     `).join('');
   }
 
+  renderClientDashboardGraph(currentClientChartRange);
   if (window.lucide) window.lucide.createIcons();
 }
 
@@ -1468,6 +1500,38 @@ async function loadAdminDashboard() {
 
     if (activeTab === 'overview') {
       container.innerHTML = `
+        <!-- Admin Platform Escrow Volume & Settlement Velocity Graph (User Requested!) -->
+        <div class="card-section dashboard-chart-card" id="adm-velocity-graph-card" style="margin-bottom:1.5rem;">
+          <div class="dashboard-chart-header">
+            <div class="dashboard-chart-title-block">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span class="chart-header-icon" style="background:rgba(234,179,8,0.15); color:var(--accent-gold);">
+                  <i data-lucide="shield-check" style="width:20px;height:20px;"></i>
+                </span>
+                <div>
+                  <h3 style="margin:0; font-size:1.05rem;">Platform GMV &amp; Settlement Velocity</h3>
+                  <p style="margin:2px 0 0 0; font-size:0.78rem; color:var(--text-muted);">Cross-project escrow custody, automated dispute resolutions &amp; milestone velocity</p>
+                </div>
+              </div>
+            </div>
+            <div class="dashboard-chart-controls">
+              <div class="chart-summary-pills">
+                <span class="chart-pill gold"><span class="dot"></span> ₹3,25,000 Platform GMV</span>
+                <span class="chart-pill green"><span class="dot"></span> 100% Release Rate</span>
+                <span class="chart-pill blue"><span class="dot"></span> 18h Avg. Resolution</span>
+              </div>
+              <div class="chart-toggle-group">
+                <button class="chart-toggle-btn ${currentAdminChartRange === '30d' ? 'active' : ''}" id="btn-adm-chart-30d" onclick="setAdminChartRange('30d')">30D</button>
+                <button class="chart-toggle-btn ${currentAdminChartRange === '90d' ? 'active' : ''}" id="btn-adm-chart-90d" onclick="setAdminChartRange('90d')">90D</button>
+                <button class="chart-toggle-btn ${currentAdminChartRange === 'all' ? 'active' : ''}" id="btn-adm-chart-all" onclick="setAdminChartRange('all')">All</button>
+              </div>
+            </div>
+          </div>
+          <div class="dashboard-chart-body" id="adm-chart-svg-container">
+            <!-- Dynamic SVG injected here -->
+          </div>
+        </div>
+
         <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:1.5rem;">
           <div class="stat-card">
             <span class="stat-title">Platform Active Projects</span>
@@ -1546,6 +1610,7 @@ async function loadAdminDashboard() {
           </div>
         </div>
       `;
+      renderAdminDashboardGraph(currentAdminChartRange);
     } else if (activeTab === 'disputes') {
       container.innerHTML = `
         <div class="card-section">
@@ -2698,6 +2763,20 @@ function resetSubmitWorkUI() {
 // ==============================================================================
 
 let activeMsgProjectId = null;
+let currentFreelancerChartRange = '30d';
+let currentClientChartRange = '30d';
+let currentAdminChartRange = '30d';
+
+function navigateDashboardBack() {
+  const user = getSessionUser();
+  if (user && user.role === 'client') {
+    navigateTo('/client/dashboard');
+  } else if (user && user.role === 'admin') {
+    navigateTo('/admin');
+  } else {
+    navigateTo('/freelancer/dashboard');
+  }
+}
 
 async function loadFreelancerMessages() {
   const user = getSessionUser();
@@ -2721,19 +2800,36 @@ async function loadFreelancerMessages() {
       return;
     }
 
-    threadListEl.innerHTML = projects.map(p => `
-      <div onclick="openMessageThread('${p.id}')" id="msg-thread-${p.id}" class="msg-thread-item" style="padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle); margin-bottom:0.5rem; cursor:pointer; transition:all 0.2s;">
-        <div style="font-weight:600; font-size:0.88rem; color:var(--text-primary); margin-bottom:2px;">${p.title}</div>
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted);">
-          <span>${p.clientOrg}</span>
-          <span class="status-pill in-progress" style="font-size:0.65rem;">Active</span>
+    threadListEl.innerHTML = projects.map(p => {
+      const counterpart = user.role === 'client' 
+        ? `${p.freelancerName || 'Priya Sharma'} (Contractor)`
+        : `${p.clientOrg || p.clientName || 'Rahul Verma'} (Client)`;
+      return `
+        <div onclick="openMessageThread('${p.id}')" id="msg-thread-${p.id}" class="msg-thread-item" style="padding:0.75rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle); margin-bottom:0.5rem; cursor:pointer; transition:all 0.2s;">
+          <div style="font-weight:600; font-size:0.88rem; color:var(--text-primary); margin-bottom:2px;">${p.title}</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted);">
+            <span>${counterpart}</span>
+            <span class="status-pill in-progress" style="font-size:0.65rem;">Active</span>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     // Open first thread by default
-    if (projects.length > 0) {
+    if (projects.length > 0 && !activeMsgProjectId) {
       openMessageThread(projects[0].id);
+    } else if (activeMsgProjectId) {
+      openMessageThread(activeMsgProjectId);
+    }
+
+    // Set up auto-poll every 4s while on messages
+    if (!window.msgPollTimer) {
+      window.msgPollTimer = setInterval(() => {
+        const route = appState.currentRoute;
+        if (activeMsgProjectId && (route === '/messages' || route === '/freelancer/messages' || route === '/client/messages')) {
+          openMessageThread(activeMsgProjectId, true);
+        }
+      }, 4000);
     }
   } catch (err) {
     console.error('Error loading message threads:', err);
@@ -2741,7 +2837,7 @@ async function loadFreelancerMessages() {
   }
 }
 
-async function openMessageThread(projectId) {
+async function openMessageThread(projectId, isPoll = false) {
   const user = getSessionUser();
   if (!user) return;
 
@@ -2784,25 +2880,34 @@ async function openMessageThread(projectId) {
         </div>
       `;
     } else {
+      const isAtBottom = !isPoll || (chatMessagesEl.scrollHeight - chatMessagesEl.scrollTop <= chatMessagesEl.clientHeight + 80);
       chatMessagesEl.innerHTML = msgs.map(m => {
         const isMe = m.senderId === user.id;
         const time = new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const roleLabel = m.senderRole === 'freelancer' ? 'Contractor' : (m.senderRole === 'client' ? 'Client' : 'Platform Arbiter');
+        const roleColor = m.senderRole === 'freelancer' 
+          ? 'background:rgba(0,210,132,0.12); color:var(--role-freelancer);' 
+          : 'background:rgba(2,132,199,0.12); color:#38bdf8;';
         return `
-          <div style="display:flex; flex-direction:column; align-items:${isMe ? 'flex-end' : 'flex-start'}; margin-bottom:0.75rem;">
-            <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:2px;">
-              ${isMe ? 'You' : m.senderName} (${m.senderRole}) • ${time}
+          <div style="display:flex; flex-direction:column; align-items:${isMe ? 'flex-end' : 'flex-start'}; margin-bottom:0.8rem;">
+            <div style="font-size:0.71rem; color:var(--text-muted); margin-bottom:3px; display:flex; align-items:center; gap:6px;">
+              <span style="font-weight:600; color:var(--text-primary);">${isMe ? 'You' : m.senderName}</span>
+              <span class="role-chip" style="font-size:0.62rem; padding:1px 6px; border-radius:4px; ${roleColor}">${roleLabel}</span>
+              <span>• ${time}</span>
             </div>
-            <div style="max-width:70%; padding:0.65rem 0.9rem; border-radius:var(--radius-md); font-size:0.86rem; line-height:1.4; ${isMe ? 'background:var(--primary); color:white; border-bottom-right-radius:2px;' : 'background:var(--bg-surface-elevated); color:var(--text-primary); border:1px solid var(--border-subtle); border-bottom-left-radius:2px;'}">
+            <div style="max-width:75%; padding:0.65rem 0.95rem; border-radius:var(--radius-md); font-size:0.86rem; line-height:1.45; box-shadow:var(--shadow-sm); ${isMe ? 'background:var(--primary); color:white; border-bottom-right-radius:2px;' : 'background:var(--bg-surface-elevated); color:var(--text-primary); border:1px solid var(--border-subtle); border-bottom-left-radius:2px;'}">
               ${m.text}
             </div>
           </div>
         `;
       }).join('');
-      chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+      if (isAtBottom) {
+        chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+      }
     }
   } catch (err) {
     console.error('Error loading project messages:', err);
-    if (chatMessagesEl) {
+    if (chatMessagesEl && !isPoll) {
       chatMessagesEl.innerHTML = `<div style="color:var(--danger); padding:1rem; font-size:0.85rem;">Failed to load messages.</div>`;
     }
   }
@@ -2834,6 +2939,284 @@ async function sendProjectMessage() {
     console.error('Error sending message:', err);
     showToast('Failed to send message', 'danger');
   }
+}
+
+// ==============================================================================
+// DASHBOARD VELOCITY GRAPHS (FREELANCER, CLIENT, ADMIN)
+// ==============================================================================
+
+function generateDashboardSvgChart({
+  containerId,
+  dataPoints,
+  series1Key,
+  series1Name,
+  series1Color,
+  series2Key,
+  series2Name,
+  series2Color,
+  valuePrefix = '₹',
+  legendBadge = ''
+}) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const maxVal = Math.max(...dataPoints.map(d => Math.max(d[series1Key] || 0, d[series2Key] || 0))) * 1.25 || 100000;
+  const svgWidth = 860;
+  const svgHeight = 220;
+  const paddingLeft = 65;
+  const paddingRight = 35;
+  const paddingTop = 25;
+  const paddingBottom = 35;
+  const chartW = svgWidth - paddingLeft - paddingRight;
+  const chartH = svgHeight - paddingTop - paddingBottom;
+
+  const getX = (idx) => paddingLeft + (idx / Math.max(1, dataPoints.length - 1)) * chartW;
+  const getY = (val) => paddingTop + chartH - (val / maxVal) * chartH;
+
+  let path1 = '';
+  let area1 = '';
+  let path2 = '';
+  let area2 = '';
+  let dots1 = '';
+  let dots2 = '';
+
+  dataPoints.forEach((pt, i) => {
+    const x = getX(i);
+    const y1 = getY(pt[series1Key] || 0);
+    const y2 = getY(pt[series2Key] || 0);
+
+    if (i === 0) {
+      path1 = `M ${x} ${y1}`;
+      area1 = `M ${x} ${paddingTop + chartH} L ${x} ${y1}`;
+      path2 = `M ${x} ${y2}`;
+      area2 = `M ${x} ${paddingTop + chartH} L ${x} ${y2}`;
+    } else {
+      path1 += ` L ${x} ${y1}`;
+      area1 += ` L ${x} ${y1}`;
+      path2 += ` L ${x} ${y2}`;
+      area2 += ` L ${x} ${y2}`;
+    }
+
+    if (i === dataPoints.length - 1) {
+      area1 += ` L ${x} ${paddingTop + chartH} Z`;
+      area2 += ` L ${x} ${paddingTop + chartH} Z`;
+    }
+
+    dots1 += `<circle cx="${x}" cy="${y1}" r="4.5" fill="${series1Color}" stroke="var(--bg-surface)" stroke-width="2"><title>${pt.label} (${series1Name}): ${valuePrefix}${(pt[series1Key] || 0).toLocaleString('en-IN')}</title></circle>`;
+    dots2 += `<circle cx="${x}" cy="${y2}" r="4.5" fill="${series2Color}" stroke="var(--bg-surface)" stroke-width="2"><title>${pt.label} (${series2Name}): ${valuePrefix}${(pt[series2Key] || 0).toLocaleString('en-IN')}</title></circle>`;
+  });
+
+  // 4 Y-ticks
+  const yTicks = [0, 0.33, 0.66, 1].map(pct => {
+    const v = Math.round(maxVal * pct);
+    const y = getY(v);
+    const label = v >= 100000 ? `${(v/1000).toFixed(0)}k` : (v >= 1000 ? `${(v/1000).toFixed(0)}k` : v);
+    return `
+      <line x1="${paddingLeft}" y1="${y}" x2="${svgWidth - paddingRight}" y2="${y}" stroke="var(--border-subtle)" stroke-dasharray="3 3" opacity="0.6"/>
+      <text x="${paddingLeft - 10}" y="${y + 4}" fill="var(--text-muted)" font-size="10" text-anchor="end" font-family="var(--font-mono)">${valuePrefix}${label}</text>
+    `;
+  }).join('');
+
+  // X-ticks
+  const xTicks = dataPoints.map((pt, i) => {
+    const x = getX(i);
+    return `<text x="${x}" y="${svgHeight - 10}" fill="var(--text-muted)" font-size="11" text-anchor="middle" font-family="var(--font-mono)">${pt.label}</text>`;
+  }).join('');
+
+  const grad1Id = `grad-${containerId}-1`;
+  const grad2Id = `grad-${containerId}-2`;
+
+  container.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem; font-size:0.78rem;">
+      <div style="display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap;">
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--text-primary); font-weight:600;">
+          <span style="width:10px; height:10px; border-radius:50%; background:${series1Color};"></span> ${series1Name}
+        </span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--text-secondary); font-weight:600;">
+          <span style="width:10px; height:10px; border-radius:50%; background:${series2Color};"></span> ${series2Name}
+        </span>
+      </div>
+      ${legendBadge ? `<span style="font-family:var(--font-mono); font-size:0.74rem; color:var(--text-muted); background:var(--bg-surface-elevated); padding:3px 8px; border-radius:4px; border:1px solid var(--border-subtle);">${legendBadge}</span>` : ''}
+    </div>
+    <div style="width:100%; overflow-x:auto;">
+      <svg viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="xMidYMid meet" style="width:100%; height:220px; display:block;">
+        <defs>
+          <linearGradient id="${grad1Id}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${series1Color}" stop-opacity="0.32" />
+            <stop offset="100%" stop-color="${series1Color}" stop-opacity="0.0" />
+          </linearGradient>
+          <linearGradient id="${grad2Id}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${series2Color}" stop-opacity="0.22" />
+            <stop offset="100%" stop-color="${series2Color}" stop-opacity="0.0" />
+          </linearGradient>
+        </defs>
+        ${yTicks}
+        ${xTicks}
+        <path d="${area2}" fill="url(#${grad2Id})" />
+        <path d="${area1}" fill="url(#${grad1Id})" />
+        <path d="${path2}" fill="none" stroke="${series2Color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="${path1}" fill="none" stroke="${series1Color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+        ${dots2}
+        ${dots1}
+      </svg>
+    </div>
+  `;
+}
+
+function setFreelancerChartRange(range) {
+  currentFreelancerChartRange = range;
+  ['30d', '90d', 'all'].forEach(r => {
+    document.getElementById(`btn-fl-chart-${r}`)?.classList.toggle('active', r === range);
+  });
+  renderFreelancerDashboardGraph(range);
+}
+
+function renderFreelancerDashboardGraph(range = '30d') {
+  let dataPoints = [];
+  if (range === '30d') {
+    dataPoints = [
+      { label: 'Oct 01', earned: 15000, escrow: 35000 },
+      { label: 'Oct 08', earned: 20000, escrow: 40000 },
+      { label: 'Oct 15', earned: 25000, escrow: 60000 },
+      { label: 'Oct 22', earned: 25000, escrow: 85000 },
+      { label: 'Oct 29', earned: 45000, escrow: 85000 },
+      { label: 'Nov 05 (Est)', earned: 65000, escrow: 85000 }
+    ];
+  } else if (range === '90d') {
+    dataPoints = [
+      { label: 'Aug', earned: 10000, escrow: 20000 },
+      { label: 'Sep', earned: 18000, escrow: 35000 },
+      { label: 'Oct', earned: 25000, escrow: 85000 },
+      { label: 'Nov', earned: 45000, escrow: 70000 },
+      { label: 'Dec', earned: 70000, escrow: 60000 },
+      { label: 'Jan (Est)', earned: 95000, escrow: 40000 }
+    ];
+  } else {
+    dataPoints = [
+      { label: '2025 H1', earned: 30000, escrow: 25000 },
+      { label: '2025 H2', earned: 65000, escrow: 45000 },
+      { label: '2026 Q1', earned: 95000, escrow: 65000 },
+      { label: '2026 Q2', earned: 140000, escrow: 85000 },
+      { label: '2026 Q3', earned: 195000, escrow: 95000 },
+      { label: '2026 Q4 (Est)', earned: 260000, escrow: 110000 }
+    ];
+  }
+
+  generateDashboardSvgChart({
+    containerId: 'fl-chart-svg-container',
+    dataPoints,
+    series1Key: 'earned',
+    series1Name: 'Released Income (INR ₹)',
+    series1Color: '#10b981',
+    series2Key: 'escrow',
+    series2Name: 'Protected in Escrow (INR ₹)',
+    series2Color: '#8b5cf6',
+    legendBadge: 'Escrow Backed • Zero Unpaid Debt'
+  });
+}
+
+function setClientChartRange(range) {
+  currentClientChartRange = range;
+  ['30d', '90d', 'all'].forEach(r => {
+    document.getElementById(`btn-cl-chart-${r}`)?.classList.toggle('active', r === range);
+  });
+  renderClientDashboardGraph(range);
+}
+
+function renderClientDashboardGraph(range = '30d') {
+  let dataPoints = [];
+  if (range === '30d') {
+    dataPoints = [
+      { label: 'Oct 01', committed: 45000, released: 15000 },
+      { label: 'Oct 08', committed: 65000, released: 20000 },
+      { label: 'Oct 15', committed: 110000, released: 25000 },
+      { label: 'Oct 22', committed: 185000, released: 25000 },
+      { label: 'Oct 29', committed: 185000, released: 45000 },
+      { label: 'Nov 05 (Est)', committed: 185000, released: 65000 }
+    ];
+  } else if (range === '90d') {
+    dataPoints = [
+      { label: 'Aug', committed: 30000, released: 10000 },
+      { label: 'Sep', committed: 65000, released: 20000 },
+      { label: 'Oct', committed: 185000, released: 25000 },
+      { label: 'Nov', committed: 185000, released: 70000 },
+      { label: 'Dec', committed: 185000, released: 120000 },
+      { label: 'Jan (Est)', committed: 185000, released: 165000 }
+    ];
+  } else {
+    dataPoints = [
+      { label: '2025 H1', committed: 50000, released: 45000 },
+      { label: '2025 H2', committed: 110000, released: 90000 },
+      { label: '2026 Q1', committed: 180000, released: 140000 },
+      { label: '2026 Q2', committed: 250000, released: 190000 },
+      { label: '2026 Q3', committed: 320000, released: 240000 },
+      { label: '2026 Q4 (Est)', committed: 400000, released: 310000 }
+    ];
+  }
+
+  generateDashboardSvgChart({
+    containerId: 'cl-chart-svg-container',
+    dataPoints,
+    series1Key: 'committed',
+    series1Name: 'Budget Committed (INR ₹)',
+    series1Color: '#06b6d4',
+    series2Key: 'released',
+    series2Name: 'Funds Disbursed upon Sign-Off',
+    series2Color: '#10b981',
+    legendBadge: 'Escrow Vault • 48h Inspection Guard'
+  });
+}
+
+function setAdminChartRange(range) {
+  currentAdminChartRange = range;
+  ['30d', '90d', 'all'].forEach(r => {
+    document.getElementById(`btn-adm-chart-${r}`)?.classList.toggle('active', r === range);
+  });
+  renderAdminDashboardGraph(range);
+}
+
+function renderAdminDashboardGraph(range = '30d') {
+  let dataPoints = [];
+  if (range === '30d') {
+    dataPoints = [
+      { label: 'Oct 01', gmv: 85000, settled: 35000 },
+      { label: 'Oct 08', gmv: 140000, settled: 55000 },
+      { label: 'Oct 15', gmv: 210000, settled: 85000 },
+      { label: 'Oct 22', gmv: 325000, settled: 120000 },
+      { label: 'Oct 29', gmv: 360000, settled: 175000 },
+      { label: 'Nov 05 (Est)', gmv: 420000, settled: 245000 }
+    ];
+  } else if (range === '90d') {
+    dataPoints = [
+      { label: 'Aug', gmv: 65000, settled: 35000 },
+      { label: 'Sep', gmv: 125000, settled: 70000 },
+      { label: 'Oct', gmv: 325000, settled: 120000 },
+      { label: 'Nov', gmv: 390000, settled: 210000 },
+      { label: 'Dec', gmv: 480000, settled: 310000 },
+      { label: 'Jan (Est)', gmv: 590000, settled: 420000 }
+    ];
+  } else {
+    dataPoints = [
+      { label: '2025 H1', gmv: 120000, settled: 110000 },
+      { label: '2025 H2', gmv: 260000, settled: 240000 },
+      { label: '2026 Q1', gmv: 450000, settled: 380000 },
+      { label: '2026 Q2', gmv: 680000, settled: 570000 },
+      { label: '2026 Q3', gmv: 920000, settled: 780000 },
+      { label: '2026 Q4 (Est)', gmv: 1250000, settled: 1050000 }
+    ];
+  }
+
+  generateDashboardSvgChart({
+    containerId: 'adm-chart-svg-container',
+    dataPoints,
+    series1Key: 'gmv',
+    series1Name: 'Platform GMV in Custody',
+    series1Color: '#eab308',
+    series2Key: 'settled',
+    series2Name: 'Settled Payouts & Disbursed Vol',
+    series2Color: '#3b82f6',
+    legendBadge: '100% SLA Resolution • 18h Avg'
+  });
 }
 
 // ==============================================================================
@@ -4454,6 +4837,13 @@ window.openSignatureVerificationModal = openSignatureVerificationModal;
 window.verifyDocumentSignature = verifyDocumentSignature;
 window.printOrExportDoc = printOrExportDoc;
 window.exportDocumentsDigest = exportDocumentsDigest;
+window.navigateDashboardBack = navigateDashboardBack;
+window.setFreelancerChartRange = setFreelancerChartRange;
+window.renderFreelancerDashboardGraph = renderFreelancerDashboardGraph;
+window.setClientChartRange = setClientChartRange;
+window.renderClientDashboardGraph = renderClientDashboardGraph;
+window.setAdminChartRange = setAdminChartRange;
+window.renderAdminDashboardGraph = renderAdminDashboardGraph;
 
 // App Initialization on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {

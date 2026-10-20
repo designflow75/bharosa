@@ -9,6 +9,12 @@
     { "source": "/admin", "destination": "/index.html" },
     { "source": "/projects/(.*)", "destination": "/index.html" },
     { "source": "/projects", "destination": "/index.html" },
+    { "source": "/messages", "destination": "/index.html" },
+    { "source": "/switch-workspace", "destination": "/index.html" },
+    { "source": "/switch-role", "destination": "/index.html" },
+    { "source": "/invoices", "destination": "/index.html" },
+    { "source": "/documents", "destination": "/index.html" },
+    { "source": "/approvals", "destination": "/index.html" },
     { "source": "/403", "destination": "/index.html" }
   ],
   "headers": [

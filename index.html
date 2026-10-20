@@ -508,7 +508,7 @@
               <i data-lucide="upload-cloud" style="width:15px;height:15px;"></i>
               <span>Submit Work</span>
             </button>
-            <button class="btn-secondary" onclick="navigateTo('/freelancer/messages')">
+            <button class="btn-secondary" onclick="navigateTo('/messages')">
               <i data-lucide="message-square" style="width:15px;height:15px;"></i>
               <span>Messages</span>
             </button>
@@ -592,6 +592,38 @@
             <button class="btn-secondary" onclick="navigateTo('/projects/PRJ-101')">
               <span>Inspect Contract</span>
             </button>
+          </div>
+        </div>
+
+        <!-- Freelancer Revenue & Escrow Velocity Graph (User Requested!) -->
+        <div class="card-section dashboard-chart-card" id="fl-revenue-graph-card">
+          <div class="dashboard-chart-header">
+            <div class="dashboard-chart-title-block">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span class="chart-header-icon" style="background:rgba(0,210,132,0.15); color:var(--role-freelancer);">
+                  <i data-lucide="trending-up" style="width:20px;height:20px;"></i>
+                </span>
+                <div>
+                  <h3 style="margin:0; font-size:1.05rem;">Earnings Velocity &amp; Escrow Trajectory</h3>
+                  <p style="margin:2px 0 0 0; font-size:0.78rem; color:var(--text-muted);">Real-time payout trend, milestone completions &amp; funds locked in escrow</p>
+                </div>
+              </div>
+            </div>
+            <div class="dashboard-chart-controls">
+              <div class="chart-summary-pills">
+                <span class="chart-pill green"><span class="dot"></span> ₹25,000 Earned</span>
+                <span class="chart-pill blue"><span class="dot"></span> ₹40,000 In Escrow</span>
+                <span class="chart-pill purple"><span class="dot"></span> ₹20,000 Pipeline</span>
+              </div>
+              <div class="chart-toggle-group">
+                <button class="chart-toggle-btn active" id="btn-fl-chart-30d" onclick="setFreelancerChartRange('30d')">30D</button>
+                <button class="chart-toggle-btn" id="btn-fl-chart-90d" onclick="setFreelancerChartRange('90d')">90D</button>
+                <button class="chart-toggle-btn" id="btn-fl-chart-all" onclick="setFreelancerChartRange('all')">All</button>
+              </div>
+            </div>
+          </div>
+          <div class="dashboard-chart-body" id="fl-chart-svg-container">
+            <!-- Dynamic SVG injected here -->
           </div>
         </div>
 
@@ -772,6 +804,10 @@
               <i data-lucide="user-plus" style="width:15px;height:15px;"></i>
               <span>Invite Freelancer</span>
             </button>
+            <button class="btn-secondary" onclick="navigateTo('/messages')">
+              <i data-lucide="message-square" style="width:15px;height:15px;"></i>
+              <span>Messages</span>
+            </button>
             <button class="btn-secondary" style="color:var(--warning);" onclick="openRaiseDisputeModal()">
               <i data-lucide="alert-triangle" style="width:15px;height:15px;"></i>
               <span>Raise Dispute</span>
@@ -852,6 +888,38 @@
             <button class="btn-secondary" onclick="openRevisionRequestModal('MS-102')">
               <span>Request Revision</span>
             </button>
+          </div>
+        </div>
+
+        <!-- Client Escrow Treasury & Milestone Burn Rate Graph (User Requested!) -->
+        <div class="card-section dashboard-chart-card" id="cl-velocity-graph-card">
+          <div class="dashboard-chart-header">
+            <div class="dashboard-chart-title-block">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span class="chart-header-icon" style="background:rgba(2,132,199,0.15); color:#38bdf8;">
+                  <i data-lucide="activity" style="width:20px;height:20px;"></i>
+                </span>
+                <div>
+                  <h3 style="margin:0; font-size:1.05rem;">Escrow Treasury &amp; Milestone Burn Rate</h3>
+                  <p style="margin:2px 0 0 0; font-size:0.78rem; color:var(--text-muted);">Committed project budget, funds locked in escrow vs approved releases</p>
+                </div>
+              </div>
+            </div>
+            <div class="dashboard-chart-controls">
+              <div class="chart-summary-pills">
+                <span class="chart-pill cyan"><span class="dot"></span> ₹1,85,000 Committed</span>
+                <span class="chart-pill green"><span class="dot"></span> ₹25,000 Released</span>
+                <span class="chart-pill purple"><span class="dot"></span> ₹85,000 Protected Vault</span>
+              </div>
+              <div class="chart-toggle-group">
+                <button class="chart-toggle-btn active" id="btn-cl-chart-30d" onclick="setClientChartRange('30d')">30D</button>
+                <button class="chart-toggle-btn" id="btn-cl-chart-90d" onclick="setClientChartRange('90d')">90D</button>
+                <button class="chart-toggle-btn" id="btn-cl-chart-all" onclick="setClientChartRange('all')">All</button>
+              </div>
+            </div>
+          </div>
+          <div class="dashboard-chart-body" id="cl-chart-svg-container">
+            <!-- Dynamic SVG injected here -->
           </div>
         </div>
 
@@ -1174,10 +1242,14 @@
         <div class="page-header">
           <div class="page-header-text">
             <h2>Project Messages</h2>
-            <p>Communicate directly with your clients. All messages are linked to specific projects.</p>
+            <p>Direct communication between Clients and Freelancers. Every message is recorded to project contract history.</p>
           </div>
           <div class="header-action-group">
-            <button class="btn-secondary" onclick="navigateTo('/freelancer/dashboard')">
+            <button class="btn-secondary" onclick="loadFreelancerMessages()">
+              <i data-lucide="refresh-cw" style="width:15px;height:15px;"></i>
+              <span>Refresh</span>
+            </button>
+            <button class="btn-secondary" onclick="navigateDashboardBack()">
               <i data-lucide="arrow-left" style="width:15px;height:15px;"></i>
               <span>Back to Dashboard</span>
             </button>
@@ -1451,6 +1523,38 @@
         </div>
 
         <div id="admin-subtab-container">
+          <!-- Admin Platform Escrow Volume & Settlement Velocity Graph (User Requested!) -->
+          <div class="card-section dashboard-chart-card" id="adm-velocity-graph-card">
+            <div class="dashboard-chart-header">
+              <div class="dashboard-chart-title-block">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span class="chart-header-icon" style="background:rgba(234,179,8,0.15); color:var(--accent-gold);">
+                    <i data-lucide="shield-check" style="width:20px;height:20px;"></i>
+                  </span>
+                  <div>
+                    <h3 style="margin:0; font-size:1.05rem;">Platform GMV &amp; Settlement Velocity</h3>
+                    <p style="margin:2px 0 0 0; font-size:0.78rem; color:var(--text-muted);">Cross-project escrow custody, automated dispute resolutions &amp; milestone velocity</p>
+                  </div>
+                </div>
+              </div>
+              <div class="dashboard-chart-controls">
+                <div class="chart-summary-pills">
+                  <span class="chart-pill gold"><span class="dot"></span> ₹3,25,000 Platform GMV</span>
+                  <span class="chart-pill green"><span class="dot"></span> 100% Release Rate</span>
+                  <span class="chart-pill blue"><span class="dot"></span> 18h Avg. Resolution</span>
+                </div>
+                <div class="chart-toggle-group">
+                  <button class="chart-toggle-btn active" id="btn-adm-chart-30d" onclick="setAdminChartRange('30d')">30D</button>
+                  <button class="chart-toggle-btn" id="btn-adm-chart-90d" onclick="setAdminChartRange('90d')">90D</button>
+                  <button class="chart-toggle-btn" id="btn-adm-chart-all" onclick="setAdminChartRange('all')">All</button>
+                </div>
+              </div>
+            </div>
+            <div class="dashboard-chart-body" id="adm-chart-svg-container">
+              <!-- Dynamic SVG injected here -->
+            </div>
+          </div>
+
           <!-- Overview Cards -->
           <div class="stats-grid">
             <div class="stat-card">

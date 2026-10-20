@@ -5411,3 +5411,113 @@ html {
   line-height: 1.4;
   margin: 0;
 }
+
+/* ==========================================================================
+   DASHBOARD GRAPHS & SVG VELOCITY CHARTS
+   ========================================================================== */
+.dashboard-chart-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+  transition: border-color var(--transition-normal);
+}
+
+.dashboard-chart-card:hover {
+  border-color: var(--border-strong);
+}
+
+.dashboard-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.chart-header-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dashboard-chart-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.chart-summary-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.chart-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface-elevated);
+  color: var(--text-secondary);
+}
+
+.chart-pill .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.chart-pill.green .dot { background: #10b981; }
+.chart-pill.blue .dot { background: #3b82f6; }
+.chart-pill.purple .dot { background: #8b5cf6; }
+.chart-pill.cyan .dot { background: #06b6d4; }
+.chart-pill.gold .dot { background: #eab308; }
+
+.chart-toggle-group {
+  display: inline-flex;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 2px;
+}
+
+.chart-toggle-btn {
+  background: transparent;
+  border: none;
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.chart-toggle-btn:hover {
+  color: var(--text-primary);
+}
+
+.chart-toggle-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.dashboard-chart-body {
+  width: 100%;
+  overflow-x: auto;
+}
+
