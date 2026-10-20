@@ -424,6 +424,12 @@
       </div>
 
       <div class="header-actions">
+        <!-- Switch Workspace / Role Button -->
+        <button class="btn-header-switch-role" id="btn-header-switch-role" onclick="navigateTo('/switch-workspace')" title="Switch Workspace (Freelancer, Client, Admin)">
+          <i data-lucide="arrow-left-right" style="width:14px;height:14px;"></i>
+          <span>Switch Role</span>
+        </button>
+
         <!-- Light / Dark Theme Switcher -->
         <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Theme">
           <span class="icon" id="theme-icon">
@@ -513,6 +519,44 @@
             <button class="btn-secondary" onclick="openCreateInvoiceModal()">
               <i data-lucide="receipt" style="width:15px;height:15px;"></i>
               <span>New Invoice</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Workspace Switcher & Multi-Role Action Banner (User Requested!) -->
+        <div class="workspace-switch-banner" id="fl-workspace-switch-banner">
+          <div class="ws-banner-content">
+            <div class="ws-banner-icon">
+              <i data-lucide="arrow-left-right" style="width:20px;height:20px;"></i>
+            </div>
+            <div class="ws-banner-text">
+              <div class="ws-banner-title-row">
+                <h4>Multi-Role Workspace Switcher</h4>
+                <span class="role-chip chip-green">● Active: Priya Sharma (Freelancer)</span>
+              </div>
+              <p>Need to review &amp; fund milestones as <strong>Client</strong> or mediate as <strong>Platform Arbiter</strong>?</p>
+            </div>
+          </div>
+          <div class="ws-banner-actions">
+            <button class="btn-role-quickswitch role-switch-client" onclick="demoLogin('client')" title="Switch to Client Portal (Rahul Verma)">
+              <span class="role-emoji">💼</span>
+              <div class="btn-role-meta">
+                <span class="btn-role-title">Client Portal</span>
+                <span class="btn-role-sub">Rahul • GrowthNest</span>
+              </div>
+              <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
+            </button>
+            <button class="btn-role-quickswitch role-switch-admin" onclick="demoLogin('admin')" title="Switch to Admin Console (Dispute Resolution)">
+              <span class="role-emoji">👑</span>
+              <div class="btn-role-meta">
+                <span class="btn-role-title">Admin Console</span>
+                <span class="btn-role-sub">Dispute Arbiter</span>
+              </div>
+              <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
+            </button>
+            <button class="btn-secondary btn-ws-fullpage" onclick="navigateTo('/switch-workspace')" title="Open full workspace switcher page">
+              <i data-lucide="layers" style="width:14px;height:14px;"></i>
+              <span>All Workspaces</span>
             </button>
           </div>
         </div>
@@ -735,6 +779,44 @@
             <button class="btn-secondary" onclick="openRequestRefundModal()">
               <i data-lucide="undo" style="width:15px;height:15px;"></i>
               <span>Request Refund</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Workspace Switcher & Multi-Role Action Banner for Client -->
+        <div class="workspace-switch-banner banner-client" id="cl-workspace-switch-banner">
+          <div class="ws-banner-content">
+            <div class="ws-banner-icon" style="background:rgba(2,132,199,0.15); border-color:rgba(2,132,199,0.3); color:#38bdf8;">
+              <i data-lucide="arrow-left-right" style="width:20px;height:20px;"></i>
+            </div>
+            <div class="ws-banner-text">
+              <div class="ws-banner-title-row">
+                <h4>Multi-Role Workspace Switcher</h4>
+                <span class="role-chip chip-cyan">● Active: Rahul Verma (Client)</span>
+              </div>
+              <p>Need to submit deliverables as <strong>Freelancer</strong> or oversee dispute arbitration as <strong>Admin</strong>?</p>
+            </div>
+          </div>
+          <div class="ws-banner-actions">
+            <button class="btn-role-quickswitch role-switch-freelancer" onclick="demoLogin('freelancer')" title="Switch to Freelancer Workspace (Priya Sharma)">
+              <span class="role-emoji">👩‍💻</span>
+              <div class="btn-role-meta">
+                <span class="btn-role-title">Freelancer Workspace</span>
+                <span class="btn-role-sub">Priya • Designer</span>
+              </div>
+              <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
+            </button>
+            <button class="btn-role-quickswitch role-switch-admin" onclick="demoLogin('admin')" title="Switch to Admin Console (Dispute Resolution)">
+              <span class="role-emoji">👑</span>
+              <div class="btn-role-meta">
+                <span class="btn-role-title">Admin Console</span>
+                <span class="btn-role-sub">Dispute Arbiter</span>
+              </div>
+              <i data-lucide="chevron-right" style="width:14px;height:14px;"></i>
+            </button>
+            <button class="btn-secondary btn-ws-fullpage" onclick="navigateTo('/switch-workspace')" title="Open full workspace switcher page">
+              <i data-lucide="layers" style="width:14px;height:14px;"></i>
+              <span>All Workspaces</span>
             </button>
           </div>
         </div>
@@ -1408,6 +1490,226 @@
                   <!-- Dynamically populated -->
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- ==================================================================
+           VIEW: SWITCH WORKSPACE & MULTI-ROLE CONSOLE (/switch-workspace)
+           "Let it be like a page and fit in the page"
+           ================================================================== -->
+      <section id="view-switch-workspace" class="view-section">
+        <div class="switch-workspace-page">
+          <!-- Page Header -->
+          <div class="page-header" style="margin-bottom:1.25rem;">
+            <div class="page-header-text">
+              <span class="brand-badge" style="background:rgba(99,102,241,0.15); color:#818cf8; border:1px solid rgba(99,102,241,0.3); margin-bottom:0.4rem; display:inline-block;">ROLE-BASED ACCESS CONTROL (RBAC) &amp; PERSONA SWITCHER</span>
+              <h2>Workspace &amp; Role Switcher</h2>
+              <p>Seamlessly transition between Freelancer, Client, and Platform Arbiter environments with cryptographic session switching</p>
+            </div>
+            <div class="header-action-group">
+              <button class="btn-secondary" onclick="navigateHome()">
+                <i data-lucide="arrow-left" style="width:15px;height:15px;"></i>
+                <span>Return to Dashboard</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hero Session Status Strip -->
+          <div class="sw-hero-strip">
+            <div class="sw-hero-info">
+              <div class="sw-hero-icon">
+                <i data-lucide="arrow-left-right" style="width:24px;height:24px;"></i>
+              </div>
+              <div class="sw-hero-text">
+                <h3 id="sw-active-session-title">Active Session: Priya Sharma (Freelancer Workspace)</h3>
+                <p id="sw-active-session-desc">Verified role permissions loaded. Click any workspace card below to switch instant access.</p>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.6rem;">
+              <span class="role-chip chip-green" id="sw-active-pill" style="font-size:0.75rem; padding:4px 10px;">● Session Verified</span>
+              <button class="btn-secondary" style="font-size:0.78rem; padding:0.45rem 0.85rem;" onclick="confirmLogout()">
+                <i data-lucide="log-out" style="width:13px;height:13px;"></i>
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 3-Role Interactive Workspace Cards -->
+          <div class="sw-role-grid">
+            <!-- 1. Freelancer Workspace Card -->
+            <div class="sw-role-card sw-card-freelancer" id="sw-card-fl">
+              <div class="sw-card-accent"></div>
+              <div>
+                <div class="sw-card-header">
+                  <div class="sw-card-user-info">
+                    <div class="sw-card-avatar avatar-fl">👩‍💻</div>
+                    <div class="sw-card-meta">
+                      <h4>Freelancer Workspace</h4>
+                      <div class="sw-user-name">Priya Sharma</div>
+                      <div class="sw-user-sub">Senior Product Designer • Contractor</div>
+                    </div>
+                  </div>
+                  <span class="role-chip chip-green" id="sw-fl-status-chip">● Active</span>
+                </div>
+
+                <div class="sw-card-stats">
+                  <div class="sw-mini-stat">
+                    <span class="sw-stat-val" id="sw-fl-stat-escrow">₹1,20,000</span>
+                    <span class="sw-stat-lbl">In Escrow</span>
+                  </div>
+                  <div class="sw-mini-stat">
+                    <span class="sw-stat-val" id="sw-fl-stat-milestones">4 Milestones</span>
+                    <span class="sw-stat-lbl">Active Pipeline</span>
+                  </div>
+                </div>
+
+                <div class="sw-card-capabilities">
+                  <div class="sw-cap-title">Authorized Capabilities</div>
+                  <ul class="sw-cap-list">
+                    <li><i data-lucide="check"></i> Submit deliverables with SHA-256 proofs</li>
+                    <li><i data-lucide="check"></i> Generate GST Tax Invoices &amp; SAC 998314</li>
+                    <li><i data-lucide="check"></i> 72-Hour Client Silence Protection counter</li>
+                    <li><i data-lucide="check"></i> Sign PRD, NDA &amp; Statements of Work</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="sw-card-footer" id="sw-fl-action-footer">
+                <button class="btn-primary btn-switch-cta" style="background:var(--role-freelancer); color:#003824;" onclick="demoLogin('freelancer')">
+                  <span>Enter Freelancer Workspace →</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. Client Portal Card -->
+            <div class="sw-role-card sw-card-client" id="sw-card-cl">
+              <div class="sw-card-accent"></div>
+              <div>
+                <div class="sw-card-header">
+                  <div class="sw-card-user-info">
+                    <div class="sw-card-avatar avatar-cl">💼</div>
+                    <div class="sw-card-meta">
+                      <h4>Client Portal</h4>
+                      <div class="sw-user-name">Rahul Verma</div>
+                      <div class="sw-user-sub">GrowthNest Media • Founder &amp; Buyer</div>
+                    </div>
+                  </div>
+                  <span class="role-chip chip-cyan" id="sw-cl-status-chip">● Ready</span>
+                </div>
+
+                <div class="sw-card-stats">
+                  <div class="sw-mini-stat">
+                    <span class="sw-stat-val" id="sw-cl-stat-funded">₹85,000</span>
+                    <span class="sw-stat-lbl">Vault Funded</span>
+                  </div>
+                  <div class="sw-mini-stat">
+                    <span class="sw-stat-val" id="sw-cl-stat-approvals">2 Pending</span>
+                    <span class="sw-stat-lbl">Approvals Queue</span>
+                  </div>
+                </div>
+
+                <div class="sw-card-capabilities">
+                  <div class="sw-cap-title">Authorized Capabilities</div>
+                  <ul class="sw-cap-list">
+                    <li><i data-lucide="check"></i> Inspect &amp; sign off milestone deliverables</li>
+                    <li><i data-lucide="check"></i> Upfront escrow funding with UPI &amp; NetBanking</li>
+                    <li><i data-lucide="check"></i> Request revisions within agreed caps</li>
+                    <li><i data-lucide="check"></i> Approve out-of-scope digital amendments</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="sw-card-footer" id="sw-cl-action-footer">
+                <button class="btn-primary btn-switch-cta" style="background:var(--role-client); color:#ffffff;" onclick="demoLogin('client')">
+                  <span>Enter Client Portal →</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 3. Admin & Operations Card -->
+            <div class="sw-role-card sw-card-admin" id="sw-card-adm">
+              <div class="sw-card-accent"></div>
+              <div>
+                <div class="sw-card-header">
+                  <div class="sw-card-user-info">
+                    <div class="sw-card-avatar avatar-adm">👑</div>
+                    <div class="sw-card-meta">
+                      <h4>Platform Arbiter</h4>
+                      <div class="sw-user-name">Admin Console</div>
+                      <div class="sw-user-sub">Dispute Resolution &amp; Escrow Governance</div>
+                    </div>
+                  </div>
+                  <span class="role-chip chip-purple" id="sw-adm-status-chip">● Operations</span>
+                </div>
+
+                <div class="sw-card-stats">
+                  <div class="sw-mini-stat">
+                    <span class="sw-stat-val" id="sw-adm-stat-escrow">₹3,40,000</span>
+                    <span class="sw-stat-lbl">Multi-Sig Vault</span>
+                  </div>
+                  <div class="sw-mini-stat">
+                    <span class="sw-stat-val" id="sw-adm-stat-disputes">0 Unresolved</span>
+                    <span class="sw-stat-lbl">Dispute Docket</span>
+                  </div>
+                </div>
+
+                <div class="sw-card-capabilities">
+                  <div class="sw-cap-title">Authorized Capabilities</div>
+                  <ul class="sw-cap-list">
+                    <li><i data-lucide="check"></i> Neutral evidence-backed dispute arbitration</li>
+                    <li><i data-lucide="check"></i> Enforce 72-hour client silence auto-release</li>
+                    <li><i data-lucide="check"></i> Inspect immutable SHA-256 audit logs</li>
+                    <li><i data-lucide="check"></i> Platform-wide GST ledger &amp; compliance reports</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="sw-card-footer" id="sw-adm-action-footer">
+                <button class="btn-primary btn-switch-cta" style="background:var(--role-admin); color:#ffffff;" onclick="demoLogin('admin')">
+                  <span>Launch Admin Console →</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Architecture & Security Explainer Section -->
+          <div class="sw-security-section">
+            <div class="sw-sec-header">
+              <h4>Why Bharosa Enforces Strict Workspace &amp; Role Separation</h4>
+              <p>Dual-sided role-based access control (RBAC) ensures legal compliance under the Indian Contract Act, 1872</p>
+            </div>
+            <div class="sw-sec-grid">
+              <div class="sw-sec-item">
+                <div class="sw-sec-icon" style="background:rgba(99,102,241,0.15); color:#818cf8;">
+                  <i data-lucide="shield-check" style="width:20px;height:20px;"></i>
+                </div>
+                <div class="sw-sec-text">
+                  <h5>Cryptographic Data Isolation</h5>
+                  <p>Freelancer earnings, private estimates, and notes are strictly excluded from client API responses. Milestone deliverables are verified via irreversible SHA-256 checksums.</p>
+                </div>
+              </div>
+
+              <div class="sw-sec-item">
+                <div class="sw-sec-icon" style="background:rgba(245,158,11,0.15); color:#fbbf24;">
+                  <i data-lucide="clock" style="width:20px;height:20px;"></i>
+                </div>
+                <div class="sw-sec-text">
+                  <h5>72-Hour Anti-Ghosting Protocol</h5>
+                  <p>If a client becomes unresponsive after deliverable submission, timelines freeze automatically. After 72 hours, platform arbiters can release escrow to protect contractor cashflow.</p>
+                </div>
+              </div>
+
+              <div class="sw-sec-item">
+                <div class="sw-sec-icon" style="background:rgba(16,185,129,0.15); color:#34d399;">
+                  <i data-lucide="lock" style="width:20px;height:20px;"></i>
+                </div>
+                <div class="sw-sec-text">
+                  <h5>Guaranteed Escrow Protection</h5>
+                  <p>Neither party can modify funds in transit without mutual cryptographic consent or neutral mediator sign-off. Indian GST compliance is baked into every released milestone.</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

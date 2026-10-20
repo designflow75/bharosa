@@ -138,7 +138,9 @@ function routeView(pathname) {
     const projectId = pathname.split('/')[2];
     appState.activeProjectId = projectId;
     showSection('view-project-workspace');
-    loadProjectWorkspace(projectId);
+  } else if (pathname === '/switch-workspace' || pathname === '/switch-role') {
+    showSection('view-switch-workspace');
+    renderSwitchWorkspaceView();
   } else if (pathname === '/403') {
     showSection('view-403');
   } else {
@@ -349,6 +351,12 @@ function updateHeaderAndSidebar(user) {
         <span class="icon"><i data-lucide="settings" style="width:18px;height:18px;"></i></span>
         <span>Settings</span>
       </a>
+      <div class="nav-section-label">Role & Persona</div>
+      <a class="nav-item ${appState.currentRoute === '/switch-workspace' ? 'active' : ''}" onclick="navigateTo('/switch-workspace')">
+        <span class="icon"><i data-lucide="arrow-left-right" style="width:18px;height:18px;"></i></span>
+        <span>Switch Workspace</span>
+        <span class="badge-count" style="background:var(--role-client); color:#fff; font-size:0.65rem;">3 Roles</span>
+      </a>
     `;
   } else if (user.role === 'client') {
     navContainer.innerHTML = `
@@ -382,11 +390,17 @@ function updateHeaderAndSidebar(user) {
         <span class="icon"><i data-lucide="settings" style="width:18px;height:18px;"></i></span>
         <span>Settings</span>
       </a>
+      <div class="nav-section-label">Role & Persona</div>
+      <a class="nav-item ${appState.currentRoute === '/switch-workspace' ? 'active' : ''}" onclick="navigateTo('/switch-workspace')">
+        <span class="icon"><i data-lucide="arrow-left-right" style="width:18px;height:18px;"></i></span>
+        <span>Switch Workspace</span>
+        <span class="badge-count" style="background:var(--role-freelancer); color:#003824; font-size:0.65rem;">3 Roles</span>
+      </a>
     `;
   } else if (user.role === 'admin') {
     navContainer.innerHTML = `
       <div class="nav-section-label">Platform Governance</div>
-      <a class="nav-item active" onclick="navigateTo('/admin')">
+      <a class="nav-item ${appState.currentRoute === '/admin' ? 'active' : ''}" onclick="navigateTo('/admin')">
         <span class="icon"><i data-lucide="shield-check" style="width:18px;height:18px;"></i></span>
         <span>Admin Dashboard</span>
       </a>
@@ -397,6 +411,12 @@ function updateHeaderAndSidebar(user) {
       <a class="nav-item" onclick="switchAdminSubtab('audit')">
         <span class="icon"><i data-lucide="list" style="width:18px;height:18px;"></i></span>
         <span>Audit Logs</span>
+      </a>
+      <div class="nav-section-label">Role & Persona</div>
+      <a class="nav-item ${appState.currentRoute === '/switch-workspace' ? 'active' : ''}" onclick="navigateTo('/switch-workspace')">
+        <span class="icon"><i data-lucide="arrow-left-right" style="width:18px;height:18px;"></i></span>
+        <span>Switch Workspace</span>
+        <span class="badge-count" style="background:var(--role-client); color:#fff; font-size:0.65rem;">3 Roles</span>
       </a>
     `;
   }
@@ -4303,6 +4323,115 @@ async function executeResetDemoData() {
   }
 }
 
+// ==============================================================================
+// 27. WORKSPACE SWITCHER & MULTI-ROLE CONSOLE CONTROLLER (/switch-workspace)
+// ==============================================================================
+
+function renderSwitchWorkspaceView() {
+  const user = getSessionUser();
+  if (!user) return;
+
+  const titleEl = document.getElementById('sw-active-session-title');
+  const descEl = document.getElementById('sw-active-session-desc');
+  const pillEl = document.getElementById('sw-active-pill');
+
+  if (titleEl) {
+    const roleTitle = user.role === 'freelancer' ? 'Freelancer Workspace' : (user.role === 'client' ? 'Client Portal' : 'Admin Console');
+    titleEl.textContent = `Active Session: ${user.name} (${roleTitle})`;
+  }
+  if (descEl) {
+    descEl.textContent = `Authenticated under ${user.email} with ${user.role.toUpperCase()} role privileges. Select any workspace below to switch context instantly.`;
+  }
+  if (pillEl) {
+    pillEl.className = user.role === 'freelancer' ? 'role-chip chip-green' : (user.role === 'client' ? 'role-chip chip-cyan' : 'role-chip chip-purple');
+    pillEl.textContent = `● Active: ${user.role.toUpperCase()}`;
+  }
+
+  // Update card states & footers
+  const cardFl = document.getElementById('sw-card-fl');
+  const cardCl = document.getElementById('sw-card-cl');
+  const cardAdm = document.getElementById('sw-card-adm');
+
+  const footerFl = document.getElementById('sw-fl-action-footer');
+  const footerCl = document.getElementById('sw-cl-action-footer');
+  const footerAdm = document.getElementById('sw-adm-action-footer');
+
+  const chipFl = document.getElementById('sw-fl-status-chip');
+  const chipCl = document.getElementById('sw-cl-status-chip');
+  const chipAdm = document.getElementById('sw-adm-status-chip');
+
+  if (cardFl) cardFl.classList.toggle('active-role-card', user.role === 'freelancer');
+  if (cardCl) cardCl.classList.toggle('active-role-card', user.role === 'client');
+  if (cardAdm) cardAdm.classList.toggle('active-role-card', user.role === 'admin');
+
+  if (chipFl) {
+    chipFl.className = user.role === 'freelancer' ? 'role-chip chip-green' : 'role-chip';
+    chipFl.textContent = user.role === 'freelancer' ? '● Active Session' : 'Ready to Switch';
+  }
+  if (chipCl) {
+    chipCl.className = user.role === 'client' ? 'role-chip chip-cyan' : 'role-chip';
+    chipCl.textContent = user.role === 'client' ? '● Active Session' : 'Ready to Switch';
+  }
+  if (chipAdm) {
+    chipAdm.className = user.role === 'admin' ? 'role-chip chip-purple' : 'role-chip';
+    chipAdm.textContent = user.role === 'admin' ? '● Active Session' : 'Ready to Switch';
+  }
+
+  if (footerFl) {
+    if (user.role === 'freelancer') {
+      footerFl.innerHTML = `
+        <div class="btn-current-role">
+          <i data-lucide="check-circle" style="width:16px;height:16px;"></i>
+          <span>Currently Active Workspace</span>
+        </div>
+      `;
+    } else {
+      footerFl.innerHTML = `
+        <button class="btn-primary btn-switch-cta" style="background:var(--role-freelancer); color:#003824;" onclick="demoLogin('freelancer')">
+          <span>Switch to Freelancer (Priya Sharma) →</span>
+        </button>
+      `;
+    }
+  }
+
+  if (footerCl) {
+    if (user.role === 'client') {
+      footerCl.innerHTML = `
+        <div class="btn-current-role" style="background:rgba(2,132,199,0.12); border-color:rgba(2,132,199,0.3); color:#38bdf8;">
+          <i data-lucide="check-circle" style="width:16px;height:16px;"></i>
+          <span>Currently Active Workspace</span>
+        </div>
+      `;
+    } else {
+      footerCl.innerHTML = `
+        <button class="btn-primary btn-switch-cta" style="background:var(--role-client); color:#ffffff;" onclick="demoLogin('client')">
+          <span>Switch to Client Portal (Rahul Verma) →</span>
+        </button>
+      `;
+    }
+  }
+
+  if (footerAdm) {
+    if (user.role === 'admin') {
+      footerAdm.innerHTML = `
+        <div class="btn-current-role" style="background:rgba(168,85,247,0.12); border-color:rgba(168,85,247,0.3); color:#c084fc;">
+          <i data-lucide="check-circle" style="width:16px;height:16px;"></i>
+          <span>Currently Active Workspace</span>
+        </div>
+      `;
+    } else {
+      footerAdm.innerHTML = `
+        <button class="btn-primary btn-switch-cta" style="background:var(--role-admin); color:#ffffff;" onclick="demoLogin('admin')">
+          <span>Switch to Admin Console →</span>
+        </button>
+      `;
+    }
+  }
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+window.renderSwitchWorkspaceView = renderSwitchWorkspaceView;
 window.confirmResetDemoData = confirmResetDemoData;
 window.executeResetDemoData = executeResetDemoData;
 window.handleNotificationClick = handleNotificationClick;
