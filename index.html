@@ -635,7 +635,21 @@
           <span>Reset Data</span>
         </button>
 
-        <!-- Notifications Bell (in front of Search) -->
+        <!-- Global Search Bar (Never blocked) -->
+        <div class="header-search">
+          <i data-lucide="search" style="width:16px;height:16px;color:var(--text-muted);" class="search-icon"></i>
+          <input type="text" id="global-search" placeholder="Search deliverables, contracts, or projects..." oninput="handleGlobalSearch(event)" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Switch Workspace / Role Button -->
+        <button class="btn-header-switch-role" id="btn-header-switch-role" onclick="navigateTo('/switch-workspace')" title="Switch Workspace (Freelancer, Client, Admin)">
+          <i data-lucide="arrow-left-right" style="width:14px;height:14px;"></i>
+          <span>Switch Role</span>
+        </button>
+
+        <!-- Notifications Bell -->
         <div class="notif-wrapper" id="header-notif-wrapper">
           <button class="btn-secondary notif-bell-btn" id="btn-toggle-notifs" onclick="toggleNotificationPanel(event)" title="Notifications" aria-label="Notifications">
             <i data-lucide="bell" style="width:16px;height:16px;"></i>
@@ -652,20 +666,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Global Search Bar (Never blocked) -->
-        <div class="header-search">
-          <i data-lucide="search" style="width:16px;height:16px;color:var(--text-muted);" class="search-icon"></i>
-          <input type="text" id="global-search" placeholder="Search deliverables, contracts, or projects..." oninput="handleGlobalSearch(event)" autocomplete="off">
-        </div>
-      </div>
-
-      <div class="header-actions">
-        <!-- Switch Workspace / Role Button -->
-        <button class="btn-header-switch-role" id="btn-header-switch-role" onclick="navigateTo('/switch-workspace')" title="Switch Workspace (Freelancer, Client, Admin)">
-          <i data-lucide="arrow-left-right" style="width:14px;height:14px;"></i>
-          <span>Switch Role</span>
-        </button>
 
         <!-- Light / Dark Theme Switcher -->
         <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Theme">

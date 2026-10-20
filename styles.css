@@ -2580,8 +2580,8 @@ h1, h2, h3, h4, h5, h6,
   display: none;
   position: absolute;
   top: calc(100% + 8px);
-  left: 0;
-  right: auto;
+  right: 0;
+  left: auto;
   width: 350px;
   max-width: min(350px, calc(100vw - 24px));
   background: var(--bg-surface);
@@ -4452,6 +4452,18 @@ html {
 }
 
 @media (max-width: 1100px) {
+  .btn-reset-demo span {
+    display: none !important;
+  }
+  .btn-reset-demo {
+    padding: 0.35rem 0.55rem !important;
+  }
+  .btn-header-switch-role span {
+    display: none !important;
+  }
+  .btn-header-switch-role {
+    padding: 0.45rem 0.65rem !important;
+  }
   .demo-pill-badge .pill-label {
     display: none;
   }
@@ -4997,6 +5009,31 @@ html {
     align-items: center !important;
     flex-shrink: 0 !important;
     z-index: 10 !important;
+  }
+
+  .header-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .btn-header-switch-role {
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .btn-header-switch-role span {
+    display: none !important;
   }
 
   .header-actions .notif-bell-btn,
