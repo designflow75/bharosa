@@ -1883,14 +1883,129 @@ function showToast(message, type = 'info') {
   }, 3800);
 }
 
-function toggleNotificationPanel() {
-  const p = document.getElementById('notification-panel');
-  if (p) p.style.display = p.style.display === 'block' ? 'none' : 'block';
+let appNotifications = [
+  {
+    id: 'notif-1',
+    title: '72-Hour Client Silence Protection Active',
+    desc: 'Milestone 2 for E-commerce Marketplace is protected.',
+    time: '12m ago',
+    unread: true,
+    icon: 'clock',
+    iconBg: 'rgba(245, 158, 11, 0.15)',
+    iconColor: '#f59e0b',
+    target: '/freelancer/dashboard'
+  },
+  {
+    id: 'notif-2',
+    title: 'Milestone 1 Funded into Escrow',
+    desc: '₹25,000 locked safely in Bharosa Escrow for PRJ-101.',
+    time: '1h ago',
+    unread: true,
+    icon: 'shield-check',
+    iconBg: 'rgba(16, 185, 129, 0.15)',
+    iconColor: '#10b981',
+    target: '/projects/PRJ-101'
+  },
+  {
+    id: 'notif-3',
+    title: 'GST Tax Invoice Generated',
+    desc: 'Invoice #INV-2026-001 is ready for client review and download.',
+    time: '3h ago',
+    unread: false,
+    icon: 'receipt',
+    iconBg: 'rgba(2, 132, 199, 0.15)',
+    iconColor: '#0284c7',
+    target: '/freelancer/invoices'
+  },
+  {
+    id: 'notif-4',
+    title: 'New Project Opportunity',
+    desc: 'Fintech Mobile App MVP invited you to submit deliverables.',
+    time: '1d ago',
+    unread: false,
+    icon: 'folder',
+    iconBg: 'rgba(99, 102, 241, 0.15)',
+    iconColor: '#6366f1',
+    target: '/freelancer/find-work'
+  }
+];
+
+function renderNotificationList() {
+  const listEl = document.getElementById('notification-panel-list');
+  const badgeEl = document.getElementById('notif-count-badge');
+  const unreadCount = appNotifications.filter(n => n.unread).length;
+
+  if (badgeEl) {
+    if (unreadCount > 0) {
+      badgeEl.style.display = 'inline-flex';
+      badgeEl.textContent = unreadCount;
+    } else {
+      badgeEl.style.display = 'none';
+    }
+  }
+
+  if (!listEl) return;
+
+  if (appNotifications.length === 0) {
+    listEl.innerHTML = `
+      <div class="notif-empty-state">
+        <i data-lucide="bell-off" style="width:24px;height:24px;opacity:0.6;"></i>
+        <span>No notifications right now</span>
+      </div>
+    `;
+  } else {
+    listEl.innerHTML = appNotifications.map(n => `
+      <div class="notif-item ${n.unread ? 'unread' : ''}" onclick="handleNotificationClick('${n.id}', '${n.target}')">
+        <div class="notif-item-icon" style="background:${n.iconBg}; color:${n.iconColor};">
+          <i data-lucide="${n.icon}" style="width:16px;height:16px;"></i>
+        </div>
+        <div class="notif-item-body">
+          <div class="notif-item-title">${n.title}</div>
+          <div class="notif-item-desc">${n.desc}</div>
+          <div class="notif-item-time">${n.time}</div>
+        </div>
+        ${n.unread ? '<span style="width:7px;height:7px;border-radius:50%;background:var(--primary);flex-shrink:0;margin-top:6px;display:inline-block;"></span>' : ''}
+      </div>
+    `).join('');
+  }
+
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
 }
 
-function markAllNotifsRead() {
-  const badge = document.getElementById('notif-count-badge');
-  if (badge) badge.style.display = 'none';
+function handleNotificationClick(notifId, targetUrl) {
+  const notif = appNotifications.find(n => n.id === notifId);
+  if (notif) notif.unread = false;
+  toggleNotificationPanel(false);
+  renderNotificationList();
+  if (targetUrl) navigateTo(targetUrl);
+}
+
+function toggleNotificationPanel(eventOrForce) {
+  if (eventOrForce && eventOrForce.stopPropagation) {
+    eventOrForce.stopPropagation();
+  }
+  const p = document.getElementById('notification-panel');
+  if (!p) return;
+  const force = typeof eventOrForce === 'boolean' ? eventOrForce : undefined;
+  const isCurrentlyOpen = p.classList.contains('open') || p.style.display === 'block';
+  const shouldOpen = force !== undefined ? force : !isCurrentlyOpen;
+
+  if (shouldOpen) {
+    p.classList.add('open');
+    p.style.display = 'block';
+    renderNotificationList();
+  } else {
+    p.classList.remove('open');
+    p.style.display = 'none';
+  }
+}
+
+function markAllNotifsRead(e) {
+  if (e && e.stopPropagation) e.stopPropagation();
+  appNotifications.forEach(n => n.unread = false);
+  renderNotificationList();
   showToast('All notifications marked as read', 'info');
 }
 
@@ -1981,6 +2096,12 @@ document.addEventListener('keydown', (e) => {
 document.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal-overlay')) {
     e.target.classList.remove('active');
+  }
+  const panel = document.getElementById('notification-panel');
+  const wrapper = document.querySelector('.notif-wrapper');
+  if (panel && wrapper && !wrapper.contains(e.target)) {
+    panel.classList.remove('open');
+    panel.style.display = 'none';
   }
 });
 
@@ -3291,10 +3412,13 @@ async function executeResetDemoData() {
 
 window.confirmResetDemoData = confirmResetDemoData;
 window.executeResetDemoData = executeResetDemoData;
+window.handleNotificationClick = handleNotificationClick;
+window.renderNotificationList = renderNotificationList;
 
 // App Initialization on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   routeView(window.location.pathname);
   checkSupabaseStatus();
+  renderNotificationList();
 });

@@ -369,7 +369,7 @@
 
     <!-- Top Navigation Header -->
     <header class="top-header">
-      <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <div class="header-brand-group">
         <button class="mobile-menu-toggle" id="btn-mobile-menu" onclick="toggleMobileSidebar()" title="Toggle Navigation Menu">
           <i data-lucide="menu" style="width:20px;height:20px;"></i>
         </button>
@@ -383,17 +383,17 @@
         <!-- Sample Data Pill Badge -->
         <span class="demo-pill-badge" title="Demo sandbox environment">
           <span class="pulse-dot"></span>
-          <span>Sample data in demo</span>
+          <span class="pill-label">Sample data in demo</span>
         </span>
 
         <!-- Supabase Database Status Badge -->
-        <span class="supabase-status-pill" id="supabase-status-pill" onclick="openSupabaseModal()" title="Supabase Database Status" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; cursor: pointer; border: 1px solid rgba(62,207,142,0.3); background: rgba(62,207,142,0.08); color: #3ecf8e; transition: all 0.2s ease;">
+        <span class="supabase-status-pill" id="supabase-status-pill" onclick="openSupabaseModal()" title="Supabase Database Status">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
           <span id="supabase-pill-text">Supabase: Checking...</span>
         </span>
 
         <!-- Reset Applied Data Button -->
-        <button class="btn-reset-demo" id="btn-header-reset-demo" onclick="confirmResetDemoData()" title="Reset all applied data back to pristine test state" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; cursor: pointer; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); color: #ef4444; transition: all 0.2s ease;">
+        <button class="btn-reset-demo" id="btn-header-reset-demo" onclick="confirmResetDemoData()" title="Reset all applied data back to pristine test state">
           <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i>
           <span>Reset Data</span>
         </button>
@@ -406,16 +406,16 @@
 
       <div class="header-actions">
         <!-- Notifications Bell -->
-        <div class="notif-wrapper" style="position: relative;">
-          <button class="btn-secondary notif-bell-btn" id="btn-toggle-notifs" onclick="toggleNotificationPanel()" style="padding: 0.4rem 0.65rem; position: relative;" title="Notifications">
+        <div class="notif-wrapper">
+          <button class="btn-secondary notif-bell-btn" id="btn-toggle-notifs" onclick="toggleNotificationPanel(event)" title="Notifications">
             <i data-lucide="bell" style="width:16px;height:16px;"></i>
-            <span class="badge-count" id="notif-count-badge" style="position: absolute; top: -4px; right: -4px; padding: 2px 5px; font-size: 0.65rem; background: var(--danger); color: white; border-radius: 999px; display: none;">0</span>
+            <span class="badge-count" id="notif-count-badge" style="display: none;">0</span>
           </button>
           
-          <div class="notification-dropdown-panel" id="notification-panel">
+          <div class="notification-dropdown-panel" id="notification-panel" style="display: none;">
             <div class="notif-panel-header">
-              <span style="font-weight:700; font-size:0.85rem;">Notifications</span>
-              <button class="btn-tag" style="font-size:0.7rem;" onclick="markAllNotifsRead()">Mark all read</button>
+              <span><i data-lucide="bell" style="width:14px;height:14px;margin-right:6px;"></i>Notifications</span>
+              <button class="btn-tag" style="font-size:0.7rem;cursor:pointer;" onclick="markAllNotifsRead(event)">Mark all read</button>
             </div>
             <div class="notif-panel-list" id="notification-panel-list">
               <!-- Dynamically populated -->
@@ -536,7 +536,7 @@
         </div>
 
         <!-- Financial Breakdown Cards (Received, Pending, Projected strictly separate) -->
-        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+        <div class="stats-grid">
           <div class="stat-card" style="cursor:pointer;" onclick="navigateTo('/freelancer/projects')" title="Click to view all projects">
             <div class="stat-card-header">
               <span class="stat-title">Active Projects</span>
@@ -662,7 +662,7 @@
         </div>
 
         <!-- Client Metric Cards (Committed vs Spent, Pending Approvals, Next Milestone Due, Active Projects) -->
-        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+        <div class="stats-grid">
           <div class="stat-card" style="cursor:pointer;" onclick="navigateTo('/client/invoices')" title="Click to view all invoices">
             <div class="stat-card-header">
               <span class="stat-title">Budget Committed</span>
@@ -720,7 +720,7 @@
         </div>
 
         <!-- Files to Review & Scope Amendments Section -->
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+        <div class="responsive-two-col">
           <div class="card-section">
             <div class="card-section-header">
               <h3>Files to Review</h3>
@@ -741,7 +741,7 @@
         </div>
 
         <!-- Invoices & Activity Timeline -->
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+        <div class="responsive-two-col">
           <div class="card-section">
             <div class="card-section-header">
               <h3>Tax Invoices (Draft &amp; Paid)</h3>
@@ -902,7 +902,7 @@
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:320px 1fr;gap:1.25rem;min-height:450px;">
+        <div class="messages-layout">
           <!-- Thread List -->
           <div class="card-section" style="overflow-y:auto;">
             <div class="card-section-header"><h3>Project Threads</h3></div>
@@ -972,7 +972,7 @@
         </div>
 
         <!-- Financial Summary Cards -->
-        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+        <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-card-header">
               <span class="stat-title">Total Invoiced</span>
@@ -1110,7 +1110,7 @@
 
         <div id="admin-subtab-container">
           <!-- Overview Cards -->
-          <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:1.5rem;">
+          <div class="stats-grid">
             <div class="stat-card">
               <span class="stat-title">Platform Active Projects</span>
               <div class="stat-value" id="adm-active-projects">2</div>
