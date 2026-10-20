@@ -44,121 +44,6 @@
 <body class="bg-base text-primary">
 
   <!-- ======================================================================
-       PRECISION MULTI-DEVICE WORKBENCH CONTROLLER (STITCH DESIGN SYSTEM)
-       Controls: Responsive | 1440px | 768px | 390px | Tri-Viewport | Theme | Roles
-       ====================================================================== -->
-  <aside class="workbench-controller-bar" id="workbench-bar" aria-label="Responsive Workbench Controller">
-    <div class="workbench-meta-group">
-      <div class="workbench-title-badge">
-        <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">devices</span>
-        <span>Bharosa Workbench</span>
-      </div>
-      <span class="workbench-sync-pill">
-        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--role-freelancer);animation:pulse-countdown 1.5s infinite;"></span>
-        <span id="wb-sync-label">Synchronized Reactive DOM • 1440px / 768px / 390px</span>
-      </span>
-    </div>
-
-    <div class="workbench-controls-group">
-      <!-- Device Viewport Switcher -->
-      <div class="workbench-pill-toggle-group" role="group" aria-label="Viewport Switcher">
-        <button type="button" class="wb-btn active" id="btn-view-responsive" onclick="setViewportMode('responsive')" title="Fluid Responsive 100% width">
-          <span class="material-symbols-outlined" style="font-size:15px;">view_quilt</span>
-          <span>Responsive</span>
-        </button>
-        <button type="button" class="wb-btn" id="btn-view-desktop" onclick="setViewportMode('desktop-1440')" title="Desktop 1440 × 900 Viewport">
-          <span class="material-symbols-outlined" style="font-size:15px;">desktop_windows</span>
-          <span>1440px</span>
-        </button>
-        <button type="button" class="wb-btn" id="btn-view-tablet" onclick="setViewportMode('tablet-768')" title="Tablet 768 × 1024 Viewport">
-          <span class="material-symbols-outlined" style="font-size:15px;">tablet_mac</span>
-          <span>768px</span>
-        </button>
-        <button type="button" class="wb-btn" id="btn-view-mobile" onclick="setViewportMode('mobile-390')" title="Mobile 390 × 844 Viewport">
-          <span class="material-symbols-outlined" style="font-size:15px;">smartphone</span>
-          <span>390px</span>
-        </button>
-        <button type="button" class="wb-btn" id="btn-view-tri" onclick="setViewportMode('tri-viewport')" title="Tri-Viewport Side-by-Side Canvas">
-          <span class="material-symbols-outlined" style="font-size:15px;">view_column</span>
-          <span>Tri-View</span>
-        </button>
-      </div>
-
-      <!-- Theme Switcher -->
-      <div class="workbench-pill-toggle-group" role="group" aria-label="Theme Mode Switcher">
-        <button type="button" class="wb-btn active" id="wb-theme-dark" onclick="applyThemeMode('dark')">
-          <span class="material-symbols-outlined" style="font-size:14px;">dark_mode</span>
-          <span>Dark Deck</span>
-        </button>
-        <button type="button" class="wb-btn" id="wb-theme-light" onclick="applyThemeMode('light')">
-          <span class="material-symbols-outlined" style="font-size:14px;">light_mode</span>
-          <span>Light Slate</span>
-        </button>
-      </div>
-
-      <!-- System State Simulator -->
-      <div class="workbench-pill-toggle-group" role="group" aria-label="System State Simulator">
-        <button type="button" class="wb-btn active" id="wb-state-live" onclick="setSimulatorState('live')">
-          <span class="material-symbols-outlined" style="font-size:14px;color:var(--role-freelancer);">sensors</span>
-          <span>Live Stream</span>
-        </button>
-        <button type="button" class="wb-btn" id="wb-state-offline" onclick="toggleOfflineBannerSimulator()">
-          <span class="material-symbols-outlined" style="font-size:14px;color:var(--role-admin);">cloud_off</span>
-          <span>Offline Sim</span>
-        </button>
-      </div>
-
-      <!-- Persona / Role Quick Switchers -->
-      <div class="workbench-pill-toggle-group" role="group" aria-label="Role Filter Highlights">
-        <button type="button" class="wb-btn role-emerald active" id="wb-role-all" onclick="filterByRole('all')">All</button>
-        <button type="button" class="wb-btn role-emerald" id="wb-role-fl" onclick="switchPersonaDemo('freelancer')">Freelancer</button>
-        <button type="button" class="wb-btn role-indigo" id="wb-role-cl" onclick="switchPersonaDemo('client')">Client</button>
-        <button type="button" class="wb-btn role-amber" id="wb-role-adm" onclick="switchPersonaDemo('admin')">Admin</button>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Simulated Cryptographic Offline Banner (Toggleable) -->
-  <div class="offline-sim-banner" id="offline-sim-banner" style="display:none;">
-    <div style="display:flex;align-items:center;gap:0.5rem;">
-      <span class="material-symbols-outlined" style="font-size:18px;">cloud_off</span>
-      <span>Local Offline Mode Active. Contracts, milestone submissions, and cryptographic releases will auto-commit upon reconnecting.</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:0.75rem;">
-      <span class="queue-pill">Queue: 4 signed events</span>
-      <button type="button" style="background:none;border:none;cursor:pointer;color:inherit;" onclick="toggleOfflineBannerSimulator(false)">
-        <span class="material-symbols-outlined" style="font-size:16px;">close</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Master Viewport Stage Wrapper -->
-  <div class="viewport-outer-stage" id="viewport-stage">
-    <div class="viewport-frame-wrapper mode-responsive" id="viewport-frame-container">
-      <!-- Window Chrome Bar (rendered when in 1440px / 768px frame) -->
-      <div class="viewport-window-chrome" id="window-chrome-bar" style="display:none;">
-        <div style="display:flex;align-items:center;gap:0.5rem;">
-          <div style="display:flex;align-items:center;gap:5px;">
-            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;"></span>
-            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;"></span>
-            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#10b981;"></span>
-          </div>
-          <span style="margin-left:0.5rem;font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
-            <span class="material-symbols-outlined" style="font-size:12px;">lock</span>
-            https://app.bharosa.network/workspace/unified-showcase
-          </span>
-        </div>
-        <div style="display:flex;align-items:center;gap:0.5rem;">
-          <span class="font-mono-data" id="chrome-viewport-tag" style="font-size:0.7rem;padding:0.1rem 0.5rem;border-radius:var(--radius-full);background:var(--surface-container-low);color:var(--role-freelancer);">Desktop 1440 × 900</span>
-        </div>
-      </div>
-
-      <!-- Mobile Camera Notch (rendered in 390px frame) -->
-      <div class="mobile-hardware-notch" id="mobile-notch" style="display:none;">
-        <div class="mobile-camera-lens"></div>
-      </div>
-
-  <!-- ======================================================================
        1. AUTHENTICATION & DEMO LOGIN SCREEN
        ====================================================================== -->
   <div id="auth-screen" class="auth-wrapper">
@@ -1005,6 +890,80 @@
 
 
       <!-- ==================================================================
+           VIEW: CLIENT — APPROVALS QUEUE (/client/approvals)
+           Dedicated review queue for milestone deliverables, amendments & escrows
+           ================================================================== -->
+      <section id="view-approvals" class="view-section">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>Pending Approvals Queue</h2>
+            <p>Review contractor deliverable submissions, inspect cryptographic file hashes, and authorize escrow payouts.</p>
+          </div>
+          <div class="header-action-group">
+            <button class="btn-secondary" onclick="navigateTo('/client/dashboard')">
+              <i data-lucide="arrow-left" style="width:14px;height:14px;"></i>
+              <span>Back to Dashboard</span>
+            </button>
+            <button class="btn-primary" onclick="loadApprovalsQueue(true)">
+              <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i>
+              <span>Refresh Queue</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Approvals Summary Strip -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title">Pending Milestone Sign-offs</span>
+              <div class="stat-icon purple"><i data-lucide="clock" style="width:16px;height:16px;"></i></div>
+            </div>
+            <div class="stat-value" id="appr-stat-pending">0</div>
+            <div class="stat-footer"><span>72-hour review SLA active</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title">Escrow Awaiting Release</span>
+              <div class="stat-icon green"><i data-lucide="shield-check" style="width:16px;height:16px;"></i></div>
+            </div>
+            <div class="stat-value" id="appr-stat-amount">₹0</div>
+            <div class="stat-footer"><span>Protected in escrow vault</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title">Scope Amendments</span>
+              <div class="stat-icon blue"><i data-lucide="file-plus" style="width:16px;height:16px;"></i></div>
+            </div>
+            <div class="stat-value" id="appr-stat-amendments">0</div>
+            <div class="stat-footer"><span>Contract adjustments</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title">Funding Pending</span>
+              <div class="stat-icon purple"><i data-lucide="wallet" style="width:16px;height:16px;"></i></div>
+            </div>
+            <div class="stat-value" id="appr-stat-funding">0</div>
+            <div class="stat-footer"><span>Agreed milestones</span></div>
+          </div>
+        </div>
+
+        <!-- Comprehensive Approvals Queue List -->
+        <div class="card-section" style="margin-bottom: 1.5rem;">
+          <div class="card-section-header">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <i data-lucide="check-circle" style="width:18px;height:18px;color:var(--info);"></i>
+              <h3>Active Deliverables &amp; Action Items</h3>
+            </div>
+            <span class="brand-badge" id="appr-queue-count" style="background:var(--info-bg); color:var(--info); border:1px solid var(--info-border);">0 items</span>
+          </div>
+          <div id="appr-queue-items-container" style="display:flex; flex-direction:column; gap:1.25rem; padding:0.5rem 0;">
+            <!-- Injected dynamically -->
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
            VIEW 2B: FREELANCER — FIND WORK (/freelancer/find-work)
            Browse available opportunities, accept gigs, view milestone previews
            ================================================================== -->
@@ -1205,8 +1164,12 @@
             <p>GST-compliant invoices auto-generated upon milestone approval. All payouts recorded.</p>
           </div>
           <div class="header-action-group">
+            <button class="btn-primary" onclick="openInvoiceMakerModal()">
+              <i data-lucide="plus-circle" style="width:14px;height:14px;"></i>
+              <span>Create Tax Invoice</span>
+            </button>
             <button class="btn-secondary" onclick="exportInvoicesCsv()">
-              <i data-lucide="download" style="width:15px;height:15px;"></i>
+              <i data-lucide="download" style="width:14px;height:14px;"></i>
               <span>Export CSV</span>
             </button>
           </div>
@@ -1248,6 +1211,24 @@
           </div>
         </div>
 
+        <!-- Financial Revenue & Tax Velocity Visual Graph -->
+        <div class="card-section" style="margin-bottom:1.5rem;" id="invoice-chart-card">
+          <div class="card-section-header">
+            <div>
+              <h3>Revenue Velocity &amp; Tax Settlement Analytics</h3>
+              <p style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">Monthly Escrow Releases, Base Earnings, and 18% GST Compliance Stream</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+              <span class="gst-sac-badge"><span class="material-symbols-outlined" style="font-size:12px;">receipt_long</span> SAC 998314</span>
+              <button class="btn-tag active" id="btn-chart-mode-revenue" onclick="setInvoiceChartMode('revenue')">Monthly Revenue &amp; GST</button>
+              <button class="btn-tag" id="btn-chart-mode-settled" onclick="setInvoiceChartMode('settled')">Escrow Settled vs In-Flight</button>
+            </div>
+          </div>
+          <div id="invoice-chart-svg-wrapper" style="padding:1rem 0.5rem; width:100%; box-sizing:border-box;">
+            <!-- Dynamically generated SVG Chart -->
+          </div>
+        </div>
+
         <!-- Invoices Table -->
         <div class="card-section">
           <div class="card-section-header">
@@ -1273,6 +1254,44 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </section>
+
+
+      <!-- ==================================================================
+           VIEW: LEGAL DOCUMENTS, PRDs & SOWs (/client/documents & /freelancer/documents)
+           Cryptographically sealed agreements, statements of work, and PRDs
+           ================================================================== -->
+      <section id="view-documents" class="view-section">
+        <div class="page-header">
+          <div class="page-header-text">
+            <h2>Legal Documents, PRDs &amp; SOWs</h2>
+            <p>Signed mutual NDAs, master services agreements, project requirement documents (PRD), and statements of work with cryptographic verification.</p>
+          </div>
+          <div class="header-action-group">
+            <button class="btn-primary" onclick="showToast('Drafting a new bilateral SOW requires mutual agreement from both parties.', 'info')">
+              <i data-lucide="plus" style="width:14px;height:14px;"></i>
+              <span>Draft New SOW</span>
+            </button>
+            <button class="btn-secondary" onclick="exportDocumentsDigest()">
+              <i data-lucide="download" style="width:14px;height:14px;"></i>
+              <span>Export Audit Digest</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Subnav -->
+        <div class="admin-subnav" style="margin-bottom:1.5rem;">
+          <button class="admin-subnav-btn active" id="doc-filter-all" onclick="filterDocuments('all')">All Documents (5)</button>
+          <button class="admin-subnav-btn" id="doc-filter-prd" onclick="filterDocuments('prd')">PRDs (2)</button>
+          <button class="admin-subnav-btn" id="doc-filter-nda" onclick="filterDocuments('nda')">NDAs (1)</button>
+          <button class="admin-subnav-btn" id="doc-filter-msa" onclick="filterDocuments('msa')">MSAs (1)</button>
+          <button class="admin-subnav-btn" id="doc-filter-sow" onclick="filterDocuments('sow')">SOWs (1)</button>
+        </div>
+
+        <!-- Documents Grid -->
+        <div class="document-grid" id="documents-grid-container">
+          <!-- Dynamically populated by loadDocumentsRegistry() -->
         </div>
       </section>
 
@@ -1731,50 +1750,250 @@
     </div>
   </div>
 
-  <!-- Modal: Generate Custom Tax Invoice -->
-  <div class="modal-overlay" id="modal-create-invoice">
-    <div class="modal-card" style="max-width: 520px; width: 92%;">
-      <div class="modal-header">
+  <!-- Modal: Autonomous Invoice Maker & Tax Register -->
+  <div class="modal-overlay" id="modal-invoice-maker">
+    <div class="modal-card" style="max-width: 780px; width: 95%; max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="flex-shrink: 0;">
         <div style="display:flex; align-items:center; gap:8px;">
-          <div style="background:var(--primary-light); color:var(--primary); width:32px; height:32px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center;">
-            <i data-lucide="receipt" style="width:18px;height:18px;"></i>
+          <div style="background:var(--primary-light); color:var(--primary); width:36px; height:36px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center;">
+            <i data-lucide="receipt" style="width:20px;height:20px;"></i>
           </div>
           <div>
-            <h3 style="margin:0; font-size:1.1rem;">Create GST Tax Invoice</h3>
-            <span style="font-size:0.72rem; color:var(--text-muted);">SAC 998314 Compliant Tax Register Entry</span>
+            <h3 style="margin:0; font-size:1.15rem;">GST Invoice Maker</h3>
+            <span style="font-size:0.75rem; color:var(--text-muted);">SAC 998314 Compliant • Milestone Escrow Certified</span>
           </div>
         </div>
-        <button class="modal-close-btn" onclick="closeModal('modal-create-invoice')">&times;</button>
+        <button class="modal-close-btn" onclick="closeModal('modal-invoice-maker')">&times;</button>
       </div>
-      <div class="modal-body">
-        <div class="auth-input-group">
-          <label for="ci-project-select">Project</label>
-          <select id="ci-project-select" style="width:100%; padding:0.55rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-family:inherit;">
-            <option value="PRJ-101">PRJ-101: Fintech Mobile App Redesign (Client: Rahul Verma)</option>
-            <option value="PRJ-102">PRJ-102: E-commerce Marketplace Branding (Client: Rahul Verma)</option>
-          </select>
-        </div>
-        <div class="auth-input-group">
-          <label for="ci-milestone-title">Milestone / Scope Item</label>
-          <input type="text" id="ci-milestone-title" value="Milestone: Architecture & Design System Tokens" style="width:100%; padding:0.55rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary);">
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+
+      <div class="modal-body" style="overflow-y:auto; flex: 1; padding: 1.25rem 0.5rem;">
+        <!-- Header Info Grid -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-bottom: 1rem;">
           <div class="auth-input-group">
-            <label for="ci-amount-input">Base Amount (INR ₹)</label>
-            <input type="number" id="ci-amount-input" value="25000" style="width:100%; padding:0.55rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary);">
-          </div>
-          <div class="auth-input-group">
-            <label for="ci-tax-type">Tax Type</label>
-            <select id="ci-tax-type" style="width:100%; padding:0.55rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-family:inherit;">
-              <option value="standard_gst">Standard GST (18%)</option>
-              <option value="zero_rated_export">Zero-Rated Export (LUT / SEZ)</option>
+            <label for="im-project-select">Project Context</label>
+            <select id="im-project-select" onchange="onInvoiceMakerProjectChange()" style="width:100%; padding:0.55rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-family:inherit;">
+              <option value="PRJ-101" data-client="Rahul Verma" data-client-co="Zenith FinTech Labs" data-freelancer="Priya Sharma">PRJ-101: Fintech Mobile App Redesign</option>
+              <option value="PRJ-102" data-client="Rahul Verma" data-client-co="CloudRetail Global" data-freelancer="Priya Sharma">PRJ-102: E-commerce Marketplace Branding</option>
+              <option value="PRJ-103" data-client="Rahul Verma" data-client-co="Starlight Digital" data-freelancer="Priya Sharma">PRJ-103: SaaS Analytics Platform</option>
+              <option value="CUSTOM" data-client="Direct Client" data-client-co="Independent Retainer" data-freelancer="Priya Sharma">Custom Escrow Retainer</option>
             </select>
           </div>
+          <div class="auth-input-group">
+            <label for="im-invoice-number">Invoice Number</label>
+            <input type="text" id="im-invoice-number" value="INV-2026-004" style="width:100%; padding:0.55rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-family:var(--font-mono);">
+          </div>
+          <div class="auth-input-group">
+            <label for="im-invoice-date">Issue Date</label>
+            <input type="date" id="im-invoice-date" style="width:100%; padding:0.55rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-family:inherit;">
+          </div>
+        </div>
+
+        <!-- Counterparties Box -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; margin-bottom: 1.25rem;">
+          <div style="background:var(--bg-surface-elevated); padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+            <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:4px;">Billed By (Contractor)</span>
+            <div id="im-billed-by-name" style="font-weight:700; font-size:0.9rem; color:var(--text-primary);">Priya Sharma</div>
+            <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">GSTIN: 27AABCS1429B1Z8</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">SAC: 998314 (IT Consulting & Design Services)</div>
+          </div>
+          <div style="background:var(--bg-surface-elevated); padding:0.85rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+            <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); display:block; margin-bottom:4px;">Billed To (Client)</span>
+            <div id="im-billed-to-name" style="font-weight:700; font-size:0.9rem; color:var(--text-primary);">Rahul Verma (Zenith FinTech Labs)</div>
+            <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">GSTIN: 29AABCR8721C1Z4</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Place of Supply: Maharashtra (27)</div>
+          </div>
+        </div>
+
+        <!-- Dynamic Line Items Section -->
+        <div style="margin-bottom: 1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+            <span style="font-size:0.85rem; font-weight:700; color:var(--text-primary);">Milestone Scope &amp; Line Items</span>
+            <button type="button" class="btn-secondary" onclick="addInvoiceMakerLineItem()" style="padding:0.35rem 0.75rem; font-size:0.78rem; display:inline-flex; align-items:center; gap:4px;">
+              <i data-lucide="plus" style="width:13px;height:13px;"></i>
+              <span>Add Item</span>
+            </button>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="invoice-maker-table">
+              <thead>
+                <tr>
+                  <th style="min-width:200px;">Description / Milestone Deliverable</th>
+                  <th style="width:100px;">SAC Code</th>
+                  <th style="width:75px;">Qty</th>
+                  <th style="width:120px;">Unit Rate (₹)</th>
+                  <th style="width:120px; text-align:right;">Amount (₹)</th>
+                  <th style="width:40px;"></th>
+                </tr>
+              </thead>
+              <tbody id="invoice-maker-items-body">
+                <!-- Injected via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tax & Settlement Terms -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom: 1rem; align-items:start;">
+          <div>
+            <div class="auth-input-group" style="margin-bottom:0.75rem;">
+              <label for="im-tax-type">GST Tax Treatment</label>
+              <select id="im-tax-type" onchange="recalculateInvoiceMakerTotals()" style="width:100%; padding:0.55rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-family:inherit;">
+                <option value="intra_state">Standard Intra-State GST 18% (CGST 9% + SGST 9%)</option>
+                <option value="inter_state">Inter-State IGST 18%</option>
+                <option value="lut_export">Export / SEZ Zero-Rated (LUT Under Escrow)</option>
+              </select>
+            </div>
+            <div class="auth-input-group">
+              <label for="im-notes-input">Payment Terms &amp; Escrow Guarantee</label>
+              <textarea id="im-notes-input" rows="2" style="width:100%; padding:0.55rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-family:inherit; font-size:0.8rem;">Funds pre-locked in Bharosa Autonomous Escrow Vault. Automatically settled to verified bank account upon client milestone sign-off.</textarea>
+            </div>
+          </div>
+
+          <!-- Calculation Totals Box -->
+          <div class="invoice-calc-box">
+            <div class="invoice-calc-row">
+              <span>Subtotal:</span>
+              <span id="im-calc-subtotal" style="font-family:var(--font-mono); font-weight:600;">₹0.00</span>
+            </div>
+            <div class="invoice-calc-row" id="im-calc-cgst-row">
+              <span id="im-calc-cgst-label">CGST (9%):</span>
+              <span id="im-calc-cgst" style="font-family:var(--font-mono); font-weight:600;">₹0.00</span>
+            </div>
+            <div class="invoice-calc-row" id="im-calc-sgst-row">
+              <span id="im-calc-sgst-label">SGST (9%):</span>
+              <span id="im-calc-sgst" style="font-family:var(--font-mono); font-weight:600;">₹0.00</span>
+            </div>
+            <div class="invoice-calc-row total">
+              <span>Total Invoice Amount:</span>
+              <span id="im-calc-total" style="font-family:var(--font-mono); color:var(--success);">₹0.00</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:0.5rem;">
-        <button class="btn-secondary" onclick="closeModal('modal-create-invoice')">Cancel</button>
-        <button class="btn-primary" onclick="submitCreateInvoice()">Generate Invoice Draft</button>
+
+      <div class="modal-footer" style="flex-shrink: 0; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:0.85rem;">
+        <span style="font-size:0.75rem; color:var(--text-muted); display:flex; align-items:center; gap:4px;">
+          <i data-lucide="shield-check" style="width:14px;height:14px;color:var(--success);"></i>
+          <span>Auto-hashed with SHA-256 upon issuance</span>
+        </span>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn-secondary" onclick="closeModal('modal-invoice-maker')">Cancel</button>
+          <button class="btn-primary" onclick="submitInvoiceMaker()">
+            <i data-lucide="check" style="width:15px;height:15px;"></i>
+            <span>Generate &amp; Issue Invoice</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Document Viewer (PRD, NDA, MSA, SOW) -->
+  <div class="modal-overlay" id="modal-document-viewer">
+    <div class="modal-card" style="max-width: 820px; width: 95%; max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="modal-header" style="flex-shrink: 0;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div id="doc-modal-icon" style="width:36px; height:36px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center; background:rgba(99,102,241,0.15); color:var(--primary);">
+            <i data-lucide="file-text" style="width:20px;height:20px;"></i>
+          </div>
+          <div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <h3 id="doc-modal-title" style="margin:0; font-size:1.15rem;">Document Title</h3>
+              <span id="doc-modal-type-badge" class="brand-badge" style="font-size:0.68rem;">PRD</span>
+            </div>
+            <span id="doc-modal-subtitle" style="font-size:0.75rem; color:var(--text-muted);">Executed under Bharosa Autonomous Protocol</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modal-document-viewer')">&times;</button>
+      </div>
+
+      <div class="modal-body" style="overflow-y:auto; flex: 1; padding: 1.25rem 0.5rem;">
+        <div id="doc-modal-content" style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1.5rem; font-size:0.86rem; line-height:1.7; color:var(--text-secondary);">
+          <!-- Injected dynamically -->
+        </div>
+
+        <!-- Cryptographic Audit Signature Strip -->
+        <div style="margin-top:1.25rem; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <i data-lucide="shield-check" style="width:16px;height:16px;color:var(--success);"></i>
+              <span style="font-size:0.82rem; font-weight:700; color:var(--text-primary);">Cryptographic Certificate &amp; Signatures</span>
+            </div>
+            <button class="btn-secondary" id="btn-doc-verify-sig" onclick="openSignatureVerificationModal()" style="font-size:0.75rem; padding:0.3rem 0.65rem;">
+              <i data-lucide="check-circle-2" style="width:13px;height:13px;"></i>
+              <span>Verify Cryptographic Seal</span>
+            </button>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:0.75rem; font-size:0.76rem;">
+            <div>
+              <span style="color:var(--text-muted); display:block;">SHA-256 Document Digest:</span>
+              <span id="doc-modal-hash" style="font-family:var(--font-mono); color:var(--text-primary); word-break:break-all;">0x8f2a...</span>
+            </div>
+            <div>
+              <span style="color:var(--text-muted); display:block;">Client Signature:</span>
+              <span id="doc-modal-client-sig" style="color:var(--success); font-weight:600;">✓ Rahul Verma (Zenith FinTech)</span>
+            </div>
+            <div>
+              <span style="color:var(--text-muted); display:block;">Contractor Signature:</span>
+              <span id="doc-modal-contractor-sig" style="color:var(--success); font-weight:600;">✓ Priya Sharma (Lead Architect)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="flex-shrink:0; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:0.85rem;">
+        <button class="btn-secondary" onclick="printOrExportDoc()">
+          <i data-lucide="printer" style="width:14px;height:14px;"></i>
+          <span>Print / Export PDF</span>
+        </button>
+        <button class="btn-primary" onclick="closeModal('modal-document-viewer')">Close Document</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Cryptographic Signature Integrity Modal -->
+  <div class="modal-overlay" id="modal-verify-signature">
+    <div class="modal-box" style="max-width: 520px;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:0.85rem;">
+        <div style="display:flex; align-items:center; gap:0.65rem;">
+          <div style="width:36px; height:36px; border-radius:8px; background:rgba(16,185,129,0.15); display:flex; align-items:center; justify-content:center; color:var(--success);">
+            <i data-lucide="shield-check" style="width:20px;height:20px;"></i>
+          </div>
+          <div>
+            <h3 style="margin:0; font-size:1.05rem;">Cryptographic Seal Integrity</h3>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Decentralized State &amp; Signature Validation</span>
+          </div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('modal-verify-signature')">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding:1.25rem 0;">
+        <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:var(--radius-md); padding:1rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.75rem;">
+          <i data-lucide="check-circle" style="width:28px;height:28px;color:var(--success);flex-shrink:0;"></i>
+          <div>
+            <h4 style="margin:0 0 2px 0; font-size:0.92rem; color:var(--success);">Document Integrity Verified</h4>
+            <span style="font-size:0.78rem; color:var(--text-secondary);">Content matches original SHA-256 escrow ledger hash byte-for-byte.</span>
+          </div>
+        </div>
+
+        <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:0.85rem; display:flex; flex-direction:column; gap:0.6rem; font-size:0.8rem;">
+          <div style="display:flex; justify-content:space-between;">
+            <span style="color:var(--text-muted);">Algorithm:</span>
+            <span style="font-family:var(--font-mono); font-weight:600; color:var(--text-primary);">SHA-256 + ECDSA (secp256k1)</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="color:var(--text-muted);">Timestamp Authority:</span>
+            <span style="color:var(--text-primary); font-weight:600;">Bharosa Notary v2.4 (IST)</span>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="color:var(--text-muted);">Status in Escrow Vault:</span>
+            <span class="live-pill"><span class="pulse-dot"></span>IMMUTABLE &amp; BINDING</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; border-top:1px solid var(--border-subtle); padding-top:0.85rem;">
+        <button class="btn-primary" onclick="closeModal('modal-verify-signature')">Done</button>
       </div>
     </div>
   </div>
@@ -1937,9 +2156,6 @@ SUPABASE_KEY=your-anon-or-service-role-key</pre>
       <button class="action-sheet-cancel" onclick="closeMobileActionSheet()">Cancel</button>
     </div>
   </div>
-
-    </div><!-- /#viewport-frame-container -->
-  </div><!-- /#viewport-stage -->
 
   <!-- Application Logic -->
   <script src="/js/app.js"></script>

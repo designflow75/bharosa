@@ -1158,6 +1158,50 @@ app.get('/api/invoices', authenticateUser, (req, res) => {
   res.json({ invoices: invs });
 });
 
+app.post('/api/invoices', authenticateUser, (req, res) => {
+  const { invoiceNumber, projectId, milestoneTitle, baseAmount, gstRate, gstAmount, totalAmount, clientName, clientOrg, freelancerName, lineItems, taxType, notes } = req.body;
+  
+  const newInvoice = {
+    id: invoiceNumber || `INV-${new Date().getFullYear()}-${String(DB.invoices.length + 1).padStart(3, '0')}`,
+    projectId: projectId || 'PRJ-101',
+    milestoneTitle: milestoneTitle || 'Custom Milestone Services',
+    clientId: req.user.role === 'client' ? req.user.id : 'USR-102',
+    clientName: clientName || 'Rahul Verma',
+    clientOrg: clientOrg || 'GrowthNest Media Pvt Ltd',
+    freelancerId: req.user.role === 'freelancer' ? req.user.id : 'USR-101',
+    freelancerName: freelancerName || 'Priya Sharma',
+    baseAmount: Number(baseAmount) || 25000,
+    gstRate: Number(gstRate) || 0.18,
+    gstAmount: Number(gstAmount) || Math.round((Number(baseAmount) || 25000) * 0.18),
+    totalAmount: Number(totalAmount) || Math.round((Number(baseAmount) || 25000) * 1.18),
+    status: 'pending',
+    taxType: taxType || 'standard_gst',
+    lineItems: lineItems || [],
+    notes: notes || 'Bharosa Escrow Guaranteed Milestone Release.',
+    issuedAt: new Date().toISOString(),
+    simulatedPaymentProvider: 'Bharosa Vault v2.4 (Simulated)'
+  };
+
+  DB.invoices.unshift(newInvoice);
+  supabaseAdapter.syncInvoice(newInvoice);
+
+  const logEntry = {
+    id: `AUD-${Date.now().toString().slice(-4)}`,
+    timestamp: new Date().toISOString(),
+    actorId: req.user.id,
+    actorName: req.user.name,
+    actorRole: req.user.role,
+    projectId: newInvoice.projectId,
+    action: 'INVOICE_CREATED',
+    reason: `Generated tax invoice ${newInvoice.id} for ₹${newInvoice.totalAmount.toLocaleString('en-IN')} (SAC 998314).`,
+    evidenceHash: 'sha256-' + Math.random().toString(36).substring(2, 18)
+  };
+  DB.auditLogs.unshift(logEntry);
+  supabaseAdapter.syncAuditLog(logEntry);
+
+  res.status(201).json({ success: true, invoice: newInvoice });
+});
+
 // ==============================================================================
 // 10. OPPORTUNITIES (FIND WORK)
 // ==============================================================================

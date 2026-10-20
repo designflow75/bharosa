@@ -250,270 +250,281 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* ==========================================================================
-   PRECISION TRI-VIEWPORT WORKBENCH CONTROLLER
+   NATURAL RESPONSIVE APPLICATION SHELL & BUTTON RESILIENCE
    ========================================================================== */
-.workbench-controller-bar {
-  position: sticky;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border-subtle);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  padding: 0.55rem 1.25rem;
+.app-shell {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.main-content {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.workbench-meta-group {
+.page-header-text {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.header-action-group {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-}
-
-.workbench-title-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.88rem;
-  color: var(--text-primary);
-}
-
-.workbench-sync-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: var(--surface-container-high);
-  color: var(--role-freelancer);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  padding: 0.2rem 0.65rem;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-}
-
-.workbench-controls-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
-}
-
-.workbench-pill-toggle-group {
-  display: inline-flex;
-  align-items: center;
-  background: var(--surface-container-highest);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 0.2rem;
-  gap: 0.2rem;
-}
-
-.wb-btn {
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  font-family: var(--font-body);
-  font-size: 0.76rem;
-  font-weight: 600;
-  padding: 0.3rem 0.65rem;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  transition: all var(--transition-fast);
-}
-
-.wb-btn:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.wb-btn.active {
-  background: var(--bg-surface-elevated);
-  color: var(--text-primary);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.wb-btn.role-emerald.active {
-  background: var(--role-freelancer-bg);
-  color: var(--role-freelancer);
-  border: 1px solid var(--role-freelancer-border);
-}
-
-.wb-btn.role-indigo.active {
-  background: var(--role-client-bg);
-  color: var(--role-client);
-  border: 1px solid var(--role-client-border);
-}
-
-.wb-btn.role-amber.active {
-  background: var(--role-admin-bg);
-  color: var(--role-admin);
-  border: 1px solid var(--role-admin-border);
-}
-
-/* Simulated Offline Cryptographic Sync Banner */
-.offline-sim-banner {
-  background: linear-gradient(90deg, rgba(245, 158, 11, 0.95), rgba(217, 119, 6, 0.95));
-  color: #090d16;
-  padding: 0.45rem 1.25rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  position: relative;
-  z-index: 999;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.offline-sim-banner .queue-pill {
-  background: rgba(0, 0, 0, 0.2);
-  color: #ffffff;
-  padding: 0.15rem 0.5rem;
-  border-radius: var(--radius-full);
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-}
-
-/* ==========================================================================
-   VIEWPORT FRAMES & WRAPPERS
-   ========================================================================== */
-.viewport-outer-stage {
-  width: 100%;
-  min-height: calc(100vh - 46px);
-  background: var(--bg-base);
-  transition: background-color var(--transition-normal);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* 1. Fluid Responsive Mode */
-.viewport-frame-wrapper.mode-responsive {
-  width: 100%;
   max-width: 100%;
 }
 
-/* 2. Desktop 1440px Mode */
-.viewport-frame-wrapper.mode-desktop-1440 {
-  width: 1440px;
-  max-width: 95vw;
-  margin: 1.5rem auto;
-  border-radius: var(--radius-lg);
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
-  overflow: hidden;
-  background: var(--bg-surface);
+/* Responsive Table Action Buttons */
+.data-table td .btn-primary,
+.data-table td .btn-secondary,
+.data-table td .btn-action,
+.data-table td button {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+  padding: 0.4rem 0.85rem !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--border-subtle) !important;
+  background: var(--bg-surface-elevated) !important;
+  color: var(--text-primary) !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  transition: all var(--transition-fast) !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
-.viewport-frame-wrapper.mode-desktop-1440 .viewport-window-chrome {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--surface-container-highest);
-  border-bottom: 1px solid var(--border-subtle);
-  padding: 0.55rem 1rem;
-  height: 42px;
+.data-table td .btn-primary:hover,
+.data-table td button:hover {
+  background: var(--role-client) !important;
+  color: #ffffff !important;
+  border-color: var(--role-client) !important;
+  transform: translateY(-1px);
 }
 
-/* 3. Tablet 768px Mode */
-.viewport-frame-wrapper.mode-tablet-768 {
-  width: 768px;
-  max-width: 95vw;
-  margin: 1.5rem auto;
-  border-radius: 20px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65), 0 0 0 8px #1e293b, 0 0 0 9px var(--border-strong);
-  overflow: hidden;
-  background: var(--bg-surface);
+.data-table td .btn-primary:focus-visible,
+.data-table td button:focus-visible {
+  outline: 2px solid var(--border-focus) !important;
+  outline-offset: 2px;
 }
 
-.viewport-frame-wrapper.mode-tablet-768 .viewport-window-chrome {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--surface-container-highest);
-  border-bottom: 1px solid var(--border-subtle);
-  padding: 0.45rem 1rem;
-  height: 38px;
+/* ==========================================================================
+   INVOICE MAKER & REVENUE CHART COMPONENTS
+   ========================================================================== */
+.invoice-maker-modal {
+  max-width: 780px !important;
+  width: 95% !important;
 }
 
-/* 4. Mobile 390px Mode */
-.viewport-frame-wrapper.mode-mobile-390 {
-  width: 390px;
-  max-width: 95vw;
-  margin: 1.5rem auto;
-  border-radius: 36px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 10px #1e293b, 0 0 0 11px var(--border-strong);
-  overflow: hidden;
-  background: var(--bg-surface);
-  position: relative;
-}
-
-.viewport-frame-wrapper.mode-mobile-390 .mobile-hardware-notch {
-  width: 120px;
-  height: 22px;
-  background: #000000;
-  border-radius: 0 0 14px 14px;
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.viewport-frame-wrapper.mode-mobile-390 .mobile-camera-lens {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #111827;
-  border: 1px solid #374151;
-}
-
-/* 5. Tri-Viewport Synchronized Stage */
-.viewport-frame-wrapper.mode-tri-viewport {
+.invoice-maker-table {
   width: 100%;
-  overflow-x: auto;
-  padding: 1.5rem 1rem 3rem 1rem;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.84rem;
 }
 
-.tri-viewport-track {
-  display: flex;
-  align-items: flex-start;
-  gap: 2rem;
-  min-width: 2750px;
-  padding-bottom: 2rem;
+.invoice-maker-table th {
+  text-align: left;
+  padding: 0.5rem;
+  background: var(--bg-surface-elevated);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
 }
 
-.tri-viewport-col {
+.invoice-maker-table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.invoice-maker-table input {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.82rem;
+  box-sizing: border-box;
+}
+
+.invoice-calc-box {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1rem;
   display: flex;
   flex-direction: column;
+  gap: 0.4rem;
+}
+
+.invoice-calc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.invoice-calc-row.total {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+/* Financial Revenue Chart */
+.chart-container-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.chart-legend-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.chart-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* ==========================================================================
+   DOCUMENT REGISTRY & PRD / NDA CARDS
+   ========================================================================== */
+.document-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.document-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.document-card:hover {
+  border-color: var(--border-focus);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.document-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 0.75rem;
 }
 
-.tri-viewport-label {
+.document-type-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.document-card-body h4 {
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.35rem 0;
+}
+
+.document-card-body p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 0.75rem 0;
+}
+
+.document-card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 0.5rem;
-  font-family: var(--font-display);
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-secondary);
+  gap: 0.5rem;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.doc-hash-pill {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: var(--bg-surface-elevated);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+}
+
+.doc-hash-pill:hover {
+  color: var(--primary);
+  border-color: var(--primary);
 }
 
 /* ==========================================================================
@@ -706,10 +717,7 @@ h1, h2, h3, h4, h5, h6,
   }
 }
 
-.mode-mobile-390 .mobile-sticky-action-dock {
-  position: absolute;
-  display: flex;
-}
+
 
 /* ==========================================================================
    AUTHENTICATION SCREEN STYLES (BHAROSA OS - HIGH-TECH SAAS VIBE)

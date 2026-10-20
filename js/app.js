@@ -119,6 +119,12 @@ function routeView(pathname) {
   } else if (pathname === '/freelancer/invoices' || pathname === '/client/invoices') {
     showSection('view-invoices');
     loadInvoicesLedger();
+  } else if (pathname === '/client/approvals' || pathname === '/freelancer/approvals') {
+    showSection('view-approvals');
+    loadApprovalsQueue();
+  } else if (pathname === '/client/documents' || pathname === '/freelancer/documents' || pathname === '/documents') {
+    showSection('view-documents');
+    loadDocumentsRegistry();
   } else if (pathname.startsWith('/freelancer/dashboard') || pathname === '/freelancer') {
     showSection('view-freelancer-dashboard');
     loadFreelancerDashboard();
@@ -331,6 +337,10 @@ function updateHeaderAndSidebar(user) {
         <span class="icon"><i data-lucide="receipt" style="width:18px;height:18px;"></i></span>
         <span>Tax Invoices</span>
       </a>
+      <a class="nav-item ${appState.currentRoute === '/freelancer/documents' ? 'active' : ''}" onclick="navigateTo('/freelancer/documents')">
+        <span class="icon"><i data-lucide="file-text" style="width:18px;height:18px;"></i></span>
+        <span>Documents & SOWs</span>
+      </a>
       <a class="nav-item" onclick="navigateTo('/projects/PRJ-101')">
         <span class="icon"><i data-lucide="shield-alert" style="width:18px;height:18px;"></i></span>
         <span>Evidence Timeline</span>
@@ -351,7 +361,7 @@ function updateHeaderAndSidebar(user) {
         <span class="icon"><i data-lucide="folder" style="width:18px;height:18px;"></i></span>
         <span>Projects</span>
       </a>
-      <a class="nav-item" onclick="scrollToApprovals()">
+      <a class="nav-item ${appState.currentRoute === '/client/approvals' ? 'active' : ''}" onclick="navigateTo('/client/approvals')">
         <span class="icon"><i data-lucide="check-circle" style="width:18px;height:18px;"></i></span>
         <span>Approvals Queue</span>
       </a>
@@ -360,7 +370,7 @@ function updateHeaderAndSidebar(user) {
         <span>Tax Invoices</span>
       </a>
       <div class="nav-section-label">Contracts & Security</div>
-      <a class="nav-item" onclick="navigateTo('/client/projects')">
+      <a class="nav-item ${appState.currentRoute === '/client/documents' ? 'active' : ''}" onclick="navigateTo('/client/documents')">
         <span class="icon"><i data-lucide="file-text" style="width:18px;height:18px;"></i></span>
         <span>Documents & SOWs</span>
       </a>
@@ -2959,6 +2969,9 @@ async function loadInvoicesLedger() {
     if (gstEl) gstEl.textContent = `₹${totalGst.toLocaleString('en-IN')}`;
     if (pendEl) pendEl.textContent = `${pendingCount}`;
 
+    // Render interactive financial analytics SVG chart
+    renderInvoiceGraph(invoices);
+
     if (invoices.length === 0) {
       tableBody.innerHTML = `
         <tr>
@@ -3162,6 +3175,760 @@ function numberToIndianWords(num) {
 
 function exportInvoicesCsv() {
   showToast('Invoices register exported to CSV (SAC 998314 compliant)', 'success');
+}
+
+// ==============================================================================
+// INVOICE MAKER & REVENUE VELOCITY CHART CONTROLLER
+// ==============================================================================
+
+let currentInvoiceChartMode = 'revenue';
+let invoiceMakerItems = [
+  { description: 'Milestone 2: Interactive Prototypes & Token System Spec', sac: '998314', qty: 1, rate: 25000 }
+];
+
+function setInvoiceChartMode(mode) {
+  currentInvoiceChartMode = mode;
+  document.getElementById('btn-chart-mode-revenue')?.classList.toggle('active', mode === 'revenue');
+  document.getElementById('btn-chart-mode-settled')?.classList.toggle('active', mode === 'settled');
+  fetch('/api/invoices', { headers: { 'x-user-id': getSessionUser()?.id || 'USR-101' } })
+    .then(r => r.json())
+    .then(d => renderInvoiceGraph(d.invoices || []))
+    .catch(() => renderInvoiceGraph([]));
+}
+
+function renderInvoiceGraph(invoices = []) {
+  const container = document.getElementById('invoice-chart-svg-wrapper');
+  if (!container) return;
+
+  let dataPoints = [];
+  if (currentInvoiceChartMode === 'revenue') {
+    dataPoints = [
+      { label: 'Nov', rev: 25000, gst: 4500 },
+      { label: 'Dec', rev: 40000, gst: 7200 },
+      { label: 'Jan', rev: 55000, gst: 9900 },
+      { label: 'Feb', rev: 75000, gst: 13500 },
+      { label: 'Mar', rev: 95000, gst: 17100 },
+      { label: 'Apr (Est)', rev: 130000, gst: 23400 }
+    ];
+  } else {
+    dataPoints = [
+      { label: 'Nov', rev: 25000, gst: 15000 },
+      { label: 'Dec', rev: 45000, gst: 30000 },
+      { label: 'Jan', rev: 65000, gst: 45000 },
+      { label: 'Feb', rev: 85000, gst: 55000 },
+      { label: 'Mar', rev: 115000, gst: 65000 },
+      { label: 'Apr (Est)', rev: 145000, gst: 80000 }
+    ];
+  }
+
+  const maxVal = Math.max(...dataPoints.map(d => d.rev + d.gst)) * 1.15;
+  const svgWidth = 860;
+  const svgHeight = 240;
+  const paddingLeft = 65;
+  const paddingRight = 35;
+  const paddingTop = 25;
+  const paddingBottom = 35;
+  const chartW = svgWidth - paddingLeft - paddingRight;
+  const chartH = svgHeight - paddingTop - paddingBottom;
+
+  const getX = (idx) => paddingLeft + (idx / (dataPoints.length - 1)) * chartW;
+  const getY = (val) => paddingTop + chartH - (val / maxVal) * chartH;
+
+  let path1 = '';
+  let area1 = '';
+  let path2 = '';
+  let area2 = '';
+
+  dataPoints.forEach((pt, i) => {
+    const x = getX(i);
+    const y1 = getY(pt.rev);
+    const y2 = getY(pt.gst);
+
+    if (i === 0) {
+      path1 = `M ${x} ${y1}`;
+      area1 = `M ${x} ${paddingTop + chartH} L ${x} ${y1}`;
+      path2 = `M ${x} ${y2}`;
+      area2 = `M ${x} ${paddingTop + chartH} L ${x} ${y2}`;
+    } else {
+      path1 += ` L ${x} ${y1}`;
+      area1 += ` L ${x} ${y1}`;
+      path2 += ` L ${x} ${y2}`;
+      area2 += ` L ${x} ${y2}`;
+    }
+
+    if (i === dataPoints.length - 1) {
+      area1 += ` L ${x} ${paddingTop + chartH} Z`;
+      area2 += ` L ${x} ${paddingTop + chartH} Z`;
+    }
+  });
+
+  const legendText1 = currentInvoiceChartMode === 'revenue' ? 'Milestone Base Earnings (INR ₹)' : 'Escrow Released & Settled';
+  const legendText2 = currentInvoiceChartMode === 'revenue' ? '18% GST Compliance (SAC 998314)' : 'Active Escrow Locked in Vault';
+
+  container.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem; font-size:0.78rem;">
+      <div style="display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap;">
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--text-primary); font-weight:600;">
+          <span style="width:10px; height:10px; border-radius:50%; background:#6366f1;"></span> ${legendText1}
+        </span>
+        <span style="display:inline-flex; align-items:center; gap:6px; color:var(--text-secondary); font-weight:600;">
+          <span style="width:10px; height:10px; border-radius:50%; background:#10b981;"></span> ${legendText2}
+        </span>
+      </div>
+      <span style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted); background:var(--bg-surface-elevated); padding:3px 8px; border-radius:4px; border:1px solid var(--border-subtle);">
+        Verified GST Velocity • SAC 998314
+      </span>
+    </div>
+    <div style="width:100%; overflow-x:auto;">
+      <svg viewBox="0 0 ${svgWidth} ${svgHeight}" style="width:100%; min-width:620px; height:auto; overflow:visible;">
+        <defs>
+          <linearGradient id="chartGrad1" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#6366f1" stop-opacity="0.32"/>
+            <stop offset="100%" stop-color="#6366f1" stop-opacity="0.0"/>
+          </linearGradient>
+          <linearGradient id="chartGrad2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Horizontal Grid Lines -->
+        ${[0, 0.25, 0.5, 0.75, 1].map(ratio => {
+          const y = paddingTop + chartH * (1 - ratio);
+          const val = Math.round(maxVal * ratio / 1000) * 1000;
+          return `
+            <line x1="${paddingLeft}" y1="${y}" x2="${svgWidth - paddingRight}" y2="${y}" stroke="var(--border-subtle)" stroke-dasharray="3,3" stroke-width="1"/>
+            <text x="${paddingLeft - 8}" y="${y + 4}" fill="var(--text-muted)" font-size="10" text-anchor="end" font-family="var(--font-mono)">₹${val.toLocaleString('en-IN')}</text>
+          `;
+        }).join('')}
+
+        <!-- Filled Areas -->
+        <path d="${area1}" fill="url(#chartGrad1)"/>
+        <path d="${area2}" fill="url(#chartGrad2)"/>
+
+        <!-- Line Strokes -->
+        <path d="${path1}" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round"/>
+        <path d="${path2}" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+
+        <!-- Data Point Nodes & X Labels -->
+        ${dataPoints.map((pt, i) => {
+          const x = getX(i);
+          const y1 = getY(pt.rev);
+          const y2 = getY(pt.gst);
+          return `
+            <circle cx="${x}" cy="${y1}" r="4.5" fill="#6366f1" stroke="#ffffff" stroke-width="1.5"/>
+            <circle cx="${x}" cy="${y2}" r="4" fill="#10b981" stroke="#ffffff" stroke-width="1.5"/>
+            <text x="${x}" y="${svgHeight - 10}" fill="var(--text-secondary)" font-size="11" font-weight="600" text-anchor="middle">${pt.label}</text>
+          `;
+        }).join('')}
+      </svg>
+    </div>
+  `;
+}
+
+function openInvoiceMakerModal() {
+  const modal = document.getElementById('modal-invoice-maker');
+  if (!modal) return;
+
+  const dateInput = document.getElementById('im-invoice-date');
+  if (dateInput) {
+    dateInput.value = new Date().toISOString().slice(0, 10);
+  }
+
+  const invNumberInput = document.getElementById('im-invoice-number');
+  if (invNumberInput) {
+    const rand = Math.floor(100 + Math.random() * 900);
+    invNumberInput.value = `INV-${new Date().getFullYear()}-${rand}`;
+  }
+
+  renderInvoiceMakerItems();
+  recalculateInvoiceMakerTotals();
+
+  modal.classList.add('active');
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function onInvoiceMakerProjectChange() {
+  const select = document.getElementById('im-project-select');
+  if (!select) return;
+  const opt = select.options[select.selectedIndex];
+  const clientName = opt.getAttribute('data-client') || 'Rahul Verma';
+  const clientOrg = opt.getAttribute('data-client-co') || 'Zenith FinTech Labs';
+
+  const clientEl = document.getElementById('im-billed-to-name');
+  if (clientEl) {
+    clientEl.textContent = `${clientName} (${clientOrg})`;
+  }
+}
+
+function renderInvoiceMakerItems() {
+  const body = document.getElementById('invoice-maker-items-body');
+  if (!body) return;
+
+  if (invoiceMakerItems.length === 0) {
+    invoiceMakerItems.push({
+      description: 'Milestone: Interactive Prototype & UI Deliverable',
+      sac: '998314',
+      qty: 1,
+      rate: 25000
+    });
+  }
+
+  body.innerHTML = invoiceMakerItems.map((item, idx) => `
+    <tr>
+      <td>
+        <input type="text" value="${item.description}" oninput="updateInvoiceItemField(${idx}, 'description', this.value)" placeholder="Deliverable scope / milestone description">
+      </td>
+      <td>
+        <input type="text" value="${item.sac || '998314'}" oninput="updateInvoiceItemField(${idx}, 'sac', this.value)" style="text-align:center; font-family:var(--font-mono);">
+      </td>
+      <td>
+        <input type="number" value="${item.qty || 1}" min="1" oninput="updateInvoiceItemField(${idx}, 'qty', this.value)" style="text-align:center;">
+      </td>
+      <td>
+        <input type="number" value="${item.rate || 0}" step="500" oninput="updateInvoiceItemField(${idx}, 'rate', this.value)" style="text-align:right;">
+      </td>
+      <td style="text-align:right; font-family:var(--font-mono); font-weight:600; padding-right:0.5rem; color:var(--text-primary);">
+        ₹${((item.qty || 1) * (item.rate || 0)).toLocaleString('en-IN')}
+      </td>
+      <td style="text-align:center;">
+        ${invoiceMakerItems.length > 1 ? `
+          <button type="button" class="btn-icon" onclick="removeInvoiceMakerLineItem(${idx})" style="color:var(--danger); font-size:1rem;" title="Remove row">✕</button>
+        ` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function updateInvoiceItemField(idx, field, val) {
+  if (invoiceMakerItems[idx]) {
+    if (field === 'qty' || field === 'rate') {
+      invoiceMakerItems[idx][field] = Number(val) || 0;
+    } else {
+      invoiceMakerItems[idx][field] = val;
+    }
+  }
+  recalculateInvoiceMakerTotals();
+}
+
+function addInvoiceMakerLineItem() {
+  invoiceMakerItems.push({
+    description: 'Milestone Component Delivery & Handoff Token Kit',
+    sac: '998314',
+    qty: 1,
+    rate: 15000
+  });
+  renderInvoiceMakerItems();
+  recalculateInvoiceMakerTotals();
+}
+
+function removeInvoiceMakerLineItem(idx) {
+  if (invoiceMakerItems.length > 1) {
+    invoiceMakerItems.splice(idx, 1);
+    renderInvoiceMakerItems();
+    recalculateInvoiceMakerTotals();
+  }
+}
+
+function recalculateInvoiceMakerTotals() {
+  let subtotal = 0;
+  invoiceMakerItems.forEach(item => {
+    subtotal += (Number(item.qty) || 1) * (Number(item.rate) || 0);
+  });
+
+  const taxType = document.getElementById('im-tax-type')?.value || 'intra_state';
+  let cgst = 0;
+  let sgst = 0;
+  let total = subtotal;
+
+  const cgstRow = document.getElementById('im-calc-cgst-row');
+  const sgstRow = document.getElementById('im-calc-sgst-row');
+  const cgstLabel = document.getElementById('im-calc-cgst-label');
+
+  if (taxType === 'intra_state') {
+    cgst = Math.round(subtotal * 0.09);
+    sgst = Math.round(subtotal * 0.09);
+    total = subtotal + cgst + sgst;
+    if (cgstRow) cgstRow.style.display = 'flex';
+    if (sgstRow) sgstRow.style.display = 'flex';
+    if (cgstLabel) cgstLabel.textContent = 'CGST (9%):';
+  } else if (taxType === 'inter_state') {
+    cgst = Math.round(subtotal * 0.18);
+    total = subtotal + cgst;
+    if (cgstRow) cgstRow.style.display = 'flex';
+    if (sgstRow) sgstRow.style.display = 'none';
+    if (cgstLabel) cgstLabel.textContent = 'IGST (18%):';
+  } else {
+    // LUT Export 0%
+    if (cgstRow) cgstRow.style.display = 'none';
+    if (sgstRow) sgstRow.style.display = 'none';
+    total = subtotal;
+  }
+
+  const subEl = document.getElementById('im-calc-subtotal');
+  const cgstEl = document.getElementById('im-calc-cgst');
+  const sgstEl = document.getElementById('im-calc-sgst');
+  const totEl = document.getElementById('im-calc-total');
+
+  if (subEl) subEl.textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+  if (cgstEl) cgstEl.textContent = `₹${cgst.toLocaleString('en-IN')}`;
+  if (sgstEl) sgstEl.textContent = `₹${sgst.toLocaleString('en-IN')}`;
+  if (totEl) totEl.textContent = `₹${total.toLocaleString('en-IN')}`;
+}
+
+async function submitInvoiceMaker() {
+  const user = getSessionUser();
+  if (!user) return;
+
+  const projectSelect = document.getElementById('im-project-select');
+  const projectId = projectSelect?.value || 'PRJ-101';
+  const opt = projectSelect?.options[projectSelect.selectedIndex];
+  const clientName = opt?.getAttribute('data-client') || 'Rahul Verma';
+  const clientOrg = opt?.getAttribute('data-client-co') || 'Zenith FinTech Labs';
+
+  const invoiceNumber = document.getElementById('im-invoice-number')?.value || `INV-${Date.now().toString().slice(-4)}`;
+  const taxType = document.getElementById('im-tax-type')?.value || 'intra_state';
+  const notes = document.getElementById('im-notes-input')?.value || '';
+
+  let baseAmount = 0;
+  invoiceMakerItems.forEach(i => {
+    baseAmount += (Number(i.qty) || 1) * (Number(i.rate) || 0);
+  });
+
+  const gstRate = taxType === 'lut_export' ? 0 : 0.18;
+  const gstAmount = Math.round(baseAmount * gstRate);
+  const totalAmount = baseAmount + gstAmount;
+
+  try {
+    const res = await fetch('/api/invoices', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({
+        invoiceNumber,
+        projectId,
+        milestoneTitle: invoiceMakerItems[0]?.description || 'Milestone Deliverable Services',
+        baseAmount,
+        gstRate,
+        gstAmount,
+        totalAmount,
+        clientName,
+        clientOrg,
+        freelancerName: user.name || 'Priya Sharma',
+        lineItems: invoiceMakerItems,
+        taxType,
+        notes
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      closeModal('modal-invoice-maker');
+      showToast(`Tax Invoice ${invoiceNumber} created & signed with SHA-256 seal!`, 'success');
+      loadInvoicesLedger();
+    } else {
+      showToast(data.error || 'Failed to generate invoice', 'danger');
+    }
+  } catch (err) {
+    console.error('Invoice creation error:', err);
+    showToast('Network error while issuing invoice', 'danger');
+  }
+}
+
+// ==============================================================================
+// APPROVALS QUEUE CONTROLLER (/client/approvals)
+// ==============================================================================
+
+async function loadApprovalsQueue(forceRefresh = false) {
+  const user = getSessionUser();
+  if (!user) return;
+
+  const container = document.getElementById('appr-queue-items-container');
+  if (!container) return;
+
+  container.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--text-muted);">Syncing escrow vault & active review deliverables...</div>`;
+
+  try {
+    const res = await fetch('/api/client/dashboard', {
+      headers: { 'x-user-id': user.id }
+    });
+    const data = await res.json();
+    const { actionItems = [], overview = {}, activeProjects = [] } = data;
+
+    let pendingAmendments = [];
+    try {
+      const pRes = await fetch('/api/projects', { headers: { 'x-user-id': user.id } });
+      const pData = await pRes.json();
+      (pData.projects || []).forEach(p => {
+        (p.milestones || []).forEach(m => {
+          if (m.possibleScopeChange) {
+            pendingAmendments.push({ ...m.possibleScopeChange, projectId: p.id, milestoneId: m.id, projectTitle: p.title });
+          }
+        });
+      });
+    } catch (_) {}
+
+    let pendingReleaseAmount = 0;
+    actionItems.forEach(item => {
+      pendingReleaseAmount += (item.amount || 0);
+    });
+
+    const pendCountEl = document.getElementById('appr-stat-pending');
+    const amtEl = document.getElementById('appr-stat-amount');
+    const amendEl = document.getElementById('appr-stat-amendments');
+    const fundEl = document.getElementById('appr-stat-funding');
+    const queueCountEl = document.getElementById('appr-queue-count');
+
+    if (pendCountEl) pendCountEl.textContent = actionItems.length;
+    if (amtEl) amtEl.textContent = `₹${pendingReleaseAmount.toLocaleString('en-IN')}`;
+    if (amendEl) amendEl.textContent = pendingAmendments.length;
+    if (fundEl) fundEl.textContent = overview.pendingFundCount || 0;
+    if (queueCountEl) queueCountEl.textContent = `${actionItems.length + pendingAmendments.length} Pending Actions`;
+
+    if (actionItems.length === 0 && pendingAmendments.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center; padding:3.5rem 1rem; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-lg);">
+          <div style="font-size:2.5rem; margin-bottom:0.75rem;">🛡️</div>
+          <h3 style="margin:0 0 0.4rem; color:var(--text-primary);">Approvals Queue is Completely Clear</h3>
+          <p style="font-size:0.85rem; color:var(--text-secondary); max-width:480px; margin:0 auto;">
+            All contractor deliverables have been reviewed and released. When new milestones are submitted, they will appear here with cryptographic file hashes and 72-hour review countdowns.
+          </p>
+          <div style="margin-top:1.25rem;">
+            <button class="btn-primary" onclick="navigateTo('/client/dashboard')">Back to Dashboard</button>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    let itemsHtml = '';
+
+    actionItems.forEach(item => {
+      const hoursRemaining = 54;
+      itemsHtml += `
+        <div class="card-section" style="border-left:4px solid var(--primary); padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1rem;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.75rem;">
+            <div>
+              <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:4px;">
+                <span class="brand-badge" style="background:var(--primary-light); color:var(--primary); font-size:0.7rem; font-weight:700;">${item.projectId}</span>
+                <span class="countdown-timer-chip" style="font-size:0.72rem; padding:0.15rem 0.55rem; background:rgba(245,158,11,0.12); color:var(--warning); border:1px solid rgba(245,158,11,0.3); border-radius:var(--radius-full); display:inline-flex; align-items:center; gap:4px;">
+                  <span class="material-symbols-outlined" style="font-size:13px;">timer</span>
+                  ${hoursRemaining}h remaining in 72h SLA review
+                </span>
+                <span class="status-pill pending" style="font-size:0.7rem;">IN REVIEW</span>
+              </div>
+              <h4 style="font-family:var(--font-display); font-size:1.1rem; color:var(--text-primary); margin:0.2rem 0;">${item.title || item.milestoneTitle}</h4>
+              <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">Contractor: <strong>${item.freelancerName || 'Priya Sharma'}</strong> · Project: <strong>${item.projectTitle || item.projectId}</strong></p>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:1.25rem; font-weight:800; color:var(--success);">₹${(item.amount || 25000).toLocaleString('en-IN')}</div>
+              <span style="font-size:0.72rem; color:var(--text-muted);">Protected in Escrow</span>
+            </div>
+          </div>
+
+          <!-- Deliverables Box with SHA-256 Hashes -->
+          <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:0.85rem 1rem;">
+            <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.5rem;">Submitted Deliverable Files &amp; Cryptographic Proof</div>
+            <div style="display:flex; flex-direction:column; gap:0.4rem;">
+              ${(item.deliverables || [
+                { name: 'Fintech_App_Design_Tokens_v2.json', size: '240 KB', hash: 'sha256-4a8b...12ef' },
+                { name: 'Interactive_Prototype_Spec.fig', size: '14.8 MB', hash: 'sha256-9c2d...88a1' }
+              ]).map(d => `
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; background:var(--bg-surface); padding:0.4rem 0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <i data-lucide="file-check" style="width:14px;height:14px;color:var(--success);"></i>
+                    <span style="font-weight:600; color:var(--text-primary);">${d.name}</span>
+                    <span style="color:var(--text-muted); font-size:0.72rem;">(${d.size})</span>
+                  </div>
+                  <span class="doc-hash-pill" onclick="navigator.clipboard.writeText('${d.hash}'); showToast('SHA-256 hash copied to clipboard');" title="Click to copy hash">
+                    ${d.hash}
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Revision Fairness Meter -->
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.78rem; color:var(--text-secondary); background:var(--bg-surface); padding:0.5rem 0.85rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+            <span>Revision Policy: <strong>0 of 2 revisions used</strong> (Fairness Meter)</span>
+            <span style="color:var(--info);">Contract terms locked under Indian Contract Act 1872</span>
+          </div>
+
+          <!-- Action Buttons Bar -->
+          <div style="display:flex; justify-content:flex-end; align-items:center; gap:0.6rem; flex-wrap:wrap; border-top:1px solid var(--border-subtle); padding-top:0.75rem;">
+            <button class="btn-secondary" onclick="openRevisionRequestModal('${item.id || item.milestoneId}')">
+              <i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i>
+              <span>Request Scoped Revision</span>
+            </button>
+            <button class="btn-primary" onclick="clientApproveMilestone('${item.id || item.milestoneId}', ${item.amount || 25000})">
+              <i data-lucide="check-circle" style="width:15px;height:15px;"></i>
+              <span>Approve &amp; Release Escrow</span>
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    pendingAmendments.forEach(am => {
+      itemsHtml += `
+        <div class="card-section" style="border-left:4px solid var(--warning); padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:0.85rem;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.75rem;">
+            <div>
+              <span class="brand-badge" style="background:rgba(245,158,11,0.15); color:var(--warning); font-size:0.7rem; font-weight:700;">Scope Amendment Request</span>
+              <h4 style="font-family:var(--font-display); font-size:1.05rem; color:var(--text-primary); margin:0.25rem 0 0.15rem;">${am.title || 'Additional Feature Scope'}</h4>
+              <p style="font-size:0.82rem; color:var(--text-muted); margin:0;">Project: <strong>${am.projectTitle || am.projectId}</strong></p>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:1.2rem; font-weight:800; color:var(--warning);">+₹${(am.additionalCost || 10000).toLocaleString('en-IN')}</div>
+              <span style="font-size:0.72rem; color:var(--text-muted);">+${am.additionalDays || 5} Days Timeline</span>
+            </div>
+          </div>
+          <p style="font-size:0.84rem; color:var(--text-secondary); margin:0; line-height:1.5;">${am.description || am.note || 'Contractor proposed bilateral contract adjustment for extended deliverable scope.'}</p>
+          <div style="display:flex; justify-content:flex-end; gap:0.6rem;">
+            <button class="btn-secondary" onclick="showToast('Discussing adjustment with contractor in Messages...', 'info'); navigateTo('/freelancer/messages');">
+              <i data-lucide="message-square" style="width:14px;height:14px;"></i>
+              <span>Discuss in Chat</span>
+            </button>
+            <button class="btn-primary" onclick="clientApproveAmendment('${am.id || 'AMD-101'}')" style="background:var(--warning); border-color:var(--warning);">
+              <i data-lucide="check" style="width:14px;height:14px;"></i>
+              <span>Approve Contract Amendment</span>
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = itemsHtml;
+    if (window.lucide) window.lucide.createIcons();
+  } catch (err) {
+    console.error('Error loading approvals queue:', err);
+    container.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--danger);">Error loading approvals queue.</div>`;
+  }
+}
+
+// ==============================================================================
+// LEGAL DOCUMENTS, PRDs & SOWs CONTROLLER (/client/documents)
+// ==============================================================================
+
+const PLATFORM_DOCUMENTS = [
+  {
+    id: 'DOC-PRD-01',
+    type: 'prd',
+    title: 'Product Requirements Document (PRD) — Fintech Mobile App v2.1',
+    subtitle: 'Autonomous Escrow Architecture, Biometrics & 72-Hour Watchdog SLA',
+    parties: 'Rahul Verma (Zenith FinTech Labs) & Priya Sharma (Principal Designer)',
+    date: '15 March 2026',
+    hash: 'sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+    summary: 'Comprehensive product specification defining biometric authentication flows, escrow fund locking protocols, deliverable hashing standards, and silence protection watchdog timers.',
+    content: `
+      <h3>1. Executive Summary &amp; Objective</h3>
+      <p>The Bharosa Fintech App establishes an unbreachable escrow interface between high-trust corporate clients and elite independent design engineers. All milestone commitments are cryptographically sealed upon kickoff.</p>
+      
+      <h3>2. Functional Requirements</h3>
+      <ul>
+        <li><strong>Role-Separated Workspaces:</strong> Strict RBAC dividing client budget approvals from freelancer deliverable submissions.</li>
+        <li><strong>72-Hour Watchdog SLA:</strong> If a client remains unresponsive for 72 hours following deliverable submission, the platform triggers automated reminders and freezes project deadlines to protect contractor schedule integrity.</li>
+        <li><strong>Revision Limits:</strong> Strictly capped at 2 complimentary revisions per milestone. Any subsequent structural alteration requires a formal Bilateral Scope Amendment.</li>
+      </ul>
+
+      <h3>3. Technical Deliverable Integrity</h3>
+      <p>All Figma tokens, Flutter/React component code, and UX documentation must be hashed via SHA-256 before client notification is dispatched.</p>
+    `
+  },
+  {
+    id: 'DOC-PRD-02',
+    type: 'prd',
+    title: 'Design System &amp; UX PRD — E-Commerce Marketplace v1.4',
+    subtitle: 'Multi-Tenant Token Architecture &amp; Headless Checkout Flow',
+    parties: 'Rahul Verma (GrowthNest Media) &amp; Priya Sharma',
+    date: '20 March 2026',
+    hash: 'sha256-4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a',
+    summary: 'Design system specifications, token mapping for dark and light modes, accessible micro-interactions, and high-conversion checkout funnel guidelines.',
+    content: `
+      <h3>1. Scope of Work</h3>
+      <p>Create a complete multi-brand design system with 200+ accessible tokens, typography hierarchies, and mobile-optimized card components for an enterprise commerce ecosystem.</p>
+
+      <h3>2. Acceptance Criteria</h3>
+      <ul>
+        <li>Tokens validated for WCAG 2.1 AA contrast ratios across both light and dark modes.</li>
+        <li>Interactive prototypes demonstrate zero layout shifts (CLS &lt; 0.05).</li>
+        <li>All component variants delivered with structured JSON handoff tokens.</li>
+      </ul>
+    `
+  },
+  {
+    id: 'DOC-NDA-01',
+    type: 'nda',
+    title: 'Mutual Non-Disclosure Agreement (Bilateral Escrow Protected)',
+    subtitle: 'Governed under the Indian Contract Act 1872 &amp; Information Technology Act 2000',
+    parties: 'Zenith FinTech Labs Pvt Ltd &amp; Priya Sharma (Contractor)',
+    date: '10 March 2026',
+    hash: 'sha256-ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+    summary: 'Binding bilateral non-disclosure agreement protecting proprietary trade secrets, user telemetry, algorithmic architectures, and confidential financial workflows.',
+    content: `
+      <h3>1. Confidentiality Obligations</h3>
+      <p>Both parties agree that all proprietary designs, specifications, source codes, business processes, and client user metrics exchanged on Bharosa OS constitute Confidential Information.</p>
+
+      <h3>2. Permitted Disclosures &amp; Exclusions</h3>
+      <p>Information is not confidential if it is public knowledge without breach, already known to the recipient prior to disclosure, or compelled by law under formal judicial subpoena.</p>
+
+      <h3>3. Term &amp; IP Rights</h3>
+      <p>This agreement remains in effect for 3 years from execution. IP ownership transfers unconditionally to the client immediately upon final escrow milestone payout release.</p>
+    `
+  },
+  {
+    id: 'DOC-MSA-01',
+    type: 'msa',
+    title: 'Master Services Agreement (MSA) — Milestone Governance',
+    subtitle: 'Indian Contract Act 1872 Statutory Compliance Framework',
+    parties: 'GrowthNest Media Pvt Ltd &amp; Independent Contractor',
+    date: '08 March 2026',
+    hash: 'sha256-cb8379ac2098aa165029e3938a51da0bcecfc008fd6795f401178647f96c5b34',
+    summary: 'Master framework governing payment schedules, 18% GST statutory compliance under SAC 998314, revision caps, dispute mediation protocols, and neutral AI arbitration.',
+    content: `
+      <h3>1. Escrow Funding &amp; Release Mechanics</h3>
+      <p>Client funds 100% of the active milestone into the Bharosa Escrow Vault before contractor commencement. Upon delivery submission, client maintains a 72-hour review window.</p>
+
+      <h3>2. Statutory Tax Compliance (GST)</h3>
+      <p>All billings are subject to Indian Goods and Services Tax (GST) at 18% under SAC 998314. Standard e-invoicing numbers are generated with digital integrity stamps.</p>
+
+      <h3>3. Dispute Resolution</h3>
+      <p>In the event of an unresolvable scope impasse, parties agree to assemble an autonomous evidence dossier for neutral mediation prior to any external legal proceedings.</p>
+    `
+  },
+  {
+    id: 'DOC-SOW-01',
+    type: 'sow',
+    title: 'Statement of Work (SOW-101) — Fintech App Architecture',
+    subtitle: 'Milestone Deliverable Schedule &amp; Escrow Allocation',
+    parties: 'Rahul Verma &amp; Priya Sharma',
+    date: '12 March 2026',
+    hash: 'sha256-2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae',
+    summary: 'Binding milestone scope covering Wireframes &amp; Architecture Map (₹25,000), Interactive Prototypes (₹35,000), and Developer Handoff Tokens (₹25,000). Total escrow: ₹85,000.',
+    content: `
+      <h3>1. Deliverable Milestones</h3>
+      <ul>
+        <li><strong>Milestone 1 (₹25,000):</strong> System architecture map, user journeys, low-fidelity wireframes. Status: Completed &amp; Invoiced.</li>
+        <li><strong>Milestone 2 (₹35,000):</strong> High-fidelity component tokens, interactive dark-mode prototypes. Status: In Review.</li>
+        <li><strong>Milestone 3 (₹25,000):</strong> Production handoff asset kit, Flutter design spec. Status: Funded in Escrow.</li>
+      </ul>
+
+      <h3>2. Acceptance &amp; Sign-off</h3>
+      <p>Deliverables are formally approved via the Bharosa Client Portal with automated SHA-256 receipt generation.</p>
+    `
+  }
+];
+
+let activeDocFilter = 'all';
+
+function loadDocumentsRegistry(filter = 'all') {
+  activeDocFilter = filter;
+  const container = document.getElementById('documents-grid-container');
+  if (!container) return;
+
+  const filtered = PLATFORM_DOCUMENTS.filter(doc => {
+    if (activeDocFilter === 'all') return true;
+    return doc.type === activeDocFilter;
+  });
+
+  document.querySelectorAll('.admin-subnav-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById(`doc-filter-${filter}`);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  const typeIconMap = {
+    prd: { icon: 'file-text', bg: 'rgba(99,102,241,0.12)', color: '#6366f1' },
+    nda: { icon: 'lock', bg: 'rgba(16,185,129,0.12)', color: '#10b981' },
+    msa: { icon: 'scale', bg: 'rgba(245,158,11,0.12)', color: '#f59e0b' },
+    sow: { icon: 'clipboard-list', bg: 'rgba(56,189,248,0.12)', color: '#38bdf8' }
+  };
+
+  container.innerHTML = filtered.map(doc => {
+    const meta = typeIconMap[doc.type] || typeIconMap.prd;
+    return `
+      <div class="document-card">
+        <div>
+          <div class="document-card-header">
+            <div class="document-type-icon" style="background:${meta.bg}; color:${meta.color};">
+              <i data-lucide="${meta.icon}" style="width:20px;height:20px;"></i>
+            </div>
+            <span class="brand-badge" style="background:${meta.bg}; color:${meta.color}; font-size:0.68rem; font-weight:700;">
+              ${doc.type.toUpperCase()}
+            </span>
+          </div>
+
+          <div class="document-card-body" style="margin-top:0.75rem;">
+            <h4>${doc.title}</h4>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.5rem;">${doc.subtitle}</div>
+            <p>${doc.summary}</p>
+            <div style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:0.5rem;">
+              <strong>Parties:</strong> ${doc.parties}
+            </div>
+          </div>
+        </div>
+
+        <div class="document-card-footer">
+          <span class="doc-hash-pill" onclick="verifyDocumentSignature('${doc.id}')" title="Click to verify cryptographic SHA-256 seal">
+            ${doc.hash.slice(0, 18)}...
+          </span>
+          <div style="display:flex; gap:0.4rem;">
+            <button class="btn-secondary" style="font-size:0.75rem; padding:0.35rem 0.65rem;" onclick="verifyDocumentSignature('${doc.id}')">
+              <i data-lucide="shield-check" style="width:13px;height:13px;"></i> Verify
+            </button>
+            <button class="btn-primary" style="font-size:0.75rem; padding:0.35rem 0.65rem;" onclick="viewDocumentModal('${doc.id}')">
+              <i data-lucide="eye" style="width:13px;height:13px;"></i> Read
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function filterDocuments(type) {
+  loadDocumentsRegistry(type);
+}
+
+function viewDocumentModal(docId) {
+  const doc = PLATFORM_DOCUMENTS.find(d => d.id === docId) || PLATFORM_DOCUMENTS[0];
+  const modal = document.getElementById('modal-document-viewer');
+  if (!modal) return;
+
+  const titleEl = document.getElementById('doc-modal-title');
+  const typeBadgeEl = document.getElementById('doc-modal-type-badge');
+  const subtitleEl = document.getElementById('doc-modal-subtitle');
+  const contentEl = document.getElementById('doc-modal-content');
+  const hashEl = document.getElementById('doc-modal-hash');
+
+  if (titleEl) titleEl.textContent = doc.title;
+  if (typeBadgeEl) typeBadgeEl.textContent = doc.type.toUpperCase();
+  if (subtitleEl) subtitleEl.textContent = `${doc.subtitle} • Executed ${doc.date}`;
+  if (contentEl) contentEl.innerHTML = doc.content;
+  if (hashEl) hashEl.textContent = doc.hash;
+
+  modal.classList.add('active');
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function openSignatureVerificationModal(docId) {
+  const modal = document.getElementById('modal-verify-signature');
+  if (modal) modal.classList.add('active');
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function verifyDocumentSignature(docId) {
+  openSignatureVerificationModal(docId);
+}
+
+function printOrExportDoc() {
+  window.print();
+}
+
+function exportDocumentsDigest() {
+  showToast('Exporting cryptographically signed PDF archive digest...', 'success');
 }
 
 // ==============================================================================
@@ -3540,6 +4307,24 @@ window.confirmResetDemoData = confirmResetDemoData;
 window.executeResetDemoData = executeResetDemoData;
 window.handleNotificationClick = handleNotificationClick;
 window.renderNotificationList = renderNotificationList;
+
+window.openInvoiceMakerModal = openInvoiceMakerModal;
+window.onInvoiceMakerProjectChange = onInvoiceMakerProjectChange;
+window.addInvoiceMakerLineItem = addInvoiceMakerLineItem;
+window.removeInvoiceMakerLineItem = removeInvoiceMakerLineItem;
+window.updateInvoiceItemField = updateInvoiceItemField;
+window.recalculateInvoiceMakerTotals = recalculateInvoiceMakerTotals;
+window.submitInvoiceMaker = submitInvoiceMaker;
+window.setInvoiceChartMode = setInvoiceChartMode;
+window.renderInvoiceGraph = renderInvoiceGraph;
+window.loadApprovalsQueue = loadApprovalsQueue;
+window.loadDocumentsRegistry = loadDocumentsRegistry;
+window.filterDocuments = filterDocuments;
+window.viewDocumentModal = viewDocumentModal;
+window.openSignatureVerificationModal = openSignatureVerificationModal;
+window.verifyDocumentSignature = verifyDocumentSignature;
+window.printOrExportDoc = printOrExportDoc;
+window.exportDocumentsDigest = exportDocumentsDigest;
 
 // App Initialization on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
