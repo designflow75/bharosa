@@ -190,6 +190,9 @@ function showAuthScreen() {
   const appShell = document.getElementById('app-shell');
   if (authScreen) authScreen.style.display = 'flex';
   if (appShell) appShell.classList.remove('active');
+  document.body.classList.remove('authenticated');
+  const mobNav = document.getElementById('mobile-bottom-nav');
+  if (mobNav) mobNav.style.display = 'none';
   if (window.lucide) window.lucide.createIcons();
 }
 
@@ -198,6 +201,9 @@ function hideAuthScreen() {
   const appShell = document.getElementById('app-shell');
   if (authScreen) authScreen.style.display = 'none';
   if (appShell) appShell.classList.add('active');
+  document.body.classList.add('authenticated');
+  const mobNav = document.getElementById('mobile-bottom-nav');
+  if (mobNav) mobNav.style.display = '';
 }
 
 function showSection(sectionId) {

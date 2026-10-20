@@ -3230,7 +3230,8 @@ button:active:not(:disabled) {
     grid-template-columns: 1fr;
   }
   .auth-hero-pane {
-    display: none;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
   .stats-grid {
     grid-template-columns: 1fr;
@@ -3770,127 +3771,339 @@ html {
 
   /* ── 1. AUTHENTICATION & DEMO LOGIN SCREEN ── */
   .auth-wrapper {
-    padding: 1.25rem 0.85rem !important;
+    padding: 0.85rem 0.65rem 2.5rem !important;
     min-height: 100vh;
     min-height: 100dvh;
+    height: auto !important;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     box-sizing: border-box;
     width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
   }
 
   .auth-card {
     grid-template-columns: 1fr !important;
-    max-width: 440px !important;
+    max-width: 480px !important;
     width: 100% !important;
-    border-radius: 20px !important;
+    border-radius: 18px !important;
     margin: 0 auto !important;
     box-sizing: border-box !important;
-    overflow: hidden !important;
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35) !important;
   }
 
   .auth-hero-pane {
+    display: flex !important;
+    flex-direction: column !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding: 1.25rem 0.95rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    border-radius: 18px 18px 0 0 !important;
+  }
+
+  .auth-hero-content {
+    gap: 0.75rem !important;
+    width: 100% !important;
+  }
+
+  .auth-brand {
+    gap: 0.75rem !important;
+    align-items: center;
+  }
+
+  .brand-icon-glow {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    font-size: 1.25rem !important;
+  }
+
+  .brand-title-row {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.4rem !important;
+  }
+
+  .brand-title-row h1 {
+    font-size: 1.28rem !important;
+    margin: 0 !important;
+    line-height: 1.2 !important;
+  }
+
+  .live-pill {
+    font-size: 0.62rem !important;
+    padding: 2px 7px !important;
+  }
+
+  .brand-badge {
+    font-size: 0.72rem !important;
+    display: block !important;
+    margin-top: 2px !important;
+  }
+
+  .auth-hero-banner .banner-pill {
+    font-size: 0.74rem !important;
+    padding: 6px 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    line-height: 1.35;
+  }
+
+  .auth-trust-strip {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 0.35rem !important;
+    padding: 0.6rem 0.5rem !important;
+    margin: 0.25rem 0 !important;
+    border-radius: 10px !important;
+  }
+
+  .trust-stat-box .ts-num {
+    font-size: 0.92rem !important;
+    font-weight: 800;
+  }
+
+  .trust-stat-box .ts-lbl {
+    font-size: 0.6rem !important;
+    line-height: 1.2;
+  }
+
+  .trust-stat-divider {
     display: none !important;
   }
 
+  .auth-value-props {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.65rem !important;
+    margin-top: 0.25rem !important;
+  }
+
+  .value-prop-item {
+    padding: 0.65rem 0.75rem !important;
+    gap: 0.65rem !important;
+    border-radius: 12px !important;
+  }
+
+  .value-prop-icon {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .value-prop-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .vp-title-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+
+  .vp-title-row h4 {
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+  }
+
+  .vp-badge {
+    font-size: 0.6rem !important;
+    padding: 1px 6px !important;
+  }
+
+  .value-prop-text p {
+    font-size: 0.73rem !important;
+    line-height: 1.35 !important;
+    margin-top: 2px !important;
+  }
+
+  .auth-trust-quote {
+    padding: 0.75rem 0.85rem !important;
+    margin-top: 0.65rem !important;
+  }
+
+  .trust-quote-badges {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+
+  .tq-badge {
+    font-size: 0.64rem !important;
+    padding: 2px 6px !important;
+  }
+
+  .auth-trust-quote p {
+    font-size: 0.72rem !important;
+    line-height: 1.35 !important;
+  }
+
   .auth-form-pane {
-    padding: 2rem 1.35rem !important;
+    padding: 1.25rem 0.85rem !important;
     width: 100% !important;
     box-sizing: border-box !important;
   }
 
   .auth-form-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.85rem !important;
     text-align: left;
   }
 
   .auth-form-header h2 {
-    font-size: 1.45rem;
+    font-size: 1.25rem !important;
     font-weight: 800;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.25rem !important;
   }
 
   .auth-form-header p {
-    font-size: 0.88rem;
+    font-size: 0.78rem !important;
     color: var(--text-muted);
-    line-height: 1.5;
+    line-height: 1.4 !important;
   }
 
   .one-click-role-grid {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
-    margin: 1.5rem 0;
+    gap: 0.65rem !important;
+    margin: 0.85rem 0 !important;
     width: 100%;
     box-sizing: border-box;
   }
 
   .one-click-role-btn {
-    width: 100%;
-    min-height: 64px;
-    padding: 0.95rem 1.15rem;
+    width: 100% !important;
+    min-height: auto !important;
+    padding: 0.7rem 0.75rem !important;
     border-radius: 14px;
-    box-sizing: border-box;
+    box-sizing: border-box !important;
+    max-width: 100% !important;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
+    gap: 0.5rem !important;
     transition: all var(--transition-fast);
+    overflow: hidden !important;
   }
 
   .one-click-role-btn .role-info {
     display: flex;
     align-items: center;
-    gap: 0.85rem;
-    min-width: 0;
-    flex: 1 1 auto;
-    overflow: hidden;
+    gap: 0.65rem !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
   }
 
-  .one-click-role-btn .role-avatar {
-    width: 42px;
-    height: 42px;
-    font-size: 1.25rem;
-    flex-shrink: 0;
+  .one-click-role-btn .role-avatar-wrapper {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    font-size: 1.15rem !important;
+    flex-shrink: 0 !important;
     border-radius: 12px;
   }
 
   .one-click-role-btn .role-meta {
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-    flex: 1 1 auto;
-    overflow: hidden;
+    gap: 1px !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
   }
 
-  .one-click-role-btn .role-meta h4 {
-    font-size: 0.92rem;
+  .one-click-role-btn .role-title-line {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 4px !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+  }
+
+  .one-click-role-btn .role-title-line h4 {
+    font-size: 0.86rem !important;
     font-weight: 700;
-    line-height: 1.3;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    line-height: 1.25;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    margin: 0 !important;
   }
 
-  .one-click-role-btn .role-meta p {
-    font-size: 0.76rem;
-    line-height: 1.4;
-    color: var(--text-muted);
-    white-space: normal;
-    word-break: break-word;
+  .one-click-role-btn .role-chip {
+    font-size: 0.6rem !important;
+    padding: 1px 6px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .one-click-role-btn .role-user-name {
+    font-size: 0.74rem !important;
+    line-height: 1.35;
+    color: #cbd5e1;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    margin: 0 !important;
+  }
+
+  .one-click-role-btn .role-sub {
+    font-size: 0.68rem !important;
+    color: #94a3b8;
+  }
+
+  .one-click-role-btn .role-detail-pill {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 0.68rem !important;
+    color: #94a3b8;
+    margin-top: 1px !important;
+    line-height: 1.2 !important;
+    width: 100% !important;
   }
 
   .one-click-role-btn .role-enter-arrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--primary);
-    flex-shrink: 0;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    padding: 5px 8px !important;
+    border-radius: 8px !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+  }
+
+  .one-click-role-btn .arrow-svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .auth-security-footnote {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    font-size: 0.68rem !important;
+    padding: 0.75rem 0.5rem !important;
+    line-height: 1.4 !important;
   }
 
   .auth-input-group {
@@ -4641,6 +4854,11 @@ html {
 
   /* ── 12. MOBILE BOTTOM NAVIGATION (PREMIUM GLASS DOCK) ── */
   .mobile-bottom-nav {
+    display: none !important;
+  }
+
+  body.authenticated .mobile-bottom-nav,
+  #app-shell.active ~ .mobile-bottom-nav {
     display: flex !important;
     align-items: center;
     justify-content: space-around;
@@ -4658,6 +4876,11 @@ html {
     z-index: 100;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     box-sizing: border-box;
+  }
+
+  body:not(.authenticated) .mobile-bottom-nav,
+  #auth-screen:not([style*="display: none"]) ~ .mobile-bottom-nav {
+    display: none !important;
   }
 
   .mobile-nav-item {
@@ -5159,7 +5382,7 @@ html {
 /* 3-Role Grid */
 .sw-role-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 1.5rem;
   margin-bottom: 2.5rem;
 }
@@ -5520,4 +5743,30 @@ html {
   width: 100%;
   overflow-x: auto;
 }
+
+@media (max-width: 600px) {
+  .dashboard-chart-card {
+    padding: 1rem 0.85rem;
+    margin-bottom: 1.25rem;
+  }
+  .dashboard-chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .dashboard-chart-controls {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .chart-pill {
+    padding: 3px 8px;
+    font-size: 0.7rem;
+  }
+  .chart-toggle-btn {
+    padding: 3px 8px;
+    font-size: 0.7rem;
+  }
+}
+
 
