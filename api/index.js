@@ -144,6 +144,45 @@ function getInitialSeed() {
             revisionsUsed: 0
           }
         ]
+      },
+      {
+        id: 'PRJ-103',
+        title: 'AI Copilot Web Platform & Design Tokens',
+        description: 'Complete UI component library, dark mode design tokens, and real-time streaming chat workspace.',
+        clientId: 'USR-102',
+        clientName: 'Rahul Verma',
+        clientOrg: 'GrowthNest Media',
+        freelancerId: 'USR-101',
+        freelancerName: 'Priya Sharma',
+        totalBudget: 75000,
+        spentBudget: 0,
+        status: 'active',
+        startDate: '2026-10-15',
+        freelancerPrivateNotes: 'Client wants clean modern aesthetics with dark glassmorphism and WCAG AA contrast compliance.',
+        milestones: [
+          {
+            id: 'MS-301',
+            title: 'Milestone 1: Design Tokens & Component Matrix',
+            amount: 35000,
+            status: 'Funded',
+            deadline: '2026-11-10T18:00:00Z',
+            completedAt: null,
+            deliverables: [],
+            revisionsAllowed: 2,
+            revisionsUsed: 0
+          },
+          {
+            id: 'MS-302',
+            title: 'Milestone 2: Streaming Chat UI & Handoff Kit',
+            amount: 40000,
+            status: 'Draft',
+            deadline: '2026-11-28T18:00:00Z',
+            completedAt: null,
+            deliverables: [],
+            revisionsAllowed: 2,
+            revisionsUsed: 0
+          }
+        ]
       }
     ],
 
@@ -211,7 +250,24 @@ function getInitialSeed() {
       }
     ],
 
-    disputes: [],
+    disputes: [
+      {
+        id: 'DSP-101',
+        projectId: 'PRJ-101',
+        milestoneId: 'MS-102',
+        projectTitle: 'Fintech Mobile App Redesign',
+        milestoneTitle: 'Milestone 2: Design System & Interactive Prototypes',
+        claimantId: 'USR-101',
+        claimantName: 'Priya Sharma',
+        claimantRole: 'freelancer',
+        category: 'Scope & Revisions',
+        reason: 'Client requested out-of-scope 3D WebGL assets beyond agreed 2D UI SOW.',
+        claimDetails: 'Milestone was agreed for 2D UI vector screens. Client requested full interactive 3D WebGL scene with multiple revisions exceeding revision limit.',
+        status: 'under_neutral_review',
+        evidenceHash: 'sha256-4e1cb892a091d33f',
+        createdAt: '2026-10-18T10:30:00Z'
+      }
+    ],
 
     opportunities: [
       {
@@ -317,11 +373,31 @@ async function initDatabase() {
 initDatabase();
 
 app.post('/api/reset-demo', async (req, res) => {
-  DB = getInitialSeed();
+  const seed = getInitialSeed();
+  DB = seed;
+  let supabaseReset = false;
   if (supabaseAdapter.isConfigured) {
-    await supabaseAdapter.autoSeedIfEmpty(getInitialSeed());
+    try {
+      supabaseReset = await supabaseAdapter.forceResetAndSeed(seed);
+      const loaded = await supabaseAdapter.loadAllFromSupabase();
+      if (loaded && loaded.projects && loaded.projects.length > 0) {
+        DB = loaded;
+      }
+    } catch (e) {
+      console.error('[Reset Demo] Supabase reset error:', e.message);
+    }
   }
-  res.json({ success: true, message: 'Demo database reset to initial seed state.' });
+  res.json({
+    success: true,
+    message: 'Demo database reset to pristine test state.',
+    supabaseReset,
+    counts: {
+      projects: DB.projects ? DB.projects.length : 0,
+      users: DB.users ? DB.users.length : 0,
+      opportunities: DB.opportunities ? DB.opportunities.length : 0,
+      disputes: DB.disputes ? DB.disputes.length : 0
+    }
+  });
 });
 
 app.get('/api/supabase/status', async (req, res) => {

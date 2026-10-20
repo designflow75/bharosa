@@ -1062,6 +1062,23 @@ body {
   transition: background-color var(--transition-normal);
 }
 
+.btn-reset-demo {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.btn-reset-demo:hover {
+  background: rgba(239, 68, 68, 0.18) !important;
+  border-color: rgba(239, 68, 68, 0.6) !important;
+  color: #ef4444 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.btn-reset-demo:active {
+  transform: scale(0.96);
+}
+
 .header-search {
   position: relative;
   width: 380px;

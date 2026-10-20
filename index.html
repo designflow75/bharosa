@@ -392,6 +392,12 @@
           <span id="supabase-pill-text">Supabase: Checking...</span>
         </span>
 
+        <!-- Reset Applied Data Button -->
+        <button class="btn-reset-demo" id="btn-header-reset-demo" onclick="confirmResetDemoData()" title="Reset all applied data back to pristine test state" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; cursor: pointer; border: 1px solid rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); color: #ef4444; transition: all 0.2s ease;">
+          <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i>
+          <span>Reset Data</span>
+        </button>
+
         <div class="header-search">
           <i data-lucide="search" style="width:16px;height:16px;color:var(--text-muted);" class="search-icon"></i>
           <input type="text" id="global-search" placeholder="Search deliverables, contracts, or projects..." oninput="handleGlobalSearch(event)">
@@ -1577,6 +1583,50 @@ SUPABASE_KEY=your-anon-or-service-role-key</pre>
           <button class="btn-secondary" onclick="closeModal('modal-supabase')">Close</button>
           <button class="btn-primary" onclick="checkSupabaseStatus(true)" id="btn-test-supabase">Test Connection</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Reset Platform Data Confirmation -->
+  <div class="modal-overlay" id="modal-reset-data">
+    <div class="modal-box" style="max-width: 480px;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.85rem;">
+        <div style="display: flex; align-items: center; gap: 0.65rem;">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(239,68,68,0.15); display: flex; align-items: center; justify-content: center; color: var(--danger, #ef4444);">
+            <i data-lucide="rotate-ccw" style="width: 20px; height: 20px;"></i>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 1.05rem; color: var(--text-primary);">Reset Platform Data</h3>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Restore pristine test & demo state</span>
+          </div>
+        </div>
+        <button class="btn-icon" onclick="closeModal('modal-reset-data')" style="font-size:1.1rem; line-height:1;">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.25rem 0;">
+        <p style="margin: 0 0 1rem; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5;">
+          This action will reset all applied demo data, milestone submissions, approvals, scope changes, and messages back to the initial pristine seed state.
+        </p>
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.85rem; font-size: 0.8rem; color: var(--text-muted);">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.4rem; color:var(--text-primary); font-weight:600;">
+            <i data-lucide="info" style="width:14px;height:14px;color:var(--primary);"></i>
+            <span>What will be restored:</span>
+          </div>
+          <ul style="margin: 0; padding-left: 1.25rem; line-height: 1.6;">
+            <li>3 Full Projects (PRJ-101, PRJ-102, PRJ-103) with milestones & deliverables</li>
+            <li>Initial tax invoices with 18% GST calculation (SAC 998314)</li>
+            <li>Open opportunities, dispute records, and cryptographic audit hashes</li>
+            <li>Supabase Cloud PostgreSQL database tables (if connected)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.6rem; border-top: 1px solid var(--border-subtle); padding-top: 0.85rem;">
+        <button class="btn-secondary" onclick="closeModal('modal-reset-data')">Cancel</button>
+        <button class="btn-primary" id="btn-confirm-reset-data" onclick="executeResetDemoData()" style="background: var(--danger, #ef4444); border-color: var(--danger, #ef4444); display: inline-flex; align-items: center; gap: 0.4rem;">
+          <i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i>
+          <span>Confirm &amp; Reset Data</span>
+        </button>
       </div>
     </div>
   </div>

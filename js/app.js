@@ -3159,6 +3159,66 @@ window.openSupabaseModal = openSupabaseModal;
 window.checkSupabaseStatus = checkSupabaseStatus;
 window.seedSupabaseData = seedSupabaseData;
 
+// ==============================================================================
+// RESET DEMO DATA CONTROLLER
+// ==============================================================================
+
+function confirmResetDemoData() {
+  openModal('modal-reset-data');
+}
+
+async function executeResetDemoData() {
+  const btn = document.getElementById('btn-confirm-reset-data');
+  const headerBtn = document.getElementById('btn-header-reset-demo');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<span style="display:inline-block; animation:spin 1s linear infinite;">⏳</span> <span>Resetting Data...</span>`;
+  }
+  if (headerBtn) {
+    headerBtn.disabled = true;
+    headerBtn.style.opacity = '0.6';
+  }
+
+  showToast('Resetting all platform data to initial test state...', 'info');
+
+  try {
+    const res = await fetch('/api/reset-demo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      closeModal('modal-reset-data');
+      showToast('Platform data has been reset to pristine initial state!', 'success');
+      
+      // Update Supabase badge & re-sync
+      await checkSupabaseStatus();
+
+      // Refresh current view so newly reset state reflects immediately
+      routeView(window.location.pathname);
+    } else {
+      showToast(data.message || 'Failed to reset demo data', 'danger');
+    }
+  } catch (err) {
+    console.error('Error resetting demo data:', err);
+    showToast('Failed to reset data: ' + err.message, 'danger');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i> <span>Confirm &amp; Reset Data</span>`;
+    }
+    if (headerBtn) {
+      headerBtn.disabled = false;
+      headerBtn.style.opacity = '1';
+    }
+    if (window.lucide) window.lucide.createIcons();
+  }
+}
+
+window.confirmResetDemoData = confirmResetDemoData;
+window.executeResetDemoData = executeResetDemoData;
+
 // App Initialization on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
