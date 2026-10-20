@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Bharosa — AI-Powered Freelance OS & Trust Platform</title>
+  <title>Bharosa OS — Autonomous Escrow & Workspace System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <meta name="theme-color" content="#0a0d14">
+  <!-- Stitch Typography: Plus Jakarta Sans (Headings), Inter (Body & UI), JetBrains Mono (Financial & Audit Data) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <meta name="theme-color" content="#090d16">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="stylesheet" href="/styles.css">
-  <!-- Lucide Modern Icons -->
+  <!-- Lucide Modern Icons for backward-compatible action triggers -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     /* Mobile navigation helpers */
@@ -26,11 +28,9 @@
       document.body.style.overflow = '';
     }
     function mobileNavTo(tab) {
-      // Update active state
       document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
       const btn = document.getElementById('mbn-' + tab);
       if (btn) btn.classList.add('active');
-      // Map tab to route
       const routes = {
         dashboard: '/freelancer/dashboard',
         work: '/freelancer/find-work',
@@ -41,7 +41,122 @@
     }
   </script>
 </head>
-<body>
+<body class="bg-base text-primary">
+
+  <!-- ======================================================================
+       PRECISION MULTI-DEVICE WORKBENCH CONTROLLER (STITCH DESIGN SYSTEM)
+       Controls: Responsive | 1440px | 768px | 390px | Tri-Viewport | Theme | Roles
+       ====================================================================== -->
+  <aside class="workbench-controller-bar" id="workbench-bar" aria-label="Responsive Workbench Controller">
+    <div class="workbench-meta-group">
+      <div class="workbench-title-badge">
+        <span class="material-symbols-outlined" style="color:var(--primary);font-size:18px;">devices</span>
+        <span>Bharosa Workbench</span>
+      </div>
+      <span class="workbench-sync-pill">
+        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--role-freelancer);animation:pulse-countdown 1.5s infinite;"></span>
+        <span id="wb-sync-label">Synchronized Reactive DOM • 1440px / 768px / 390px</span>
+      </span>
+    </div>
+
+    <div class="workbench-controls-group">
+      <!-- Device Viewport Switcher -->
+      <div class="workbench-pill-toggle-group" role="group" aria-label="Viewport Switcher">
+        <button type="button" class="wb-btn active" id="btn-view-responsive" onclick="setViewportMode('responsive')" title="Fluid Responsive 100% width">
+          <span class="material-symbols-outlined" style="font-size:15px;">view_quilt</span>
+          <span>Responsive</span>
+        </button>
+        <button type="button" class="wb-btn" id="btn-view-desktop" onclick="setViewportMode('desktop-1440')" title="Desktop 1440 × 900 Viewport">
+          <span class="material-symbols-outlined" style="font-size:15px;">desktop_windows</span>
+          <span>1440px</span>
+        </button>
+        <button type="button" class="wb-btn" id="btn-view-tablet" onclick="setViewportMode('tablet-768')" title="Tablet 768 × 1024 Viewport">
+          <span class="material-symbols-outlined" style="font-size:15px;">tablet_mac</span>
+          <span>768px</span>
+        </button>
+        <button type="button" class="wb-btn" id="btn-view-mobile" onclick="setViewportMode('mobile-390')" title="Mobile 390 × 844 Viewport">
+          <span class="material-symbols-outlined" style="font-size:15px;">smartphone</span>
+          <span>390px</span>
+        </button>
+        <button type="button" class="wb-btn" id="btn-view-tri" onclick="setViewportMode('tri-viewport')" title="Tri-Viewport Side-by-Side Canvas">
+          <span class="material-symbols-outlined" style="font-size:15px;">view_column</span>
+          <span>Tri-View</span>
+        </button>
+      </div>
+
+      <!-- Theme Switcher -->
+      <div class="workbench-pill-toggle-group" role="group" aria-label="Theme Mode Switcher">
+        <button type="button" class="wb-btn active" id="wb-theme-dark" onclick="applyThemeMode('dark')">
+          <span class="material-symbols-outlined" style="font-size:14px;">dark_mode</span>
+          <span>Dark Deck</span>
+        </button>
+        <button type="button" class="wb-btn" id="wb-theme-light" onclick="applyThemeMode('light')">
+          <span class="material-symbols-outlined" style="font-size:14px;">light_mode</span>
+          <span>Light Slate</span>
+        </button>
+      </div>
+
+      <!-- System State Simulator -->
+      <div class="workbench-pill-toggle-group" role="group" aria-label="System State Simulator">
+        <button type="button" class="wb-btn active" id="wb-state-live" onclick="setSimulatorState('live')">
+          <span class="material-symbols-outlined" style="font-size:14px;color:var(--role-freelancer);">sensors</span>
+          <span>Live Stream</span>
+        </button>
+        <button type="button" class="wb-btn" id="wb-state-offline" onclick="toggleOfflineBannerSimulator()">
+          <span class="material-symbols-outlined" style="font-size:14px;color:var(--role-admin);">cloud_off</span>
+          <span>Offline Sim</span>
+        </button>
+      </div>
+
+      <!-- Persona / Role Quick Switchers -->
+      <div class="workbench-pill-toggle-group" role="group" aria-label="Role Filter Highlights">
+        <button type="button" class="wb-btn role-emerald active" id="wb-role-all" onclick="filterByRole('all')">All</button>
+        <button type="button" class="wb-btn role-emerald" id="wb-role-fl" onclick="switchPersonaDemo('freelancer')">Freelancer</button>
+        <button type="button" class="wb-btn role-indigo" id="wb-role-cl" onclick="switchPersonaDemo('client')">Client</button>
+        <button type="button" class="wb-btn role-amber" id="wb-role-adm" onclick="switchPersonaDemo('admin')">Admin</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Simulated Cryptographic Offline Banner (Toggleable) -->
+  <div class="offline-sim-banner" id="offline-sim-banner" style="display:none;">
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <span class="material-symbols-outlined" style="font-size:18px;">cloud_off</span>
+      <span>Local Offline Mode Active. Contracts, milestone submissions, and cryptographic releases will auto-commit upon reconnecting.</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <span class="queue-pill">Queue: 4 signed events</span>
+      <button type="button" style="background:none;border:none;cursor:pointer;color:inherit;" onclick="toggleOfflineBannerSimulator(false)">
+        <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Master Viewport Stage Wrapper -->
+  <div class="viewport-outer-stage" id="viewport-stage">
+    <div class="viewport-frame-wrapper mode-responsive" id="viewport-frame-container">
+      <!-- Window Chrome Bar (rendered when in 1440px / 768px frame) -->
+      <div class="viewport-window-chrome" id="window-chrome-bar" style="display:none;">
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;"></span>
+            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;"></span>
+            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#10b981;"></span>
+          </div>
+          <span style="margin-left:0.5rem;font-family:var(--font-mono);font-size:0.72rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
+            <span class="material-symbols-outlined" style="font-size:12px;">lock</span>
+            https://app.bharosa.network/workspace/unified-showcase
+          </span>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <span class="font-mono-data" id="chrome-viewport-tag" style="font-size:0.7rem;padding:0.1rem 0.5rem;border-radius:var(--radius-full);background:var(--surface-container-low);color:var(--role-freelancer);">Desktop 1440 × 900</span>
+        </div>
+      </div>
+
+      <!-- Mobile Camera Notch (rendered in 390px frame) -->
+      <div class="mobile-hardware-notch" id="mobile-notch" style="display:none;">
+        <div class="mobile-camera-lens"></div>
+      </div>
 
   <!-- ======================================================================
        1. AUTHENTICATION & DEMO LOGIN SCREEN
@@ -517,6 +632,40 @@
           </div>
         </div>
 
+        <!-- Next Action Hero Spotlight Card (Stitch Screen 2) -->
+        <div class="next-action-spotlight-card" id="fl-spotlight-card" style="background:var(--surface-container); border:1px solid var(--border-subtle); border-left:4px solid var(--role-freelancer); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; box-shadow:var(--shadow-sm);">
+          <div style="display:flex; flex-direction:column; gap:0.4rem; max-width:650px;">
+            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+              <span class="escrow-lock-badge" style="font-size:0.75rem; padding:0.2rem 0.6rem;">
+                <span class="material-symbols-outlined" style="font-size:14px;">lock</span>
+                ₹85,000 In Escrow
+              </span>
+              <span class="countdown-timer-chip" style="font-size:0.72rem; padding:0.15rem 0.55rem;">
+                <span class="material-symbols-outlined" style="font-size:13px;">timer</span>
+                48h 12m silent countdown
+              </span>
+              <span class="sha256-chip" title="Click to copy SHA-256 deliverable proof" onclick="navigator.clipboard.writeText('8f9ac412d8a04b12'); showToast('SHA-256 hash copied to clipboard');">
+                sha256:8f9a...c412
+              </span>
+            </div>
+            <h3 style="font-family:var(--font-display); font-size:1.15rem; color:var(--text-primary); margin:0.2rem 0;">
+              Submit Milestone 2 Deliverables for GrowthNest Media
+            </h3>
+            <p style="font-size:0.84rem; color:var(--text-secondary); margin:0;">
+              SaaS Multi-Tenant Design System v2 • Wireframes &amp; Tokens handoff due soon.
+            </p>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <button class="btn-primary" style="background:var(--role-freelancer); color:#003824; font-weight:700;" onclick="navigateTo('/freelancer/submit-work')">
+              <span class="material-symbols-outlined" style="font-size:16px;">upload_file</span>
+              <span>Submit Deliverable</span>
+            </button>
+            <button class="btn-secondary" onclick="navigateTo('/projects/PRJ-101')">
+              <span>Inspect Contract</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Needs Your Action Row -->
         <div class="card-section" style="margin-bottom: 1.5rem;" id="fl-action-items-section">
           <div class="card-section-header">
@@ -613,6 +762,63 @@
                 <!-- Injected dynamically -->
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- AI-Matched Enterprise Opportunities (Stitch Screen 2) -->
+        <div class="card-section" style="margin-top:1.5rem;">
+          <div class="card-section-header">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="material-symbols-outlined" style="color:var(--role-freelancer); font-size:20px;">auto_awesome</span>
+              <h3>AI-Matched Enterprise Opportunities</h3>
+            </div>
+            <button class="btn-tag" style="font-size:0.75rem;" onclick="navigateTo('/freelancer/find-work')">Explore All Opportunities →</button>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1rem;">
+            <div class="action-item-card" style="border-left:3px solid var(--role-freelancer);">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                  <div style="font-weight:700; font-size:0.92rem; color:var(--text-primary);">Web3 DeFi Mobile App UX Redesign</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Fintech Protocol Corp • 99% Match Score</div>
+                </div>
+                <span class="escrow-lock-badge" style="font-size:0.72rem; padding:0.15rem 0.5rem;">₹1,40,000 Vaulted</span>
+              </div>
+              <p style="font-size:0.8rem; color:var(--text-secondary); margin:0.6rem 0;">Full tokenomics and mobile staking interaction patterns with micro-animations.</p>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
+                <span style="font-size:0.72rem; color:var(--role-freelancer); font-weight:600;">Verified Upfront Escrow</span>
+                <button class="btn-primary" style="font-size:0.72rem; padding:3px 10px;" onclick="navigateTo('/freelancer/find-work')">Accept &amp; Draft</button>
+              </div>
+            </div>
+
+            <div class="action-item-card" style="border-left:3px solid var(--role-client);">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                  <div style="font-weight:700; font-size:0.92rem; color:var(--text-primary);">Enterprise Design System Architecture</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Apex Logistics India • 97% Match Score</div>
+                </div>
+                <span class="escrow-lock-badge" style="font-size:0.72rem; padding:0.15rem 0.5rem;">₹2,20,000 Vaulted</span>
+              </div>
+              <p style="font-size:0.8rem; color:var(--text-secondary); margin:0.6rem 0;">Component taxonomy, accessible color tokens, Figma variables, and Storybook specs.</p>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
+                <span style="font-size:0.72rem; color:var(--role-client); font-weight:600;">Verified Upfront Escrow</span>
+                <button class="btn-primary" style="font-size:0.72rem; padding:3px 10px;" onclick="navigateTo('/freelancer/find-work')">Accept &amp; Draft</button>
+              </div>
+            </div>
+
+            <div class="action-item-card" style="border-left:3px solid var(--role-admin);">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                <div>
+                  <div style="font-weight:700; font-size:0.92rem; color:var(--text-primary);">B2B SaaS Dashboard UI/UX Audit</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">CloudMatrix Systems • 94% Match Score</div>
+                </div>
+                <span class="escrow-lock-badge" style="font-size:0.72rem; padding:0.15rem 0.5rem;">₹65,000 Vaulted</span>
+              </div>
+              <p style="font-size:0.8rem; color:var(--text-secondary); margin:0.6rem 0;">Heuristic review, drop-off rate telemetry diagnosis, and friction reduction blueprint.</p>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">
+                <span style="font-size:0.72rem; color:var(--role-admin); font-weight:600;">Verified Upfront Escrow</span>
+                <button class="btn-primary" style="font-size:0.72rem; padding:3px 10px;" onclick="navigateTo('/freelancer/find-work')">Accept &amp; Draft</button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1697,6 +1903,9 @@ SUPABASE_KEY=your-anon-or-service-role-key</pre>
       <button class="action-sheet-cancel" onclick="closeMobileActionSheet()">Cancel</button>
     </div>
   </div>
+
+    </div><!-- /#viewport-frame-container -->
+  </div><!-- /#viewport-stage -->
 
   <!-- Application Logic -->
   <script src="/js/app.js"></script>

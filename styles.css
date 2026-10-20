@@ -4,28 +4,79 @@
    ========================================================================== */
 
 :root {
+  /* ========================================================================
+     STITCH DESIGN SYSTEM - AUTONOMOUS ESCROW & WORKSPACE SYSTEM
+     Light & Dark Theme 1:1 Variable Parity
+     ======================================================================== */
+  --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Inter', monospace;
+
   /* Color Palette - Light Theme */
   --bg-base: #f8fafc;
   --bg-surface: #ffffff;
   --bg-surface-elevated: #f1f5f9;
-  --bg-glass: rgba(255, 255, 255, 0.85);
-  --bg-glass-card: rgba(255, 255, 255, 0.92);
+  --bg-glass: rgba(255, 255, 255, 0.88);
+  --bg-glass-card: rgba(255, 255, 255, 0.94);
   --border-subtle: #e2e8f0;
   --border-strong: #cbd5e1;
-  --border-focus: #6366f1;
+  --border-focus: #4f46e5;
 
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #64748b;
   --text-inverted: #ffffff;
 
-  /* Accent & Gradients */
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --primary-light: #eef2ff;
-  --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #2563eb 50%, #06b6d4 100%);
-  --trust-gradient: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  --shield-gradient: linear-gradient(135deg, #4f46e5 0%, #8b5cf6 100%);
+  /* Stitch Semantic Tokens - Light */
+  --surface: #ffffff;
+  --surface-dim: #f1f5f9;
+  --surface-bright: #ffffff;
+  --surface-container-lowest: #f8fafc;
+  --surface-container-low: #f1f5f9;
+  --surface-container: #e2e8f0;
+  --surface-container-high: #cbd5e1;
+  --surface-container-highest: #94a3b8;
+  --on-surface: #0f172a;
+  --on-surface-variant: #475569;
+  --outline: #cbd5e1;
+  --outline-variant: #e2e8f0;
+
+  /* Role-Delineated Accent Palettes */
+  /* Execution & Deliverables (Freelancer): Emerald */
+  --role-freelancer: #059669;
+  --role-freelancer-hover: #047857;
+  --role-freelancer-tint: #34d399;
+  --role-freelancer-bg: #ecfdf5;
+  --role-freelancer-border: rgba(16, 185, 129, 0.3);
+
+  /* Capital & Approvals (Client & Escrow): Indigo */
+  --role-client: #4f46e5;
+  --role-client-hover: #4338ca;
+  --role-client-tint: #818cf8;
+  --role-client-bg: #eef2ff;
+  --role-client-border: rgba(79, 70, 229, 0.3);
+
+  /* Arbitration & Audits (Admin / Dispute): Amber */
+  --role-admin: #d97706;
+  --role-admin-hover: #b45309;
+  --role-admin-tint: #fbbf24;
+  --role-admin-bg: #fffbeb;
+  --role-admin-border: rgba(245, 158, 11, 0.3);
+
+  /* Standard Theme Aliases */
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --primary-light: #ecfdf5;
+  --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --trust-gradient: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  --shield-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+
+  --secondary: #4f46e5;
+  --secondary-hover: #4338ca;
+  --secondary-light: #eef2ff;
+  --tertiary: #d97706;
+  --tertiary-hover: #b45309;
+  --tertiary-light: #fffbeb;
 
   /* Functional Status Colors */
   --success: #10b981;
@@ -46,14 +97,14 @@
   --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
   --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
   --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.06);
-  --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.2);
+  --shadow-glow: 0 0 20px rgba(16, 185, 129, 0.2);
 
   /* Layout Constants */
   --header-height: 70px;
-  --sidebar-width: 250px;
+  --sidebar-width: 260px;
   --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-full: 9999px;
 
@@ -63,52 +114,94 @@
   --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Escrow Stepper */
-  --step-active: #4f46e5;
+  --step-active: #10b981;
   --step-done: #10b981;
   --step-pending: #94a3b8;
 }
 
-/* Dark Theme Overrides */
-[data-theme="dark"] {
-  --bg-base: #0a0d14;
-  --bg-surface: #111827;
-  --bg-surface-elevated: #1a2234;
-  --bg-glass: rgba(17, 24, 39, 0.85);
-  --bg-glass-card: rgba(17, 24, 39, 0.92);
-  --border-subtle: #1f293d;
+/* Dark Theme Overrides (Stitch Autonomous Escrow Architecture) */
+[data-theme="dark"], html.dark {
+  --bg-base: #090d16;
+  --bg-surface: #0f172a;
+  --bg-surface-elevated: #171f33;
+  --bg-glass: rgba(15, 23, 42, 0.88);
+  --bg-glass-card: rgba(15, 23, 42, 0.94);
+  --border-subtle: #222a3d;
   --border-strong: #334155;
-  --border-focus: #818cf8;
+  --border-focus: #4edea3;
 
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --text-inverted: #0f172a;
+  --text-primary: #dae2fd;
+  --text-secondary: #bbcabf;
+  --text-muted: #86948a;
+  --text-inverted: #090d16;
 
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --primary-light: rgba(99, 102, 241, 0.15);
-  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #3b82f6 50%, #06b6d4 100%);
-  --trust-gradient: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-  --shield-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  /* Stitch Semantic Tokens - Dark */
+  --surface: #0b1326;
+  --surface-dim: #0b1326;
+  --surface-bright: #31394d;
+  --surface-container-lowest: #060e20;
+  --surface-container-low: #131b2e;
+  --surface-container: #171f33;
+  --surface-container-high: #222a3d;
+  --surface-container-highest: #2d3449;
+  --on-surface: #dae2fd;
+  --on-surface-variant: #bbcabf;
+  --outline: #86948a;
+  --outline-variant: #3c4a42;
 
-  --success: #34d399;
-  --success-bg: rgba(16, 185, 129, 0.12);
-  --success-border: rgba(16, 185, 129, 0.28);
+  /* Role-Delineated Accent Palettes - Dark */
+  --role-freelancer: #4edea3;
+  --role-freelancer-hover: #10b981;
+  --role-freelancer-tint: #6ffbbe;
+  --role-freelancer-bg: rgba(16, 185, 129, 0.12);
+  --role-freelancer-border: rgba(16, 185, 129, 0.35);
+
+  --role-client: #818cf8;
+  --role-client-hover: #6366f1;
+  --role-client-tint: #c0c1ff;
+  --role-client-bg: rgba(99, 102, 241, 0.12);
+  --role-client-border: rgba(99, 102, 241, 0.35);
+
+  --role-admin: #fbbf24;
+  --role-admin-hover: #f59e0b;
+  --role-admin-tint: #ffddb8;
+  --role-admin-bg: rgba(245, 158, 11, 0.12);
+  --role-admin-border: rgba(245, 158, 11, 0.35);
+
+  /* Standard Theme Aliases */
+  --primary: #4edea3;
+  --primary-hover: #10b981;
+  --primary-light: rgba(16, 185, 129, 0.15);
+  --primary-gradient: linear-gradient(135deg, #10b981 0%, #4edea3 100%);
+  --trust-gradient: linear-gradient(135deg, #10b981 0%, #4edea3 100%);
+  --shield-gradient: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+
+  --secondary: #818cf8;
+  --secondary-hover: #6366f1;
+  --secondary-light: rgba(99, 102, 241, 0.15);
+  --tertiary: #fbbf24;
+  --tertiary-hover: #f59e0b;
+  --tertiary-light: rgba(245, 158, 11, 0.15);
+
+  /* Functional Status Colors */
+  --success: #4edea3;
+  --success-bg: rgba(16, 185, 129, 0.14);
+  --success-border: rgba(16, 185, 129, 0.32);
   --warning: #fbbf24;
-  --warning-bg: rgba(245, 158, 11, 0.12);
-  --warning-border: rgba(245, 158, 11, 0.28);
-  --danger: #f87171;
-  --danger-bg: rgba(239, 68, 68, 0.12);
-  --danger-border: rgba(239, 68, 68, 0.28);
+  --warning-bg: rgba(245, 158, 11, 0.14);
+  --warning-border: rgba(245, 158, 11, 0.32);
+  --danger: #ffb4ab;
+  --danger-bg: rgba(239, 68, 68, 0.14);
+  --danger-border: rgba(239, 68, 68, 0.32);
   --info: #38bdf8;
-  --info-bg: rgba(56, 189, 248, 0.12);
-  --info-border: rgba(56, 189, 248, 0.28);
+  --info-bg: rgba(56, 189, 248, 0.14);
+  --info-border: rgba(56, 189, 248, 0.32);
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.35);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 4px 8px -1px rgba(0, 0, 0, 0.55), 0 2px 4px -2px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 20px -3px rgba(0, 0, 0, 0.65), 0 4px 6px -4px rgba(0, 0, 0, 0.45);
+  --shadow-xl: 0 24px 32px -5px rgba(0, 0, 0, 0.75), 0 8px 12px -6px rgba(0, 0, 0, 0.55);
+  --shadow-glow: 0 0 25px rgba(78, 222, 163, 0.28);
 }
 
 /* Base Resets & Global Styles */
@@ -119,32 +212,503 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-body);
   background-color: var(--bg-base);
   color: var(--text-primary);
-  line-height: 1.45;
+  line-height: 1.5;
   transition: background-color var(--transition-normal), color var(--transition-normal);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "kern" 1, "liga" 1, "cv11" 1;
-  letter-spacing: -0.01em;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
+/* Headings with Plus Jakarta Sans */
+h1, h2, h3, h4, h5, h6,
+.font-display, .font-headline-lg, .font-headline-md, .font-headline-sm,
+.auth-brand h1, .brand-title-row h1, .view-header h2, .section-header h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* Tabular Mono Data for Currency, Timestamps & Cryptographic Hashes */
+.font-mono-data, .mono-data, .ts-num, .stat-value, .curr-amt, .hash-pill, .sha256-chip, .tabular-nums {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum" 1, "cv05" 1, "zero" 1;
+  letter-spacing: 0.01em;
+}
+
+/* Material Symbols Outlined Alignment */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* ==========================================================================
+   PRECISION TRI-VIEWPORT WORKBENCH CONTROLLER
+   ========================================================================== */
+.workbench-controller-bar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 0.55rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.workbench-meta-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.workbench-title-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+.workbench-sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--surface-container-high);
+  color: var(--role-freelancer);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 0.2rem 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.workbench-controls-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.workbench-pill-toggle-group {
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface-container-highest);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 0.2rem;
+  gap: 0.2rem;
+}
+
+.wb-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all var(--transition-fast);
+}
+
+.wb-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.wb-btn.active {
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.wb-btn.role-emerald.active {
+  background: var(--role-freelancer-bg);
+  color: var(--role-freelancer);
+  border: 1px solid var(--role-freelancer-border);
+}
+
+.wb-btn.role-indigo.active {
+  background: var(--role-client-bg);
+  color: var(--role-client);
+  border: 1px solid var(--role-client-border);
+}
+
+.wb-btn.role-amber.active {
+  background: var(--role-admin-bg);
+  color: var(--role-admin);
+  border: 1px solid var(--role-admin-border);
+}
+
+/* Simulated Offline Cryptographic Sync Banner */
+.offline-sim-banner {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.95), rgba(217, 119, 6, 0.95));
+  color: #090d16;
+  padding: 0.45rem 1.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  position: relative;
+  z-index: 999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.offline-sim-banner .queue-pill {
+  background: rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+/* ==========================================================================
+   VIEWPORT FRAMES & WRAPPERS
+   ========================================================================== */
+.viewport-outer-stage {
+  width: 100%;
+  min-height: calc(100vh - 46px);
+  background: var(--bg-base);
+  transition: background-color var(--transition-normal);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 1. Fluid Responsive Mode */
+.viewport-frame-wrapper.mode-responsive {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* 2. Desktop 1440px Mode */
+.viewport-frame-wrapper.mode-desktop-1440 {
+  width: 1440px;
+  max-width: 95vw;
+  margin: 1.5rem auto;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
+  overflow: hidden;
+  background: var(--bg-surface);
+}
+
+.viewport-frame-wrapper.mode-desktop-1440 .viewport-window-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface-container-highest);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.55rem 1rem;
+  height: 42px;
+}
+
+/* 3. Tablet 768px Mode */
+.viewport-frame-wrapper.mode-tablet-768 {
+  width: 768px;
+  max-width: 95vw;
+  margin: 1.5rem auto;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65), 0 0 0 8px #1e293b, 0 0 0 9px var(--border-strong);
+  overflow: hidden;
+  background: var(--bg-surface);
+}
+
+.viewport-frame-wrapper.mode-tablet-768 .viewport-window-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface-container-highest);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.45rem 1rem;
+  height: 38px;
+}
+
+/* 4. Mobile 390px Mode */
+.viewport-frame-wrapper.mode-mobile-390 {
+  width: 390px;
+  max-width: 95vw;
+  margin: 1.5rem auto;
+  border-radius: 36px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 10px #1e293b, 0 0 0 11px var(--border-strong);
+  overflow: hidden;
+  background: var(--bg-surface);
+  position: relative;
+}
+
+.viewport-frame-wrapper.mode-mobile-390 .mobile-hardware-notch {
+  width: 120px;
+  height: 22px;
+  background: #000000;
+  border-radius: 0 0 14px 14px;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.viewport-frame-wrapper.mode-mobile-390 .mobile-camera-lens {
   width: 8px;
   height: 8px;
+  border-radius: 50%;
+  background: #111827;
+  border: 1px solid #374151;
 }
-::-webkit-scrollbar-track {
-  background: var(--bg-base);
+
+/* 5. Tri-Viewport Synchronized Stage */
+.viewport-frame-wrapper.mode-tri-viewport {
+  width: 100%;
+  overflow-x: auto;
+  padding: 1.5rem 1rem 3rem 1rem;
 }
-::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
+
+.tri-viewport-track {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+  min-width: 2750px;
+  padding-bottom: 2rem;
+}
+
+.tri-viewport-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tri-viewport-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.5rem;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   STITCH SPECIALIZED TRUST & FINTECH COMPONENTS
+   ========================================================================== */
+
+/* SHA-256 Verified Hash Chips */
+.sha256-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--role-freelancer-bg);
+  color: var(--role-freelancer);
+  border: 1px solid var(--role-freelancer-border);
+  padding: 0.2rem 0.6rem;
   border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
+
+.sha256-chip:hover {
+  background: var(--role-freelancer);
+  color: #003824;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+/* Protected Escrow Vault Badge */
+.escrow-lock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--role-client-bg);
+  color: var(--role-client-tint);
+  border: 1px solid var(--role-client-border);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  box-shadow: inset 0 1px 0 rgba(99, 102, 241, 0.2);
+}
+
+/* 72-Hour Silent Approval Countdown Timer */
+.countdown-timer-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--role-admin-bg);
+  color: var(--role-admin);
+  border: 1px solid var(--role-admin-border);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  animation: pulse-countdown 2.5s infinite ease-in-out;
+}
+
+@keyframes pulse-countdown {
+  0%, 100% { opacity: 1; border-color: var(--role-admin-border); }
+  50% { opacity: 0.85; border-color: var(--role-admin); }
+}
+
+/* Revision Fairness Meter */
+.revision-meter-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.revision-meter-track {
+  display: flex;
+  gap: 0.35rem;
+  height: 6px;
+  width: 100%;
+}
+
+.revision-meter-segment {
+  flex: 1;
+  border-radius: var(--radius-full);
+  background: var(--surface-container-highest);
+  transition: all var(--transition-normal);
+}
+
+.revision-meter-segment.filled {
+  background: var(--role-client);
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+}
+
+.revision-meter-segment.warning {
+  background: var(--role-admin);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+/* Scope Diff Tags */
+.scope-diff-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.scope-diff-tag.added {
+  background: var(--role-freelancer-bg);
+  color: var(--role-freelancer);
+  border: 1px solid var(--role-freelancer-border);
+}
+
+.scope-diff-tag.deducted {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ffb4ab;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Cryptographic Deliverable Card */
+.deliverable-vault-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: all var(--transition-fast);
+}
+
+.deliverable-vault-card:hover {
+  border-color: var(--role-freelancer);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Milestone Cards with Status Left Borders */
+.milestone-stream-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-left: 4px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  transition: all var(--transition-fast);
+  margin-bottom: 1rem;
+}
+
+.milestone-stream-card.active-delivery {
+  border-left-color: var(--role-freelancer);
+  box-shadow: inset 0 1px 0 rgba(16, 185, 129, 0.15);
+}
+
+.milestone-stream-card.in-review {
+  border-left-color: var(--role-client);
+  box-shadow: inset 0 1px 0 rgba(99, 102, 241, 0.15);
+}
+
+.milestone-stream-card.revision-req {
+  border-left-color: var(--role-admin);
+  box-shadow: inset 0 1px 0 rgba(245, 158, 11, 0.15);
+}
+
+/* Sticky Bottom Action Bar for Mobile Viewports */
+.mobile-sticky-action-dock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  padding: 0.65rem 1rem;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .mobile-sticky-action-dock {
+    display: flex;
+  }
+}
+
+.mode-mobile-390 .mobile-sticky-action-dock {
+  position: absolute;
+  display: flex;
 }
 
 /* ==========================================================================
