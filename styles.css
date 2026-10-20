@@ -6559,4 +6559,673 @@ html {
   }
 }
 
+/* ==========================================================================
+   MOBILE-ONLY HERO LOGIN SCREEN (Strictly scoped to max-width: 768px)
+   Matches the uploaded mobile design mockup exactly. Desktop is untouched.
+   ========================================================================== */
+
+/* Base hide on Desktop Viewports */
+.mobile-login-view,
+#mobile-login-drawer {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  /* Hide the desktop landing frame completely on mobile */
+  .landing-viewport-frame {
+    display: none !important;
+  }
+
+  .auth-wrapper.bharosa-landing-root {
+    padding: 0 !important;
+    background: #060b18 !important;
+    overflow-x: hidden !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    display: block !important;
+  }
+
+  /* Full-screen Mobile Login Root */
+  .mobile-login-view {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: calc(env(safe-area-inset-top, 16px) + 1.25rem) 1.5rem calc(env(safe-area-inset-bottom, 16px) + 1.5rem);
+    background: radial-gradient(circle at 50% 12%, rgba(56, 189, 248, 0.16) 0%, rgba(37, 99, 235, 0.04) 40%, #060b18 75%);
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    z-index: 1;
+  }
+
+  /* Top Luminous Ambient Curve Wave */
+  .ml-glow-wave {
+    position: absolute;
+    top: -40px;
+    left: -20%;
+    width: 140%;
+    height: 160px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 50% 30%, rgba(56, 189, 248, 0.22) 0%, rgba(37, 99, 235, 0.1) 45%, transparent 70%);
+    filter: blur(28px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .ml-radial-backdrop {
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.14) 0%, transparent 70%);
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    filter: blur(40px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* 1. TOP BRAND SECTION */
+  .ml-top-brand-section {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 330px;
+    margin-top: 0.25rem;
+  }
+
+  .ml-shield-logo-wrap {
+    position: relative;
+    width: 76px;
+    height: 86px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.85rem;
+  }
+
+  .ml-shield-ambient-glow {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.65) 0%, rgba(37, 99, 235, 0.3) 50%, transparent 70%);
+    filter: blur(22px);
+    z-index: 0;
+    animation: mlPulseGlow 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes mlPulseGlow {
+    0% { transform: scale(0.9); opacity: 0.7; }
+    100% { transform: scale(1.15); opacity: 1; }
+  }
+
+  .ml-shield-svg {
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.8)) drop-shadow(0 0 32px rgba(37, 99, 235, 0.5));
+  }
+
+  .ml-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.95rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.025em;
+    margin: 0;
+    line-height: 1.15;
+  }
+
+  .ml-title-os {
+    color: #38bdf8;
+    font-weight: 800;
+    text-shadow: 0 0 18px rgba(56, 189, 248, 0.6);
+  }
+
+  .ml-tagline {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-top: 5px;
+    letter-spacing: 0.01em;
+  }
+
+  .ml-description {
+    font-size: 0.86rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin-top: 10px;
+    margin-bottom: 0;
+  }
+
+  /* 2. 3D ARTWORK STAGE (Pedestal + Floating Cards + Padlock Shield) */
+  .ml-hero-art-stage {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 320px;
+    height: 250px;
+    margin: 1rem auto;
+    perspective: 800px;
+  }
+
+  .ml-pedestal-ambient-glow {
+    position: absolute;
+    width: 220px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(56, 189, 248, 0.35) 0%, rgba(37, 99, 235, 0.12) 50%, transparent 75%);
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    filter: blur(20px);
+    z-index: 1;
+  }
+
+  .ml-pedestal-ring {
+    position: absolute;
+    width: 240px;
+    height: 70px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(56, 189, 248, 0.55);
+    bottom: 35px;
+    left: 50%;
+    transform: translateX(-50%) rotateX(68deg);
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.4), inset 0 0 14px rgba(56, 189, 248, 0.25);
+    z-index: 2;
+  }
+
+  /* Floating Tilted Cards */
+  .ml-art-card {
+    position: absolute;
+    border-radius: 14px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  /* Left Tilted Card: User Profiles */
+  .ml-card-left {
+    left: 14px;
+    top: 36px;
+    width: 140px;
+    padding: 0.7rem 0.75rem;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(10, 16, 31, 0.96) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    transform: rotate(-9deg) translateZ(10px);
+    animation: mlFloatLeft 5s ease-in-out infinite alternate;
+    z-index: 3;
+  }
+
+  @keyframes mlFloatLeft {
+    0% { transform: rotate(-9deg) translateY(0); }
+    100% { transform: rotate(-8deg) translateY(-6px); }
+  }
+
+  .ml-user-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 7px;
+  }
+
+  .ml-user-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .ml-user-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .ml-user-avatar svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .ml-user-avatar.purple { background: rgba(168, 85, 247, 0.25); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+  .ml-user-avatar.cyan { background: rgba(56, 189, 248, 0.25); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+  .ml-user-avatar.emerald { background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+
+  .ml-user-meta {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .ml-line-lg { height: 5px; width: 85%; background: rgba(255, 255, 255, 0.35); border-radius: 3px; }
+  .ml-line-md { height: 4px; width: 65%; background: rgba(255, 255, 255, 0.28); border-radius: 3px; }
+  .ml-line-sm { height: 4px; width: 45%; background: rgba(255, 255, 255, 0.18); border-radius: 3px; }
+  .ml-line-xs { height: 3px; width: 35%; background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
+  .ml-line-full { height: 4px; width: 100%; background: rgba(56, 189, 248, 0.25); border-radius: 3px; margin-top: 4px; }
+
+  /* Right Tilted Card: Milestones */
+  .ml-card-right {
+    right: 14px;
+    top: 50px;
+    width: 145px;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, rgba(13, 21, 39, 0.95) 0%, rgba(9, 14, 27, 0.98) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.32);
+    transform: rotate(8deg) translateZ(15px);
+    animation: mlFloatRight 5.5s ease-in-out infinite alternate 0.5s;
+    z-index: 4;
+  }
+
+  @keyframes mlFloatRight {
+    0% { transform: rotate(8deg) translateY(0); }
+    100% { transform: rotate(7deg) translateY(-7px); }
+  }
+
+  .ml-milestone-head {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #e2e8f0;
+    margin-bottom: 8px;
+  }
+
+  .ml-milestone-icon {
+    color: #38bdf8;
+    display: flex;
+    align-items: center;
+  }
+
+  .ml-milestone-icon svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .ml-milestone-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+
+  .ml-check-dot {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.22);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .ml-check-dot svg {
+    width: 9px;
+    height: 9px;
+    stroke-width: 3;
+  }
+
+  .ml-ms-lines {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  /* Top Right Floating Pill */
+  .ml-art-pill-top {
+    position: absolute;
+    right: 28px;
+    top: 14px;
+    background: rgba(147, 51, 234, 0.28);
+    border: 1px solid rgba(168, 85, 247, 0.45);
+    border-radius: 9999px;
+    padding: 3px 9px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #e9d5ff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    animation: mlFloatSlow 4s ease-in-out infinite alternate 1s;
+    z-index: 5;
+  }
+
+  @keyframes mlFloatSlow {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-5px); }
+  }
+
+  .ml-pill-avatar {
+    color: #c084fc;
+    display: flex;
+    align-items: center;
+  }
+
+  .ml-pill-avatar svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  /* Center Floating Lock Shield */
+  .ml-art-lock-shield {
+    position: absolute;
+    left: 50%;
+    bottom: 48px;
+    transform: translateX(-50%);
+    width: 54px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    animation: mlShieldBob 3.8s ease-in-out infinite alternate;
+  }
+
+  @keyframes mlShieldBob {
+    0% { transform: translateX(-50%) translateY(0); }
+    100% { transform: translateX(-50%) translateY(-7px); }
+  }
+
+  .ml-lock-shield-glow {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.8) 0%, rgba(37, 99, 235, 0.4) 50%, transparent 70%);
+    filter: blur(16px);
+    z-index: 0;
+  }
+
+  .ml-lock-shield-svg {
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.7));
+  }
+
+  .ml-lock-icon-wrap {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    margin-top: -2px;
+  }
+
+  .ml-lock-icon-wrap svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.4;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  }
+
+  /* 3. BOTTOM ACTIONS BLOCK */
+  .ml-actions-block {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 330px;
+    margin-top: 0.5rem;
+  }
+
+  .btn-ml-get-started {
+    width: 100%;
+    height: 52px;
+    background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 45%, #7c3aed 100%);
+    border: none;
+    border-radius: 9999px;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.45), 0 0 20px rgba(124, 58, 237, 0.25);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .btn-ml-get-started:active {
+    transform: scale(0.97);
+    filter: brightness(1.1);
+  }
+
+  .btn-ml-get-started svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s ease;
+  }
+
+  .btn-ml-get-started:hover svg {
+    transform: translateX(3px);
+  }
+
+  .ml-account-link {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    margin-top: 14px;
+  }
+
+  .ml-account-link a {
+    color: #38bdf8;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .ml-account-link a:hover {
+    color: #7dd3fc;
+    text-decoration: underline;
+  }
+
+  /* 4. MOBILE LOGIN DRAWER BOTTOM SHEET */
+  .ml-drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(3, 7, 18, 0.82);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 99999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .ml-drawer-card {
+    width: 100%;
+    max-width: 480px;
+    background: #090e1d;
+    border-top: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.8);
+    padding: 0.85rem 1.25rem calc(env(safe-area-inset-bottom, 12px) + 1.25rem);
+    box-sizing: border-box;
+    animation: slideUpDrawer 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  @keyframes slideUpDrawer {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .ml-drawer-handle-bar {
+    width: 40px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+    margin: 0 auto 0.85rem auto;
+  }
+
+  .ml-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .ml-drawer-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ml-drawer-title-wrap h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+  }
+
+  .ml-drawer-close {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .ml-drawer-close svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .ml-drawer-roles {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+
+  .ml-role-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 0.85rem;
+    background: #0d1527;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .ml-role-card:active {
+    transform: scale(0.98);
+    background: #111a30;
+  }
+
+  .ml-rc-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .ml-rc-icon.icon-blue { background: rgba(37, 99, 235, 0.18); border: 1px solid rgba(56, 189, 248, 0.3); }
+  .ml-rc-icon.icon-emerald { background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(52, 211, 153, 0.3); }
+  .ml-rc-icon.icon-purple { background: rgba(168, 85, 247, 0.18); border: 1px solid rgba(192, 132, 252, 0.3); }
+
+  .ml-rc-info {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .ml-rc-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .ml-rc-sub {
+    font-size: 0.74rem;
+    color: #94a3b8;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ml-rc-arrow {
+    color: #38bdf8;
+    display: flex;
+    align-items: center;
+  }
+
+  .ml-rc-arrow svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .ml-custom-login-wrap {
+    margin-top: 0.5rem;
+  }
+
+  .btn-ml-toggle-custom {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #38bdf8;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0.5rem;
+    cursor: pointer;
+  }
+
+  .btn-ml-toggle-custom svg {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.25s ease;
+  }
+
+  .ml-custom-form-drawer {
+    margin-top: 0.65rem;
+    padding: 0.85rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    text-align: left;
+  }
+}
+
 

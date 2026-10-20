@@ -272,7 +272,7 @@ async function demoLogin(role) {
 
 async function handleCustomLogin(e) {
   if (e) e.preventDefault();
-  const email = document.getElementById('user-email')?.value;
+  const email = document.getElementById('user-email')?.value || document.getElementById('ml-user-email')?.value;
   try {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
@@ -283,6 +283,9 @@ async function handleCustomLogin(e) {
     if (res.ok && data.user) {
       setSessionUser(data.user);
       showToast(`Welcome back, ${data.user.name}!`, 'success');
+      const drawer = document.getElementById('mobile-login-drawer');
+      if (drawer) drawer.style.display = 'none';
+      document.body.style.overflow = '';
       navigateTo(data.redirectTo);
     } else {
       showToast(data.error || 'User not found. Try priya@bharosa.design or rahul@growthnest.media', 'danger');
@@ -309,15 +312,51 @@ function toggleCustomLoginForm() {
 }
 
 function fillDemoCreds(email, password) {
-  const emailInput = document.getElementById('user-email');
-  const passInput = document.getElementById('user-password');
+  const emailInput = document.getElementById('user-email') || document.getElementById('ml-user-email');
+  const passInput = document.getElementById('user-password') || document.getElementById('ml-user-password');
   if (emailInput) emailInput.value = email;
   if (passInput) passInput.value = password;
   const form = document.getElementById('custom-login-form-container');
   if (form && form.style.display === 'none') {
     form.style.display = 'block';
   }
+  const mlForm = document.getElementById('ml-custom-login-form');
+  if (mlForm && mlForm.style.display === 'none') {
+    mlForm.style.display = 'block';
+    const chevron = document.getElementById('ml-chevron-icon');
+    if (chevron) chevron.style.transform = 'rotate(180deg)';
+  }
   showToast(`Credentials autofilled for ${email}`, 'info');
+}
+
+function openMobileLoginDrawer(mode) {
+  const drawer = document.getElementById('mobile-login-drawer');
+  if (!drawer) return;
+  drawer.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  if (window.lucide) window.lucide.createIcons();
+  const customForm = document.getElementById('ml-custom-login-form');
+  const chevron = document.getElementById('ml-chevron-icon');
+  if (mode === 'login' && customForm) {
+    customForm.style.display = 'block';
+    if (chevron) chevron.style.transform = 'rotate(180deg)';
+  }
+}
+
+function closeMobileLoginDrawer(e) {
+  if (e && e.target && e.target.id !== 'mobile-login-drawer' && !e.target.closest('.ml-drawer-close')) return;
+  const drawer = document.getElementById('mobile-login-drawer');
+  if (drawer) drawer.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function toggleMobileCustomLogin() {
+  const form = document.getElementById('ml-custom-login-form');
+  const chevron = document.getElementById('ml-chevron-icon');
+  if (!form) return;
+  const isHidden = form.style.display === 'none';
+  form.style.display = isHidden ? 'block' : 'none';
+  if (chevron) chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
 }
 
 // ==============================================================================
@@ -4910,6 +4949,9 @@ window.toggleTheme = toggleTheme;
 window.scrollToDemoRoles = scrollToDemoRoles;
 window.openVideoModal = openVideoModal;
 window.closeVideoModal = closeVideoModal;
+window.openMobileLoginDrawer = openMobileLoginDrawer;
+window.closeMobileLoginDrawer = closeMobileLoginDrawer;
+window.toggleMobileCustomLogin = toggleMobileCustomLogin;
 
 // App Initialization on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
