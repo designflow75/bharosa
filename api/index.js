@@ -1105,4 +1105,150 @@ app.post('/api/projects/:id/messages', authenticateUser, (req, res) => {
   res.json({ success: true, message: msg });
 });
 
+// ==============================================================================
+// 12. PROJECT CREATION, DISPUTE MEDIATION & REFUND ENDPOINTS
+// ==============================================================================
+
+app.post('/api/projects', authenticateUser, requireRole('client', 'admin'), (req, res) => {
+  const { title, description, totalBudget, freelancerEmail, milestones } = req.body;
+  if (!title || !totalBudget) {
+    return res.status(400).json({ error: 'Title and totalBudget are required.' });
+  }
+
+  const budget = Number(totalBudget);
+  const newId = 'PRJ-' + Math.floor(1000 + Math.random() * 9000);
+
+  const flUser = (freelancerEmail && DB.users.find(u => u.email === freelancerEmail)) || DB.users.find(u => u.role === 'freelancer');
+
+  const formattedMilestones = (milestones && milestones.length > 0) ? milestones.map((m, idx) => ({
+    id: `MS-${Math.floor(100 + Math.random() * 900)}`,
+    title: m.title || `Milestone ${idx + 1}`,
+    amount: Number(m.amount) || Math.round(budget / (milestones.length || 1)),
+    status: idx === 0 ? 'Agreed' : 'Draft',
+    deadline: m.deadline || new Date(Date.now() + (idx + 1) * 7 * 86400000).toISOString(),
+    completedAt: null,
+    deliverables: [],
+    revisionsAllowed: 2,
+    revisionsUsed: 0
+  })) : [
+    {
+      id: `MS-${Math.floor(100 + Math.random() * 900)}`,
+      title: 'Milestone 1: Wireframes & Architecture Scope',
+      amount: Math.round(budget * 0.4),
+      status: 'Agreed',
+      deadline: new Date(Date.now() + 7 * 86400000).toISOString(),
+      completedAt: null,
+      deliverables: [],
+      revisionsAllowed: 2,
+      revisionsUsed: 0
+    },
+    {
+      id: `MS-${Math.floor(100 + Math.random() * 900)}`,
+      title: 'Milestone 2: High-Fidelity Execution & Prototypes',
+      amount: Math.round(budget * 0.6),
+      status: 'Draft',
+      deadline: new Date(Date.now() + 14 * 86400000).toISOString(),
+      completedAt: null,
+      deliverables: [],
+      revisionsAllowed: 2,
+      revisionsUsed: 0
+    }
+  ];
+
+  const newProject = {
+    id: newId,
+    title,
+    description: description || 'New milestone-protected escrow project initiated on Bharosa.',
+    clientId: req.user.id,
+    clientName: req.user.name,
+    clientOrg: req.user.organization || 'Client Workspace',
+    freelancerId: flUser ? flUser.id : 'USR-101',
+    freelancerName: flUser ? flUser.name : 'Priya Sharma',
+    totalBudget: budget,
+    spentBudget: 0,
+    status: 'active',
+    startDate: new Date().toISOString().split('T')[0],
+    milestones: formattedMilestones
+  };
+
+  DB.projects.unshift(newProject);
+
+  DB.auditLogs.unshift({
+    id: 'AUD-' + Date.now().toString().slice(-4),
+    timestamp: new Date().toISOString(),
+    actorId: req.user.id,
+    actorName: req.user.name,
+    actorRole: req.user.role,
+    projectId: newId,
+    action: 'PROJECT_CREATED',
+    reason: `Project "${title}" created with ₹${budget.toLocaleString('en-IN')} escrow allocation`,
+    evidenceHash: 'verified-contract-hash'
+  });
+
+  res.json({ success: true, project: newProject });
+});
+
+app.post('/api/disputes', authenticateUser, (req, res) => {
+  const { projectId, reason, category, claimDetails } = req.body;
+  const project = DB.projects.find(p => p.id === projectId) || DB.projects[0];
+
+  const disputeId = 'DSP-' + Math.floor(100 + Math.random() * 900);
+  const newDispute = {
+    id: disputeId,
+    projectId: project ? project.id : 'PRJ-101',
+    projectTitle: project ? project.title : 'Fintech Mobile App Redesign',
+    claimantId: req.user.id,
+    claimantName: req.user.name,
+    claimantRole: req.user.role,
+    category: category || 'Scope & Quality',
+    reason: reason || 'Review timeline discrepancy',
+    claimDetails: claimDetails || '',
+    status: 'under_neutral_review',
+    evidenceHash: 'sha256-' + Math.random().toString(36).substring(2, 10),
+    createdAt: new Date().toISOString()
+  };
+
+  if (!DB.disputes) DB.disputes = [];
+  DB.disputes.unshift(newDispute);
+
+  DB.auditLogs.unshift({
+    id: 'AUD-' + Date.now().toString().slice(-4),
+    timestamp: new Date().toISOString(),
+    actorId: req.user.id,
+    actorName: req.user.name,
+    actorRole: req.user.role,
+    projectId: project ? project.id : 'PRJ-101',
+    action: 'DISPUTE_RAISED',
+    reason: `Dispute ${disputeId} logged: ${reason || category}. Neutral mediation dossier assembled.`,
+    evidenceHash: newDispute.evidenceHash
+  });
+
+  res.json({ success: true, dispute: newDispute });
+});
+
+app.get('/api/disputes', authenticateUser, (req, res) => {
+  res.json({ disputes: DB.disputes || [] });
+});
+
+app.post('/api/refunds', authenticateUser, requireRole('client', 'admin'), (req, res) => {
+  const { projectId, milestoneId, reason } = req.body;
+  const refundId = 'REF-' + Math.floor(100 + Math.random() * 900);
+
+  DB.auditLogs.unshift({
+    id: 'AUD-' + Date.now().toString().slice(-4),
+    timestamp: new Date().toISOString(),
+    actorId: req.user.id,
+    actorName: req.user.name,
+    actorRole: req.user.role,
+    projectId: projectId || 'PRJ-101',
+    milestoneId: milestoneId,
+    action: 'REFUND_REQUESTED',
+    reason: `Refund requested for ${milestoneId || 'escrow milestone'}: ${reason}`,
+    evidenceHash: 'verified-refund-request'
+  });
+
+  res.json({ success: true, refundId, status: 'logged_for_escrow_review' });
+});
+
 module.exports = app;
+

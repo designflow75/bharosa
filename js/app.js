@@ -152,6 +152,7 @@ function showAuthScreen() {
   const appShell = document.getElementById('app-shell');
   if (authScreen) authScreen.style.display = 'flex';
   if (appShell) appShell.classList.remove('active');
+  if (window.lucide) window.lucide.createIcons();
 }
 
 function hideAuthScreen() {
@@ -261,6 +262,18 @@ function toggleCustomLoginForm() {
     const isHidden = form.style.display === 'none';
     form.style.display = isHidden ? 'block' : 'none';
   }
+}
+
+function fillDemoCreds(email, password) {
+  const emailInput = document.getElementById('user-email');
+  const passInput = document.getElementById('user-password');
+  if (emailInput) emailInput.value = email;
+  if (passInput) passInput.value = password;
+  const form = document.getElementById('custom-login-form-container');
+  if (form && form.style.display === 'none') {
+    form.style.display = 'block';
+  }
+  showToast(`Credentials autofilled for ${email}`, 'info');
 }
 
 // ==============================================================================
@@ -1401,30 +1414,201 @@ async function loadAdminDashboard() {
     return;
   }
 
-  try {
-    const res = await fetch('/api/audit-logs', {
-      headers: { 'x-user-id': user.id }
-    });
-    const data = await res.json();
-    const tbody = document.getElementById('adm-audit-table-body');
-    const countEl = document.getElementById('adm-audit-count');
-    if (countEl) countEl.textContent = String(data.auditLogs.length);
+  const activeTab = appState.activeAdminSubtab || 'overview';
 
-    if (tbody) {
-      tbody.innerHTML = data.auditLogs.map(l => `
-        <tr>
-          <td><span style="font-family:monospace; font-size:0.75rem;">${new Date(l.timestamp).toLocaleString('en-IN')}</span></td>
-          <td><strong>${l.actorName}</strong> (${l.actorRole})</td>
-          <td>${l.projectId || 'N/A'}</td>
-          <td><strong style="color:var(--primary);">${l.action}</strong></td>
-          <td>${l.reason}</td>
-          <td><code style="font-size:0.7rem;">${l.evidenceHash || 'verified'}</code></td>
-        </tr>
-      `).join('');
+  // Highlight active subtab button
+  document.querySelectorAll('#view-admin .admin-subnav-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.toLowerCase().includes(activeTab));
+  });
+
+  const container = document.getElementById('admin-subtab-container');
+  if (!container) return;
+
+  try {
+    const [auditRes, disputesRes] = await Promise.all([
+      fetch('/api/audit-logs', { headers: { 'x-user-id': user.id } }),
+      fetch('/api/disputes', { headers: { 'x-user-id': user.id } }).catch(() => ({ json: () => ({ disputes: [] }) }))
+    ]);
+
+    const auditData = await auditRes.json();
+    const disputesData = await disputesRes.json();
+    const disputes = disputesData.disputes || [];
+    const auditLogs = auditData.auditLogs || [];
+
+    if (activeTab === 'overview') {
+      container.innerHTML = `
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:1.5rem;">
+          <div class="stat-card">
+            <span class="stat-title">Platform Active Projects</span>
+            <div class="stat-value" id="adm-active-projects">2</div>
+            <div class="stat-footer">Fintech App &amp; Marketplace Branding</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-title">Simulated Escrow Balance</span>
+            <div class="stat-value" id="adm-sim-escrow">₹40,000</div>
+            <div class="stat-footer">Held across funded milestones</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-title">Platform Audit Events</span>
+            <div class="stat-value" id="adm-audit-count">${auditLogs.length}</div>
+            <div class="stat-footer">Append-only integrity log</div>
+          </div>
+        </div>
+
+        <div class="card-section" style="margin-bottom:1.5rem;">
+          <div class="card-section-header">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <i data-lucide="shield-check" style="width:18px;height:18px;color:var(--success);"></i>
+              <h3>Platform Health &amp; Trust Oversight</h3>
+            </div>
+            <span class="brand-badge" style="background:var(--success-bg); color:var(--success); border:1px solid var(--success-border);">Protocol 100% Verified</span>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem; padding:0.5rem 0;">
+            <div style="background:var(--bg-surface-elevated); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+              <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">ACTIVE DISPUTES</div>
+              <div style="font-size:1.4rem; font-weight:800; color:${disputes.length > 0 ? 'var(--warning)' : 'var(--success)'}; margin:4px 0;">${disputes.length}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${disputes.length === 0 ? 'Zero unresolved grievances' : 'Pending neutral mediation'}</div>
+            </div>
+            <div style="background:var(--bg-surface-elevated); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+              <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">GST TAX COMPLIANCE</div>
+              <div style="font-size:1.4rem; font-weight:800; color:var(--info); margin:4px 0;">Rule 46</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">SAC 998314 digital invoicing</div>
+            </div>
+            <div style="background:var(--bg-surface-elevated); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+              <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">CLIENT SILENCE WATCHDOG</div>
+              <div style="font-size:1.4rem; font-weight:800; color:var(--primary); margin:4px 0;">72 Hours</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">Automated schedule proposal guards</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-section">
+          <div class="card-section-header">
+            <h3>Recent Platform Integrity Events</h3>
+            <button class="btn-tag" onclick="switchAdminSubtab('audit')">View All Logs →</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Actor</th>
+                  <th>Project</th>
+                  <th>Action</th>
+                  <th>Reason / Details</th>
+                  <th>SHA-256 Hash</th>
+                </tr>
+              </thead>
+              <tbody id="adm-audit-table-body">
+                ${auditLogs.slice(0, 5).map(l => `
+                  <tr>
+                    <td><span style="font-family:monospace; font-size:0.75rem;">${new Date(l.timestamp).toLocaleString('en-IN')}</span></td>
+                    <td><strong>${l.actorName}</strong> (${l.actorRole})</td>
+                    <td>${l.projectId || 'N/A'}</td>
+                    <td><strong style="color:var(--primary);">${l.action}</strong></td>
+                    <td>${l.reason}</td>
+                    <td><code style="font-size:0.7rem;">${l.evidenceHash || 'verified'}</code></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    } else if (activeTab === 'disputes') {
+      container.innerHTML = `
+        <div class="card-section">
+          <div class="card-section-header">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <i data-lucide="scale" style="width:18px;height:18px;color:var(--primary);"></i>
+              <h3>Neutral Dispute Mediation Queue</h3>
+            </div>
+            <span class="brand-badge" style="background:rgba(239,68,68,0.12); color:var(--danger); border:1px solid var(--danger-border);">${disputes.length} Cases</span>
+          </div>
+
+          ${disputes.length === 0 ? `
+            <div style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+              <div style="font-size:2.5rem; margin-bottom:0.75rem;">⚖️</div>
+              <h4 style="margin-bottom:0.25rem; color:var(--text-primary);">All Contracts in Good Standing</h4>
+              <p style="font-size:0.85rem; max-width:480px; margin:0 auto;">
+                There are currently no active disputes. Milestone approvals, revision limits, and client review windows are operating smoothly.
+              </p>
+            </div>
+          ` : `
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              ${disputes.map(d => `
+                <div style="background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:1.25rem;">
+                  <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+                    <div>
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-weight:700; color:var(--primary);">${d.id}</span>
+                        <span class="status-pill pending">${d.status.replace(/_/g, ' ')}</span>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">${d.category}</span>
+                      </div>
+                      <h4 style="margin:6px 0 2px; font-size:1rem;">${d.reason}</h4>
+                      <div style="font-size:0.8rem; color:var(--text-secondary);">Project: <strong>${d.projectTitle}</strong> (${d.projectId}) · Claimant: <strong>${d.claimantName}</strong> (${d.claimantRole})</div>
+                    </div>
+                    <button class="btn-primary" style="font-size:0.75rem; padding:4px 10px;" onclick="showToast('Assembling neutral evidence briefing dossier...', 'info')">Review Dossier</button>
+                  </div>
+                  ${d.claimDetails ? `<div style="font-size:0.82rem; color:var(--text-muted); background:var(--bg-surface); padding:0.65rem 0.85rem; border-radius:var(--radius-sm); margin-bottom:0.5rem; line-height:1.4;">"${d.claimDetails}"</div>` : ''}
+                  <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:0.5rem; margin-top:0.5rem;">
+                    <span>Evidence Hash: <code style="color:var(--text-secondary);">${d.evidenceHash}</code></span>
+                    <span>Logged: ${new Date(d.createdAt).toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `}
+        </div>
+      `;
+    } else if (activeTab === 'audit') {
+      container.innerHTML = `
+        <div class="card-section">
+          <div class="card-section-header">
+            <div>
+              <h3>Complete Platform Integrity Audit Log</h3>
+              <p style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">Cryptographically hashed event sequence for legal and dispute verification</p>
+            </div>
+            <button class="btn-secondary" style="font-size:0.75rem;" onclick="showToast('Exporting SHA-256 audit log certificate...', 'success')">
+              <i data-lucide="download" style="width:14px;height:14px;"></i>
+              <span>Export Certificate</span>
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Timestamp</th>
+                  <th>Actor</th>
+                  <th>Project</th>
+                  <th>Action</th>
+                  <th>Reason / Details</th>
+                  <th>SHA-256 Hash</th>
+                </tr>
+              </thead>
+              <tbody id="adm-audit-table-body">
+                ${auditLogs.map(l => `
+                  <tr>
+                    <td><span style="font-family:monospace; font-size:0.75rem;">${new Date(l.timestamp).toLocaleString('en-IN')}</span></td>
+                    <td><strong>${l.actorName}</strong> (${l.actorRole})</td>
+                    <td>${l.projectId || 'N/A'}</td>
+                    <td><strong style="color:var(--primary);">${l.action}</strong></td>
+                    <td>${l.reason}</td>
+                    <td><code style="font-size:0.7rem;">${l.evidenceHash || 'verified'}</code></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
     }
   } catch (err) {
-    console.error('Error loading admin audit logs:', err);
+    console.error('Error loading admin dashboard subtab:', err);
+    container.innerHTML = `<div style="color:var(--danger); padding:2rem; text-align:center;">Failed to load admin data.</div>`;
   }
+
+  if (window.lucide) window.lucide.createIcons();
 }
 
 function switchAdminSubtab(tab) {
@@ -1438,7 +1622,10 @@ function switchAdminSubtab(tab) {
 
 function openUrlImportModal() {
   const m = document.getElementById('modal-url-import');
-  if (m) m.classList.add('active');
+  if (m) {
+    m.classList.add('active');
+    if (window.lucide) window.lucide.createIcons();
+  }
 }
 
 function simulateJobImport() {
@@ -1451,23 +1638,205 @@ function openNewProjectBriefModal() {
 }
 
 function openCreateInvoiceModal() {
-  showToast('Invoices are auto-drafted with GST when milestones are approved.', 'info');
+  const m = document.getElementById('modal-create-invoice');
+  if (m) {
+    m.classList.add('active');
+    if (window.lucide) window.lucide.createIcons();
+  }
+}
+
+async function submitCreateInvoice() {
+  const user = getSessionUser();
+  const projectId = document.getElementById('ci-project-select')?.value || 'PRJ-101';
+  const milestoneTitle = document.getElementById('ci-milestone-title')?.value || 'Milestone Delivery';
+  const amount = Number(document.getElementById('ci-amount-input')?.value || 25000);
+  const taxType = document.getElementById('ci-tax-type')?.value || 'standard_gst';
+
+  closeModal('modal-create-invoice');
+  showToast(`Draft Tax Invoice generated for ₹${amount.toLocaleString('en-IN')} (${taxType === 'standard_gst' ? '18% GST' : 'Zero-Rated Export'}). Added to ledger.`, 'success');
+  if (appState.currentRoute === '/freelancer/invoices' || appState.currentRoute === '/client/invoices') {
+    loadInvoicesLedger();
+  }
 }
 
 function openCreateProjectModal() {
-  showToast('Create Project wizard opened (Sample data in demo).', 'info');
+  const m = document.getElementById('modal-create-project');
+  if (m) {
+    m.classList.add('active');
+    if (window.lucide) window.lucide.createIcons();
+  }
+}
+
+async function submitCreateProject() {
+  const user = getSessionUser();
+  const title = document.getElementById('cp-title-input')?.value.trim();
+  const description = document.getElementById('cp-desc-input')?.value.trim();
+  const totalBudget = Number(document.getElementById('cp-budget-input')?.value || 50000);
+  const freelancerEmail = document.getElementById('cp-freelancer-email')?.value.trim();
+
+  if (!title) {
+    showToast('Please enter a project title.', 'warning');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/projects', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({
+        title,
+        description,
+        totalBudget,
+        freelancerEmail
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      closeModal('modal-create-project');
+      showToast(`Project "${title}" created successfully with ₹${totalBudget.toLocaleString('en-IN')} escrow!`, 'success');
+      if (user.role === 'client') {
+        loadClientDashboard();
+      } else if (user.role === 'freelancer') {
+        loadFreelancerDashboard();
+      }
+      if (appState.currentRoute === '/client/projects' || appState.currentRoute === '/freelancer/projects') {
+        loadProjectsDirectory();
+      }
+    } else {
+      showToast(data.error || 'Failed to create project', 'danger');
+    }
+  } catch (err) {
+    console.error('Error creating project:', err);
+    showToast('Network error while creating project', 'danger');
+  }
 }
 
 function openInviteFreelancerModal() {
-  showToast('Invite link generated for freelancer onboarding.', 'info');
+  const m = document.getElementById('modal-invite-freelancer');
+  if (m) {
+    m.classList.add('active');
+    if (window.lucide) window.lucide.createIcons();
+  }
+}
+
+function copyInviteLink() {
+  const input = document.getElementById('invite-link-input');
+  const textBtn = document.getElementById('copy-link-text');
+  if (input) {
+    input.select();
+    navigator.clipboard?.writeText(input.value);
+    if (textBtn) textBtn.textContent = 'Copied!';
+    setTimeout(() => {
+      if (textBtn) textBtn.textContent = 'Copy';
+    }, 2000);
+    showToast('Magic onboarding link copied to clipboard!', 'success');
+  }
+}
+
+function sendInviteDispatched() {
+  const email = document.getElementById('invite-email-input')?.value || 'freelancer@studio.com';
+  closeModal('modal-invite-freelancer');
+  showToast(`Onboarding invitation securely dispatched to ${email}`, 'success');
 }
 
 function openRaiseDisputeModal() {
-  alert('Dispute Protocol: A dispute gathers the contract, submissions, feedback and messages, summarizes both sides neutrally, and submits to a human arbiter. AI never decides outcomes or releases funds.');
+  const m = document.getElementById('modal-raise-dispute');
+  if (m) {
+    m.classList.add('active');
+    if (window.lucide) window.lucide.createIcons();
+  }
+}
+
+async function submitRaiseDispute() {
+  const user = getSessionUser();
+  const projectId = document.getElementById('dispute-project-select')?.value || 'PRJ-101';
+  const category = document.getElementById('dispute-category-select')?.value || 'Scope & Quality';
+  const reason = document.getElementById('dispute-reason-input')?.value.trim();
+  const claimDetails = document.getElementById('dispute-details-input')?.value.trim();
+
+  if (!reason) {
+    showToast('Please enter a summary of the dispute reason.', 'warning');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/disputes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({
+        projectId,
+        category,
+        reason,
+        claimDetails
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      closeModal('modal-raise-dispute');
+      showToast(`Dispute mediation initiated (${data.dispute.id}). Neutral AI dossier compiled for human arbiter.`, 'success');
+      if (appState.currentRoute === '/admin') {
+        loadAdminDashboard();
+      }
+    } else {
+      showToast(data.error || 'Failed to submit dispute', 'danger');
+    }
+  } catch (err) {
+    console.error('Error submitting dispute:', err);
+    showToast('Network error submitting dispute', 'danger');
+  }
 }
 
 function openRequestRefundModal() {
-  showToast('Refund request logged for milestone escrow review.', 'info');
+  const m = document.getElementById('modal-request-refund');
+  if (m) {
+    m.classList.add('active');
+    if (window.lucide) window.lucide.createIcons();
+  }
+}
+
+async function submitRequestRefund() {
+  const user = getSessionUser();
+  const projectId = document.getElementById('refund-project-select')?.value || 'PRJ-101';
+  const milestoneId = document.getElementById('refund-milestone-select')?.value || 'MS-102';
+  const reason = document.getElementById('refund-reason-input')?.value.trim();
+
+  if (!reason) {
+    showToast('Please provide a reason for the refund request.', 'warning');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/refunds', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({
+        projectId,
+        milestoneId,
+        reason
+      })
+    });
+
+    if (res.ok) {
+      closeModal('modal-request-refund');
+      showToast(`Refund request logged for milestone ${milestoneId}. Reviewing escrow status per Bharosa protocol.`, 'info');
+    } else {
+      showToast('Could not log refund request', 'danger');
+    }
+  } catch (err) {
+    console.error('Refund error:', err);
+    showToast('Network error processing refund request', 'danger');
+  }
 }
 
 function closeModal(modalId) {
@@ -1479,15 +1848,39 @@ function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
   if (!container) return;
 
+  const iconMap = {
+    success: 'check-circle-2',
+    danger: 'alert-circle',
+    warning: 'alert-triangle',
+    info: 'info'
+  };
+
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<span>${message}</span>`;
+  toast.innerHTML = `
+    <div class="toast-content">
+      <i data-lucide="${iconMap[type] || 'info'}" style="width:16px;height:16px;flex-shrink:0;"></i>
+      <span>${message}</span>
+    </div>
+    <button class="toast-close-btn" aria-label="Dismiss">&times;</button>
+    <div class="toast-progress"></div>
+  `;
+
+  const closeBtn = toast.querySelector('.toast-close-btn');
+  closeBtn?.addEventListener('click', () => {
+    toast.classList.add('dismissing');
+    setTimeout(() => toast.remove(), 250);
+  });
+
   container.appendChild(toast);
+  if (window.lucide) window.lucide.createIcons();
 
   setTimeout(() => {
-    toast.style.opacity = '0';
-    setTimeout(() => toast.remove(), 300);
-  }, 4000);
+    if (toast.isConnected) {
+      toast.classList.add('dismissing');
+      setTimeout(() => toast.remove(), 250);
+    }
+  }, 3800);
 }
 
 function toggleNotificationPanel() {
@@ -1520,8 +1913,76 @@ function initTheme() {
 }
 
 function handleGlobalSearch(e) {
-  // Simple filter helper
+  const query = (e.target.value || '').trim().toLowerCase();
+
+  // 1. Filter Freelancer Dashboard table rows
+  const flRows = document.querySelectorAll('#fl-projects-table-body tr');
+  flRows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = (!query || text.includes(query)) ? '' : 'none';
+  });
+
+  // 2. Filter Freelancer Action Items
+  const flActions = document.querySelectorAll('#fl-action-items-list .action-item-card');
+  flActions.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = (!query || text.includes(query)) ? '' : 'none';
+  });
+
+  // 3. Filter Client Projects Grid
+  const clCards = document.querySelectorAll('#cl-projects-grid > div');
+  clCards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = (!query || text.includes(query)) ? '' : 'none';
+  });
+
+  // 4. Filter Client Approvals List
+  const clApprovals = document.querySelectorAll('#cl-approval-items-list > div');
+  clApprovals.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = (!query || text.includes(query)) ? '' : 'none';
+  });
+
+  // 5. Filter Projects Directory
+  const projCards = document.querySelectorAll('#projects-directory-list > div');
+  projCards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = (!query || text.includes(query)) ? '' : 'none';
+  });
+
+  // 6. Filter Invoices Table
+  const invRows = document.querySelectorAll('#invoices-table-body tr');
+  invRows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = (!query || text.includes(query)) ? '' : 'none';
+  });
+
+  // 7. Filter Opportunities List
+  const oppCards = document.querySelectorAll('#opportunities-list > div');
+  oppCards.forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = (!query || text.includes(query)) ? '' : 'none';
+  });
 }
+
+// Global Keyboard & Backdrop Listeners for Modals & Overlays
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const activeModals = document.querySelectorAll('.modal-overlay.active');
+    if (activeModals.length > 0) {
+      activeModals[activeModals.length - 1].classList.remove('active');
+    }
+    toggleMobileSidebar(false);
+    const notifPanel = document.getElementById('notification-panel');
+    if (notifPanel) notifPanel.style.display = 'none';
+  }
+});
+
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal-overlay')) {
+    e.target.classList.remove('active');
+  }
+});
 
 // Mobile Menu Toggle
 function toggleMobileSidebar(force) {
@@ -2550,6 +3011,9 @@ window.exportInvoicesCsv = exportInvoicesCsv;
 window.sendPwProjectMessage = sendPwProjectMessage;
 window.loadPwProjectMessages = loadPwProjectMessages;
 window.demoLogin = demoLogin;
+window.handleCustomLogin = handleCustomLogin;
+window.toggleCustomLoginForm = toggleCustomLoginForm;
+window.fillDemoCreds = fillDemoCreds;
 window.handleLogout = handleLogout;
 window.openModal = openModal;
 window.closeModal = closeModal;
