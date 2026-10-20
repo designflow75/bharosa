@@ -6,8 +6,8 @@
   <title>Bharosa OS — Autonomous Escrow & Workspace System</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Stitch Typography: Plus Jakarta Sans (Headings), Inter (Body & UI), JetBrains Mono (Financial & Audit Data) -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Stitch & Landing Typography: Plus Jakarta Sans (Headings), Inter (Body & UI), JetBrains Mono (Data), Caveat (Script) -->
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
   <meta name="theme-color" content="#090d16">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -46,316 +46,553 @@
   <!-- ======================================================================
        1. AUTHENTICATION & DEMO LOGIN SCREEN
        ====================================================================== -->
-  <div id="auth-screen" class="auth-wrapper">
-    <!-- Ambient glowing backdrop orbs -->
-    <div class="auth-ambient-orb orb-1"></div>
-    <div class="auth-ambient-orb orb-2"></div>
-    <div class="auth-ambient-orb orb-3"></div>
+  <div id="auth-screen" class="auth-wrapper bharosa-landing-root">
+    <!-- Ambient glowing backdrops -->
+    <div class="landing-ambient-glow glow-top-left"></div>
+    <div class="landing-ambient-glow glow-center-shield"></div>
+    <div class="landing-ambient-glow glow-bottom-right"></div>
 
-    <div class="auth-card">
-      <!-- Left Hero Pane: Trust, Escrow & Platform Architecture -->
-      <div class="auth-hero-pane">
-        <div class="auth-hero-content">
-          <!-- Brand Header -->
-          <div class="auth-brand">
-            <div class="brand-icon-glow">
-              <span class="brand-icon">भ</span>
-            </div>
-            <div class="brand-text">
-              <div class="brand-title-row">
-                <h1>Bharosa OS</h1>
-                <span class="live-pill"><span class="pulse-dot"></span>ACTIVE PROTOCOL</span>
-              </div>
-              <span class="brand-badge">Project Protection & Milestone Escrow</span>
-            </div>
-          </div>
-
-          <!-- Hero Tagline Banner -->
-          <div class="auth-hero-banner">
-            <div class="banner-pill">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:#38bdf8;">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                <path d="m9 12 2 2 4-4"/>
-              </svg>
-              <span>Clear deliverables. Safe escrow vaults. Fair revision controls.</span>
-            </div>
-          </div>
-
-          <!-- Live Escrow Trust Stats Bar -->
-          <div class="auth-trust-strip">
-            <div class="trust-stat-box">
-              <span class="ts-num">₹14.8L+</span>
-              <span class="ts-lbl">Secured in Escrow</span>
-            </div>
-            <div class="trust-stat-divider"></div>
-            <div class="trust-stat-box">
-              <span class="ts-num">100%</span>
-              <span class="ts-lbl">Milestone Release SLA</span>
-            </div>
-            <div class="trust-stat-divider"></div>
-            <div class="trust-stat-box">
-              <span class="ts-num">72 Hours</span>
-              <span class="ts-lbl">Silence Protection</span>
-            </div>
-          </div>
-
-          <!-- 4 Core Platform Pillars with Custom Attractive Glowing Icons -->
-          <div class="auth-value-props">
-            <!-- 1. Role-Separated Workspaces -->
-            <div class="value-prop-item">
-              <div class="value-prop-icon icon-indigo">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                  <line x1="12" y1="3" x2="12" y2="17"/>
-                  <line x1="8" y1="21" x2="16" y2="21"/>
-                  <line x1="12" y1="17" x2="12" y2="21"/>
-                  <path d="M6 8h4"/>
-                  <path d="M14 8h4"/>
-                  <path d="M6 11h2"/>
-                  <path d="M14 11h2"/>
-                </svg>
-              </div>
-              <div class="value-prop-text">
-                <div class="vp-title-row">
-                  <h4>Role-Separated Workspaces</h4>
-                  <span class="vp-badge badge-indigo">Dual-Sided RBAC</span>
-                </div>
-                <p>Freelancers see verified deliverables and earnings. Clients see project velocity and approval queues with strict permission boundaries.</p>
-              </div>
-            </div>
-
-            <!-- 2. 72-Hour Client Silence Protection -->
-            <div class="value-prop-item">
-              <div class="value-prop-icon icon-amber">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                  <circle cx="12" cy="11" r="4"/>
-                  <polyline points="12 9 12 11 14 12"/>
-                </svg>
-              </div>
-              <div class="value-prop-text">
-                <div class="vp-title-row">
-                  <h4>72-Hour Client Silence Protection</h4>
-                  <span class="vp-badge badge-amber">Anti-Ghosting SLA</span>
-                </div>
-                <p>Automated reminders with schedule freezes. If a client goes silent, deadlines auto-adjust and milestones protect freelancers from unpaid delays.</p>
-              </div>
-            </div>
-
-            <!-- 3. Revision & Scope Clarity -->
-            <div class="value-prop-item">
-              <div class="value-prop-icon icon-emerald">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                  <path d="m9 15 2 2 4-4"/>
-                  <line x1="8" y1="10" x2="12" y2="10"/>
-                </svg>
-              </div>
-              <div class="value-prop-text">
-                <div class="vp-title-row">
-                  <h4>Revision & Scope Clarity</h4>
-                  <span class="vp-badge badge-emerald">Zero Scope Creep</span>
-                </div>
-                <p>Revisions count strictly toward agreed caps. Out-of-scope work requires explicit client-approved digital amendments with automated fee adjustments.</p>
-              </div>
-            </div>
-
-            <!-- 4. Safe Escrow & Milestone Payments (User Requested!) -->
-            <div class="value-prop-item">
-              <div class="value-prop-icon icon-purple">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                  <circle cx="12" cy="16.5" r="1.5"/>
-                  <path d="M12 18v2"/>
-                </svg>
-              </div>
-              <div class="value-prop-text">
-                <div class="vp-title-row">
-                  <h4>Safe Milestone Escrow & Instant Payouts</h4>
-                  <span class="vp-badge badge-purple">100% Protected Escrow</span>
-                </div>
-                <p>Clients fund milestones into an upfront escrow vault before work starts. Payouts release automatically upon deliverable sign-off with zero payment risk.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Trust & Cryptographic Seal Footer -->
-        <div class="auth-trust-quote">
-          <div class="trust-quote-badges">
-            <span class="tq-badge">🔒 SHA-256 Hashes</span>
-            <span class="tq-badge">⚡ Instant Escrow Payouts</span>
-            <span class="tq-badge">📑 GST Invoices</span>
-          </div>
-          <p>"All deliverables cryptographically hashed for dispute-free integrity. Escrow payments protected under Indian Contract Act."</p>
-          <div class="trust-author">
-            — Bharosa Autonomous Governance Engine
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Form Pane: Interactive Role Selector -->
-      <div class="auth-form-pane">
-        <div class="auth-form-header">
-          <span class="form-kicker">Instant Demo Authentication</span>
-          <h2>Select Role to Enter</h2>
-          <p>Choose a pre-configured verified persona or log in with credentials</p>
-        </div>
-
-        <!-- Role-based Demo Login Cards -->
-        <div class="one-click-role-grid">
-          <!-- Freelancer Card -->
-          <div class="one-click-role-btn role-btn-freelancer" onclick="demoLogin('freelancer')" title="Enter Freelancer Workspace">
-            <div class="role-card-accent"></div>
-            <div class="role-info">
-              <div class="role-avatar-wrapper avatar-fl">
-                <span class="role-avatar">👩‍💻</span>
-                <span class="avatar-status-dot dot-green"></span>
-              </div>
-              <div class="role-meta">
-                <div class="role-title-line">
-                  <h4>Freelancer Workspace</h4>
-                  <span class="role-chip chip-green">● Ready</span>
-                </div>
-                <p class="role-user-name">Priya Sharma <span class="role-sub">Senior Product Designer</span></p>
-                <div class="role-detail-pill">
-                  <span>💼 4 Active Milestones</span>
-                  <span class="pill-dot">•</span>
-                  <span class="pill-highlight">₹1,20,000 in Escrow</span>
-                </div>
-              </div>
-            </div>
-            <div class="role-enter-arrow">
-              <span>Launch</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="arrow-svg">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </div>
-          </div>
-
-          <!-- Client Card -->
-          <div class="one-click-role-btn role-btn-client" onclick="demoLogin('client')" title="Enter Client Portal">
-            <div class="role-card-accent"></div>
-            <div class="role-info">
-              <div class="role-avatar-wrapper avatar-cl">
-                <span class="role-avatar">💼</span>
-                <span class="avatar-status-dot dot-cyan"></span>
-              </div>
-              <div class="role-meta">
-                <div class="role-title-line">
-                  <h4>Client Portal</h4>
-                  <span class="role-chip chip-cyan">● Ready</span>
-                </div>
-                <p class="role-user-name">Rahul Verma <span class="role-sub">GrowthNest Media</span></p>
-                <div class="role-detail-pill">
-                  <span>⏳ 2 Approvals Pending</span>
-                  <span class="pill-dot">•</span>
-                  <span class="pill-highlight">₹85,000 Funded</span>
-                </div>
-              </div>
-            </div>
-            <div class="role-enter-arrow">
-              <span>Launch</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="arrow-svg">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </div>
-          </div>
-
-          <!-- Admin Card -->
-          <div class="one-click-role-btn role-btn-admin" onclick="demoLogin('admin')" title="Enter Admin & Operations Console">
-            <div class="role-card-accent"></div>
-            <div class="role-info">
-              <div class="role-avatar-wrapper avatar-adm">
-                <span class="role-avatar">👑</span>
-                <span class="avatar-status-dot dot-purple"></span>
-              </div>
-              <div class="role-meta">
-                <div class="role-title-line">
-                  <h4>Platform Arbiter</h4>
-                  <span class="role-chip chip-purple">● Operations</span>
-                </div>
-                <p class="role-user-name">Admin Console <span class="role-sub">Dispute Resolution & Audit</span></p>
-                <div class="role-detail-pill">
-                  <span>⚖️ 72h Silence Audits</span>
-                  <span class="pill-dot">•</span>
-                  <span class="pill-highlight">GST & Escrow Logs</span>
-                </div>
-              </div>
-            </div>
-            <div class="role-enter-arrow">
-              <span>Console</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="arrow-svg">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <!-- Collapsible Custom Sign-In -->
-        <div class="custom-creds-toggle-wrap">
-          <button type="button" class="btn-toggle-custom" onclick="toggleCustomLoginForm()">
-            <span>Or sign in with custom credentials</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toggle-chevron">
-              <polyline points="6 9 12 15 18 9"></polyline>
+    <div class="landing-viewport-frame">
+      <!-- ================================================================
+           LEFT SIDEBAR: Navigation & Trust Pill
+           ================================================================ -->
+      <aside class="landing-sidebar">
+        <!-- Brand Logo & Name -->
+        <div class="landing-brand-block">
+          <div class="landing-brand-logo-shield">
+            <svg viewBox="0 0 38 44" class="sidebar-shield-svg" width="34" height="40">
+              <defs>
+                <linearGradient id="sbShieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#3b82f6"/>
+                  <stop offset="100%" stop-color="#1d4ed8"/>
+                </linearGradient>
+              </defs>
+              <path d="M19 2L4 7.5v13.5c0 12.5 6.5 19.5 15 22 8.5-2.5 15-9.5 15-22V7.5L19 2z" fill="url(#sbShieldGrad)"/>
+              <text x="19" y="27" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="18" fill="#ffffff">B</text>
             </svg>
+          </div>
+          <div class="landing-brand-titles">
+            <h2 class="lbt-title">Bharosa OS</h2>
+            <span class="lbt-sub">Built on Trust.</span>
+          </div>
+        </div>
+
+        <!-- Vertical Navigation Links -->
+        <nav class="landing-vertical-nav">
+          <a href="#home" class="lvn-item active" onclick="event.preventDefault(); window.scrollTo({top:0, behavior:'smooth'});">
+            <i data-lucide="home" class="lvn-icon"></i>
+            <span>Home</span>
+          </a>
+          <a href="#features-section" class="lvn-item" onclick="event.preventDefault(); document.getElementById('features-section')?.scrollIntoView({behavior:'smooth'});">
+            <i data-lucide="layout-grid" class="lvn-icon"></i>
+            <span>Features</span>
+          </a>
+          <a href="#security-card" class="lvn-item" onclick="event.preventDefault(); document.getElementById('security-card')?.scrollIntoView({behavior:'smooth'});">
+            <i data-lucide="shield-check" class="lvn-icon"></i>
+            <span>Security</span>
+          </a>
+          <a href="#bottom-strip" class="lvn-item" onclick="event.preventDefault(); document.getElementById('bottom-strip')?.scrollIntoView({behavior:'smooth'});">
+            <i data-lucide="info" class="lvn-icon"></i>
+            <span>About</span>
+          </a>
+        </nav>
+
+        <!-- Sidebar Bottom Trust Badge Card -->
+        <div class="landing-sidebar-bottom">
+          <div class="sidebar-trust-box">
+            <div class="stb-icon">
+              <i data-lucide="shield"></i>
+            </div>
+            <div class="stb-lines">
+              <span>Secure payments.</span>
+              <span>Verified work.</span>
+              <span>Happy clients.</span>
+            </div>
+            <div class="stb-progress-line"></div>
+            <div class="stb-meta">
+              <strong>Bharosa OS</strong>
+              <small>Built on Trust.</small>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ================================================================
+           MAIN STAGE: Top Bar + Center Content + Right Rail
+           ================================================================ -->
+      <div class="landing-main-stage">
+        <!-- Top Utility Header -->
+        <header class="landing-top-bar">
+          <div class="ltb-mobile-brand">
+            <svg viewBox="0 0 38 44" width="28" height="32">
+              <path d="M19 2L4 7.5v13.5c0 12.5 6.5 19.5 15 22 8.5-2.5 15-9.5 15-22V7.5L19 2z" fill="#2563eb"/>
+              <text x="19" y="27" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="18" fill="#ffffff">B</text>
+            </svg>
+            <span class="ltb-brand-text">Bharosa OS</span>
+          </div>
+
+          <div class="ltb-controls">
+            <!-- Theme Toggle Button -->
+            <button type="button" class="btn-ltb-theme" onclick="toggleTheme()" title="Toggle Theme" aria-label="Toggle Theme">
+              <i data-lucide="moon"></i>
+            </button>
+
+            <!-- Live Demo Green Pill -->
+            <button type="button" class="btn-ltb-live-demo" onclick="scrollToDemoRoles()" title="Try Live Demo">
+              <span class="live-dot-pulse"></span>
+              <span>Live Demo</span>
+            </button>
+
+            <!-- Header Login Gradient Button -->
+            <button type="button" class="btn-ltb-login" onclick="scrollToDemoRoles()" title="Login to Workspace">
+              <span>Login</span>
+              <i data-lucide="arrow-right"></i>
+            </button>
+          </div>
+        </header>
+
+        <!-- Dynamic Body: Center Column + Right Rail -->
+        <div class="landing-columns-wrap">
+          <!-- CENTER COLUMN: Hero Section + Key Features Grid -->
+          <div class="landing-center-column">
+            <!-- HERO CARD SECTION -->
+            <section id="home" class="landing-hero-card">
+              <div class="hero-left-pane">
+                <!-- Payment Protection Tag Pill -->
+                <div class="hero-protection-pill">
+                  <i data-lucide="shield" class="hpp-icon"></i>
+                  <span>Payment Protection for <strong>Freelancers</strong> &amp; <strong>Clients</strong></span>
+                </div>
+
+                <!-- Main Hero Headline -->
+                <h1 class="hero-main-title">
+                  Work Confidently.<br>
+                  Get Paid <span class="hero-gradient-securely">Securely.</span>
+                </h1>
+
+                <!-- Hero Subtitle Description -->
+                <p class="hero-description">
+                  Bharosa OS is a secure platform that protects both freelancers and clients with verified agreements, milestone payments, and transparent delivery tracking.
+                </p>
+
+                <!-- Hero Action CTAs -->
+                <div class="hero-action-row">
+                  <button type="button" class="btn-hero-primary-login" onclick="scrollToDemoRoles()">
+                    <i data-lucide="lock" class="btn-icon-lock"></i>
+                    <span>Login</span>
+                    <i data-lucide="arrow-right" class="btn-icon-arrow"></i>
+                  </button>
+
+                  <button type="button" class="btn-hero-watch-video" onclick="openVideoModal()">
+                    <i data-lucide="play" class="btn-icon-play fill-current"></i>
+                    <span>Watch 1 Min Video</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 3D GRAPHIC ARTWORK PANE (Glowing Shield + Pedestal + Floating Elements) -->
+              <div class="hero-right-pane">
+                <div class="shield-3d-stage">
+                  <!-- Floor perspective rays & pedestal rings -->
+                  <div class="pedestal-glow-ambient"></div>
+                  <div class="pedestal-floor-ring ring-outer"></div>
+                  <div class="pedestal-floor-ring ring-mid"></div>
+                  <div class="pedestal-floor-ring ring-inner"></div>
+
+                  <!-- Floating Milestone Pill (Top Right) -->
+                  <div class="floating-pill-milestone">
+                    <div class="fpm-avatar">
+                      <i data-lucide="user"></i>
+                    </div>
+                    <span>Milestone</span>
+                  </div>
+
+                  <!-- Central 3D Glowing Shield -->
+                  <div class="central-shield-emblem">
+                    <div class="shield-aura-glow"></div>
+                    <svg viewBox="0 0 110 130" class="hero-3d-shield-svg">
+                      <defs>
+                        <radialGradient id="shieldCenterGlow" cx="50%" cy="40%" r="60%">
+                          <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.95"/>
+                          <stop offset="45%" stop-color="#1d4ed8" stop-opacity="0.85"/>
+                          <stop offset="100%" stop-color="#0b1329" stop-opacity="0.95"/>
+                        </radialGradient>
+                        <linearGradient id="shieldNeonBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#7dd3fc"/>
+                          <stop offset="50%" stop-color="#38bdf8"/>
+                          <stop offset="100%" stop-color="#2563eb"/>
+                        </linearGradient>
+                        <filter id="neonShieldGlow" x="-20%" y="-20%" width="140%" height="140%">
+                          <feGaussianBlur stdDeviation="6" result="blur"/>
+                          <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                        </filter>
+                      </defs>
+                      <!-- Main Shield Path with Neon Stroke and High Tech Fill -->
+                      <path d="M55 6L14 20v38c0 33 19 53 41 60 22-7 41-27 41-60V20L55 6z"
+                            fill="url(#shieldCenterGlow)" stroke="url(#shieldNeonBorder)" stroke-width="3" filter="url(#neonShieldGlow)"/>
+                      <!-- Inner Inset Contour -->
+                      <path d="M55 16L24 27v31c0 25 14 41 31 47 17-6 31-22 31-47V27L55 16z"
+                            fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.2"/>
+                      <!-- Sleek Shield Ribs / Energy Highlights -->
+                      <line x1="55" y1="16" x2="55" y2="95" stroke="rgba(56,189,248,0.3)" stroke-width="1"/>
+                    </svg>
+
+                    <!-- Center Shield Padlock -->
+                    <div class="shield-central-lock">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <!-- Floating "Project Agreement" Card -->
+                  <div class="floating-agreement-card">
+                    <div class="fac-header">Project Agreement</div>
+                    <div class="fac-items">
+                      <div class="fac-item">
+                        <span class="fac-dot-check"><i data-lucide="check"></i></span>
+                        <span class="fac-text">Terms Verified</span>
+                      </div>
+                      <div class="fac-item">
+                        <span class="fac-dot-check"><i data-lucide="check"></i></span>
+                        <span class="fac-text">Milestones Set</span>
+                      </div>
+                      <div class="fac-item">
+                        <span class="fac-dot-check"><i data-lucide="check"></i></span>
+                        <span class="fac-text">Escrow Funded</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Floating "Funds Protected" Pill (Bottom Right) -->
+                  <div class="floating-pill-funds">
+                    <span class="fpf-icon"><i data-lucide="check"></i></span>
+                    <span class="fpf-label">Funds Protected</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ================================================================
+                 KEY FEATURES SECTION (6 High-Tech Cards)
+                 ================================================================ -->
+            <section id="features-section" class="landing-features-card">
+              <div class="features-head-row">
+                <div class="fhr-left">
+                  <div class="fhr-title">
+                    <div class="fhr-icon">
+                      <i data-lucide="layout-grid"></i>
+                    </div>
+                    <h2>Key Features</h2>
+                  </div>
+                  <p class="fhr-subtitle">Everything you need for a safe and smooth freelance experience.</p>
+                </div>
+
+                <a href="#demo-roles-panel" class="fhr-explore-link" onclick="scrollToDemoRoles()">
+                  <span>Explore All Features</span>
+                  <i data-lucide="arrow-right"></i>
+                </a>
+              </div>
+
+              <!-- 6-Tile Grid -->
+              <div class="features-tiles-grid">
+                <!-- 1. Agreements -->
+                <div class="feature-tile" onclick="scrollToDemoRoles('client')">
+                  <div class="ft-icon-box ft-emerald">
+                    <i data-lucide="file-text"></i>
+                  </div>
+                  <div class="ft-content">
+                    <div class="ft-title-row">
+                      <h3>Agreements</h3>
+                      <span class="ft-arrow"><i data-lucide="arrow-right"></i></span>
+                    </div>
+                    <p>Create clear project agreements with defined terms and milestones.</p>
+                  </div>
+                </div>
+
+                <!-- 2. Milestone Payments -->
+                <div class="feature-tile" onclick="scrollToDemoRoles('freelancer')">
+                  <div class="ft-icon-box ft-purple">
+                    <i data-lucide="credit-card"></i>
+                  </div>
+                  <div class="ft-content">
+                    <div class="ft-title-row">
+                      <h3>Milestone Payments</h3>
+                      <span class="ft-arrow"><i data-lucide="arrow-right"></i></span>
+                    </div>
+                    <p>Funds are held securely and released as milestones are completed.</p>
+                  </div>
+                </div>
+
+                <!-- 3. Delivery Verification -->
+                <div class="feature-tile" onclick="scrollToDemoRoles('client')">
+                  <div class="ft-icon-box ft-cyan">
+                    <i data-lucide="shield-check"></i>
+                  </div>
+                  <div class="ft-content">
+                    <div class="ft-title-row">
+                      <h3>Delivery Verification</h3>
+                      <span class="ft-arrow"><i data-lucide="arrow-right"></i></span>
+                    </div>
+                    <p>Upload work, get approval, move to the next milestone.</p>
+                  </div>
+                </div>
+
+                <!-- 4. Dispute Management -->
+                <div class="feature-tile" onclick="scrollToDemoRoles('admin')">
+                  <div class="ft-icon-box ft-amber">
+                    <i data-lucide="shield-alert"></i>
+                  </div>
+                  <div class="ft-content">
+                    <div class="ft-title-row">
+                      <h3>Dispute Management</h3>
+                      <span class="ft-arrow"><i data-lucide="arrow-right"></i></span>
+                    </div>
+                    <p>In case of issues, admins can review and resolve fairly.</p>
+                  </div>
+                </div>
+
+                <!-- 5. Admin Dashboard -->
+                <div class="feature-tile" onclick="scrollToDemoRoles('admin')">
+                  <div class="ft-icon-box ft-pink">
+                    <i data-lucide="layout-dashboard"></i>
+                  </div>
+                  <div class="ft-content">
+                    <div class="ft-title-row">
+                      <h3>Admin Dashboard</h3>
+                      <span class="ft-arrow"><i data-lucide="arrow-right"></i></span>
+                    </div>
+                    <p>Full control over projects, payments and dispute resolution.</p>
+                  </div>
+                </div>
+
+                <!-- 6. Secure & Compliant -->
+                <div class="feature-tile" onclick="scrollToDemoRoles('client')">
+                  <div class="ft-icon-box ft-teal">
+                    <i data-lucide="landmark"></i>
+                  </div>
+                  <div class="ft-content">
+                    <div class="ft-title-row">
+                      <h3>Secure &amp; Compliant</h3>
+                      <span class="ft-arrow"><i data-lucide="arrow-right"></i></span>
+                    </div>
+                    <p>RBI-compliant, trusted escrow system with bank-grade security.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <!-- ================================================================
+               RIGHT RAIL: Try the Demo + Trusted Community
+               ================================================================ -->
+          <aside class="landing-right-column" id="demo-roles-panel">
+            <!-- TRY THE DEMO CARD -->
+            <div class="try-demo-card">
+              <div class="tdc-header">
+                <h3>Try the Demo</h3>
+                <p>Choose a role to explore the platform.</p>
+              </div>
+
+              <!-- 3 Interactive Role Buttons -->
+              <div class="tdc-roles-group">
+                <!-- Client Role Item -->
+                <div class="tdc-role-item role-item-client" onclick="demoLogin('client')" role="button" tabindex="0" title="Sign in as Client (Rahul Verma)">
+                  <div class="tri-icon icon-bg-blue">
+                    <i data-lucide="user"></i>
+                  </div>
+                  <div class="tri-meta">
+                    <div class="tri-name">Client</div>
+                    <div class="tri-desc">Post projects, track progress, make payments</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="tri-chevron"></i>
+                </div>
+
+                <!-- Freelancer Role Item -->
+                <div class="tdc-role-item role-item-freelancer" onclick="demoLogin('freelancer')" role="button" tabindex="0" title="Sign in as Freelancer (Priya Sharma)">
+                  <div class="tri-icon icon-bg-purple">
+                    <i data-lucide="user"></i>
+                  </div>
+                  <div class="tri-meta">
+                    <div class="tri-name">Freelancer</div>
+                    <div class="tri-desc">Find projects, submit work, get paid</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="tri-chevron"></i>
+                </div>
+
+                <!-- Admin Role Item -->
+                <div class="tdc-role-item role-item-admin" onclick="demoLogin('admin')" role="button" tabindex="0" title="Sign in as Admin (Dispute Arbiter)">
+                  <div class="tri-icon icon-bg-indigo">
+                    <i data-lucide="shield"></i>
+                  </div>
+                  <div class="tri-meta">
+                    <div class="tri-name">Admin</div>
+                    <div class="tri-desc">Manage disputes, invoices and payments</div>
+                  </div>
+                  <i data-lucide="chevron-right" class="tri-chevron"></i>
+                </div>
+              </div>
+
+              <!-- Full-width Bottom Login Button -->
+              <button type="button" class="btn-tdc-login" onclick="toggleCustomLoginForm()" title="Toggle custom credentials form">
+                <i data-lucide="lock" class="btn-lock"></i>
+                <span>Login</span>
+                <i data-lucide="arrow-right" class="btn-arrow"></i>
+              </button>
+
+              <!-- Collapsible Custom Credentials Drawer (Fully Functional) -->
+              <div id="custom-login-form-container" style="display: none;" class="custom-login-drawer">
+                <div class="quick-fill-chips">
+                  <span class="qf-label">Autofill:</span>
+                  <button type="button" class="qf-chip" onclick="fillDemoCreds('priya@bharosa.design', 'demo1234')">Priya (Freelancer)</button>
+                  <button type="button" class="qf-chip" onclick="fillDemoCreds('rahul@growthnest.media', 'demo1234')">Rahul (Client)</button>
+                  <button type="button" class="qf-chip" onclick="fillDemoCreds('admin@bharosa.design', 'demo1234')">Admin</button>
+                </div>
+
+                <form id="login-form" onsubmit="handleCustomLogin(event)">
+                  <div class="auth-input-group">
+                    <label for="user-email">Email Address</label>
+                    <input type="email" id="user-email" value="priya@bharosa.design" required placeholder="name@company.com">
+                  </div>
+                  <div class="auth-input-group">
+                    <label for="user-password">Password</label>
+                    <input type="password" id="user-password" value="demo1234" required placeholder="••••••••">
+                  </div>
+                  <button type="submit" class="btn-primary" id="btn-login" style="margin-top: 0.5rem; width: 100%; justify-content: center;">
+                    <span>Enter Workspace</span>
+                    <i data-lucide="arrow-right"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- TRUSTED BY A GROWING COMMUNITY CARD -->
+            <div class="trusted-community-card" id="security-card">
+              <h3 class="tcc-title">Trusted by a growing community</h3>
+              <div class="tcc-grid">
+                <!-- Stat 1 -->
+                <div class="tcc-tile">
+                  <div class="tcc-icon text-emerald">
+                    <i data-lucide="shield-check"></i>
+                  </div>
+                  <div class="tcc-value">100%</div>
+                  <div class="tcc-label">Payment Protection</div>
+                </div>
+
+                <!-- Stat 2 -->
+                <div class="tcc-tile">
+                  <div class="tcc-icon text-cyan">
+                    <i data-lucide="zap"></i>
+                  </div>
+                  <div class="tcc-value">Fast &amp; Simple</div>
+                  <div class="tcc-label">Project to Payment Flow</div>
+                </div>
+
+                <!-- Stat 3 -->
+                <div class="tcc-tile">
+                  <div class="tcc-icon text-teal">
+                    <i data-lucide="landmark"></i>
+                  </div>
+                  <div class="tcc-value">Bank-Grade Security</div>
+                  <div class="tcc-label">RBI Compliant Partners</div>
+                </div>
+
+                <!-- Stat 4 -->
+                <div class="tcc-tile">
+                  <div class="tcc-icon text-cyan">
+                    <i data-lucide="users"></i>
+                  </div>
+                  <div class="tcc-value">For Everyone</div>
+                  <div class="tcc-label">Freelancers | Clients | Admins</div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <!-- ================================================================
+             BOTTOM FOOTER STRIP: Fairer Economy + Badges + Script Signature
+             ================================================================ -->
+        <footer class="landing-bottom-strip" id="bottom-strip">
+          <!-- Left: Shield & Mission -->
+          <div class="lbs-left-mission">
+            <div class="lbs-shield-circle">
+              <i data-lucide="shield"></i>
+            </div>
+            <div class="lbs-mission-copy">
+              <strong>Built for a fairer freelance economy.</strong>
+              <span>Because your work and your money matter.</span>
+            </div>
+          </div>
+
+          <!-- Center: 4 Trust Badges -->
+          <div class="lbs-center-badges">
+            <div class="lbs-badge">
+              <i data-lucide="award" class="badge-icon"></i>
+              <span>RBI Compliant</span>
+            </div>
+            <div class="lbs-badge">
+              <i data-lucide="lock" class="badge-icon"></i>
+              <span>Secure Escrow</span>
+            </div>
+            <div class="lbs-badge">
+              <i data-lucide="file-check" class="badge-icon"></i>
+              <span>Verified Agreements</span>
+            </div>
+            <div class="lbs-badge">
+              <i data-lucide="circle-dollar-sign" class="badge-icon"></i>
+              <span>Transparent Process</span>
+            </div>
+          </div>
+
+          <!-- Right: Handwritten Script Quote -->
+          <div class="lbs-right-script">
+            <div class="script-text">Trust builds opportunities</div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="script-curve-arrow">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
+            </svg>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         WATCH 1 MIN VIDEO MODAL
+         ================================================================ -->
+    <div id="landing-video-modal" class="modal-overlay" style="display: none;" onclick="closeVideoModal(event)">
+      <div class="video-modal-card" onclick="event.stopPropagation()">
+        <div class="vmc-header">
+          <div class="vmc-title-wrap">
+            <i data-lucide="video" class="text-cyan"></i>
+            <h3>Bharosa OS — Escrow & Deliverable Security in 60s</h3>
+          </div>
+          <button type="button" class="vmc-close-btn" onclick="closeVideoModal()">
+            <i data-lucide="x"></i>
           </button>
         </div>
-
-        <div id="custom-login-form-container" style="display: none;" class="custom-login-drawer">
-          <!-- Quick autofill buttons -->
-          <div class="quick-fill-chips">
-            <span class="qf-label">Quick Autofill:</span>
-            <button type="button" class="qf-chip" onclick="fillDemoCreds('priya@bharosa.design', 'demo1234')">Priya (Freelancer)</button>
-            <button type="button" class="qf-chip" onclick="fillDemoCreds('rahul@growthnest.media', 'demo1234')">Rahul (Client)</button>
-            <button type="button" class="qf-chip" onclick="fillDemoCreds('admin@bharosa.design', 'demo1234')">Admin</button>
+        <div class="vmc-body">
+          <div class="interactive-video-player">
+            <div class="ivp-placeholder">
+              <div class="ivp-glow"></div>
+              <div class="ivp-shield">
+                <i data-lucide="shield-check"></i>
+              </div>
+              <h4>Autonomous Milestone Protocol Walkthrough</h4>
+              <p>
+                1. <strong>Project Agreement:</strong> Client creates verified deliverables with transparent milestone schedule.<br>
+                2. <strong>Upfront Escrow:</strong> Client funds funds into RBI-compliant escrow vault before design work starts.<br>
+                3. <strong>Delivery &amp; Audit:</strong> Work uploaded with cryptographic SHA-256 verification.<br>
+                4. <strong>Instant Payout:</strong> Client sign-off triggers instant bank release with GST compliant receipt.
+              </p>
+              <div class="ivp-badges">
+                <span class="ivp-badge">🛡️ RBI Compliant Escrow</span>
+                <span class="ivp-badge">⚡ Instant UPI/NEFT Payouts</span>
+                <span class="ivp-badge">⏳ 72-Hour Silence Shield</span>
+              </div>
+            </div>
           </div>
-
-          <form id="login-form" onsubmit="handleCustomLogin(event)">
-            <div class="auth-input-group">
-              <label for="user-email">Email Address</label>
-              <div class="input-icon-wrap">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                  <polyline points="22,6 12,13 2,6"/>
-                </svg>
-                <input type="email" id="user-email" value="priya@bharosa.design" required placeholder="name@company.com">
-              </div>
-            </div>
-
-            <div class="auth-input-group">
-              <label for="user-password">Password</label>
-              <div class="input-icon-wrap">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-                <input type="password" id="user-password" value="demo1234" required placeholder="••••••••">
-              </div>
-            </div>
-
-            <button type="submit" class="btn-primary" id="btn-login" style="margin-top: 0.5rem; width: 100%; justify-content: center;">
-              <span>Enter Workspace</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </button>
-          </form>
-        </div>
-
-        <!-- Security & Compliance Guarantee Footnote -->
-        <div class="auth-security-footnote">
-          <div class="sec-item"><span class="sec-dot"></span>256-Bit TLS Security</div>
-          <div class="sec-divider">•</div>
-          <div class="sec-item">Indian Banking & UPI Rails</div>
-          <div class="sec-divider">•</div>
-          <div class="sec-item">GST Invoice Compliance</div>
         </div>
       </div>
     </div>

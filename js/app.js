@@ -4851,6 +4851,66 @@ window.renderClientDashboardGraph = renderClientDashboardGraph;
 window.setAdminChartRange = setAdminChartRange;
 window.renderAdminDashboardGraph = renderAdminDashboardGraph;
 
+// Theme Management Functions
+function initTheme() {
+  const saved = localStorage.getItem('bharosa_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  if (saved === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  if (next === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+  localStorage.setItem('bharosa_theme', next);
+  if (typeof showToast === 'function') {
+    showToast(`Switched to ${next} theme`, 'info');
+  }
+}
+
+// Landing Page Actions
+function scrollToDemoRoles(role) {
+  const target = document.getElementById('demo-roles-panel') || document.querySelector('.try-demo-card');
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    target.classList.add('highlight-pulse');
+    setTimeout(() => target.classList.remove('highlight-pulse'), 1500);
+  }
+  if (role) {
+    const roleBtn = document.querySelector(`.role-item-${role}`);
+    if (roleBtn) {
+      roleBtn.classList.add('highlight-pulse');
+      setTimeout(() => roleBtn.classList.remove('highlight-pulse'), 1500);
+    }
+  }
+}
+
+function openVideoModal() {
+  const m = document.getElementById('landing-video-modal');
+  if (m) m.style.display = 'flex';
+}
+
+function closeVideoModal(e) {
+  if (e && e.target && e.target.id !== 'landing-video-modal' && !e.target.closest('.vmc-close-btn')) return;
+  const m = document.getElementById('landing-video-modal');
+  if (m) m.style.display = 'none';
+}
+
+window.initTheme = initTheme;
+window.toggleTheme = toggleTheme;
+window.scrollToDemoRoles = scrollToDemoRoles;
+window.openVideoModal = openVideoModal;
+window.closeVideoModal = closeVideoModal;
+
 // App Initialization on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
