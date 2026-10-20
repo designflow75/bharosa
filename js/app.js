@@ -3000,6 +3000,49 @@ window.addEventListener('click', (e) => {
   }
 });
 
+function openRequestRefundModal() {
+  openModal('modal-request-refund');
+}
+
+function openQuickActionSheet() {
+  const el = document.getElementById('mobile-action-sheet');
+  if (el) {
+    el.classList.add('active');
+    if (window.lucide) window.lucide.createIcons();
+  }
+}
+
+function closeMobileActionSheet() {
+  const el = document.getElementById('mobile-action-sheet');
+  if (el) el.classList.remove('active');
+}
+
+function mobileNavTo(target) {
+  document.querySelectorAll('.mobile-nav-item').forEach(el => el.classList.remove('active'));
+  const btn = document.getElementById(`mbn-${target}`);
+  if (btn) btn.classList.add('active');
+
+  const user = getSessionUser();
+  if (!user) {
+    navigateTo('/login');
+    return;
+  }
+
+  if (target === 'dashboard') {
+    if (user.role === 'freelancer') navigateTo('/freelancer/dashboard');
+    else if (user.role === 'client') navigateTo('/client/dashboard');
+    else navigateTo('/admin');
+  } else if (target === 'work') {
+    if (user.role === 'freelancer') navigateTo('/freelancer/find-work');
+    else if (user.role === 'client') navigateTo('/client/projects');
+    else navigateTo('/admin');
+  } else if (target === 'messages') {
+    navigateTo('/freelancer/messages');
+  } else if (target === 'profile') {
+    showToast(`Signed in as ${user.name} (${user.role.toUpperCase()}) • Bharosa ID: ${user.id}`, 'info');
+  }
+}
+
 // Explicitly bind all navigation and action handlers to window for inline onclick execution
 window.navigateTo = navigateTo;
 window.navigateHome = navigateHome;
@@ -3014,7 +3057,8 @@ window.demoLogin = demoLogin;
 window.handleCustomLogin = handleCustomLogin;
 window.toggleCustomLoginForm = toggleCustomLoginForm;
 window.fillDemoCreds = fillDemoCreds;
-window.handleLogout = handleLogout;
+window.confirmLogout = confirmLogout;
+window.handleLogout = confirmLogout;
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.clientFundMilestone = clientFundMilestone;
@@ -3028,10 +3072,39 @@ window.clientApproveAmendment = clientApproveAmendment;
 window.openSilenceReminderModal = openSilenceReminderModal;
 window.submitSilenceReminder = submitSilenceReminder;
 window.openRaiseDisputeModal = openRaiseDisputeModal;
-window.submitDispute = submitDispute;
+window.submitRaiseDispute = submitRaiseDispute;
+window.submitDispute = submitRaiseDispute;
+window.openRequestRefundModal = openRequestRefundModal;
+window.submitRequestRefund = submitRequestRefund;
+window.openCreateProjectModal = openCreateProjectModal;
+window.submitCreateProject = submitCreateProject;
+window.openCreateInvoiceModal = openCreateInvoiceModal;
+window.submitCreateInvoice = submitCreateInvoice;
+window.openInviteFreelancerModal = openInviteFreelancerModal;
+window.sendInviteDispatched = sendInviteDispatched;
+window.copyInviteLink = copyInviteLink;
+window.openUrlImportModal = openUrlImportModal;
+window.simulateJobImport = simulateJobImport;
+window.openNewProjectBriefModal = openNewProjectBriefModal;
 window.toggleTheme = toggleTheme;
 window.loadProjectsDirectory = loadProjectsDirectory;
 window.loadInvoicesLedger = loadInvoicesLedger;
+window.toggleNotificationPanel = toggleNotificationPanel;
+window.markAllNotifsRead = markAllNotifsRead;
+window.scrollToApprovals = scrollToApprovals;
+window.resetSubmitWork = resetSubmitWork;
+window.executeSubmitWork = executeSubmitWork;
+window.sendProjectMessage = sendProjectMessage;
+window.switchAdminSubtab = switchAdminSubtab;
+window.mobileNavTo = mobileNavTo;
+window.openQuickActionSheet = openQuickActionSheet;
+window.closeMobileActionSheet = closeMobileActionSheet;
+window.showToast = showToast;
+window.acceptOpportunity = acceptOpportunity;
+window.selectMilestoneForSubmission = selectMilestoneForSubmission;
+window.removeAttachedFile = removeAttachedFile;
+window.openMessageThread = openMessageThread;
+window.handleSubmitWorkFiles = handleSubmitWorkFiles;
 
 // ==============================================================================
 // SUPABASE CLIENT STATUS & MODAL CONTROLLER
