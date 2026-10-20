@@ -1246,7 +1246,8 @@ body {
   display: none;
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
+  left: 0;
+  right: auto;
   width: 350px;
   max-width: min(350px, calc(100vw - 24px));
   background: var(--bg-surface);
@@ -3135,7 +3136,9 @@ html {
     display: none !important;
   }
   .header-search {
-    display: none !important;
+    flex: 1 1 160px;
+    max-width: 240px;
+    min-width: 110px;
   }
   #theme-label {
     display: none !important;
@@ -3409,27 +3412,53 @@ html {
     flex-shrink: 0;
   }
 
-  .header-search,
   .demo-pill-badge,
   #theme-label,
   .user-info-text {
     display: none !important;
   }
 
-  .header-actions {
+  /* Unblock & keep search fully accessible on mobile */
+  .header-search {
     display: flex !important;
+    position: relative !important;
+    flex: 1 1 120px !important;
+    min-width: 80px !important;
+    max-width: 240px !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    z-index: 5 !important;
+  }
+
+  .header-search input {
+    height: 36px !important;
+    font-size: 0.78rem !important;
+    padding: 0.4rem 0.6rem 0.4rem 1.9rem !important;
+    width: 100% !important;
+  }
+
+  .header-search .search-icon {
+    left: 0.65rem !important;
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* Keep notification bell right in front of search on mobile */
+  .notif-wrapper {
+    position: relative !important;
+    display: inline-flex !important;
     align-items: center !important;
-    gap: 0.45rem !important;
     flex-shrink: 0 !important;
+    z-index: 10 !important;
   }
 
   .header-actions .notif-bell-btn,
   .notif-bell-btn {
-    width: 38px !important;
-    min-width: 38px !important;
-    max-width: 38px !important;
-    height: 38px !important;
-    min-height: 38px !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
     padding: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -3439,6 +3468,38 @@ html {
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     color: var(--text-primary);
+  }
+
+  /* Notification dropdown on mobile is fixed & clean */
+  .notification-dropdown-panel {
+    position: fixed !important;
+    top: 56px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: calc(100vw - 24px) !important;
+    z-index: 1000 !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75) !important;
+  }
+
+  @media (max-width: 600px) {
+    .header-brand-group {
+      gap: 0.4rem !important;
+    }
+    #supabase-pill-text {
+      display: none !important;
+    }
+    .supabase-status-pill {
+      padding: 0.35rem 0.5rem !important;
+    }
+    .btn-reset-demo span {
+      display: none !important;
+    }
+    .btn-reset-demo {
+      padding: 0.35rem 0.55rem !important;
+      min-width: 32px !important;
+      height: 32px !important;
+    }
   }
 
   .theme-toggle-btn {
