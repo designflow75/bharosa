@@ -3086,6 +3086,23 @@ html {
   box-sizing: inherit;
 }
 
+/* ── Mobile Navigation Base (Hidden on Desktop/Laptop) ── */
+.mobile-bottom-nav {
+  display: none !important;
+}
+
+.mobile-action-sheet-overlay {
+  display: none;
+}
+
+.mobile-nav-item {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  color: inherit;
+}
+
 /* ══════════════════════════════════════════════════════════════════════════
    RESPONSIVE BREAKPOINTS: LAPTOPS & TABLETS (992px - 1280px)
    ══════════════════════════════════════════════════════════════════════════ */
@@ -3980,9 +3997,9 @@ html {
     font-size: 0.82rem;
   }
 
-  /* ── 12. MOBILE BOTTOM NAVIGATION ── */
+  /* ── 12. MOBILE BOTTOM NAVIGATION (PREMIUM GLASS DOCK) ── */
   .mobile-bottom-nav {
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: space-around;
     position: fixed;
@@ -3990,14 +4007,14 @@ html {
     left: 0;
     right: 0;
     height: calc(var(--mobile-bottom-nav-height) + var(--mobile-safe-bottom));
-    padding: 0 0.75rem;
+    padding: 0 0.85rem;
     padding-bottom: var(--mobile-safe-bottom);
     background: var(--bg-glass);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(28px) saturate(190%);
+    -webkit-backdrop-filter: blur(28px) saturate(190%);
     border-top: 1px solid var(--border-subtle);
-    z-index: 90;
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     box-sizing: border-box;
   }
 
@@ -4007,55 +4024,102 @@ html {
     align-items: center;
     justify-content: center;
     gap: 3px;
-    min-width: 48px;
-    min-height: 44px;
-    padding: 6px 10px;
-    border: none;
-    background: transparent;
+    min-width: 52px;
+    min-height: 48px;
+    padding: 6px 12px;
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
     color: var(--text-muted);
     cursor: pointer;
     border-radius: var(--radius-md);
-    transition: color var(--transition-fast), transform 0.1s ease;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
     font-family: inherit;
     -webkit-tap-highlight-color: transparent;
   }
 
+  .mobile-nav-item:hover {
+    color: var(--text-primary);
+  }
+
+  .mobile-nav-item i,
+  .mobile-nav-item svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
   .mobile-nav-item span {
-    font-size: 0.65rem;
+    font-size: 0.68rem;
     font-weight: 600;
     letter-spacing: 0.01em;
     margin-top: 2px;
+    transition: color 0.2s ease;
   }
 
   .mobile-nav-item.active {
     color: var(--primary);
   }
 
+  .mobile-nav-item.active i,
+  .mobile-nav-item.active svg {
+    transform: translateY(-2px);
+    color: var(--primary);
+  }
+
+  .mobile-nav-item.active span {
+    font-weight: 700;
+    color: var(--primary);
+  }
+
   .mobile-nav-item.active::before {
     content: '';
     position: absolute;
-    top: -1px;
+    top: 2px;
     left: 50%;
     transform: translateX(-50%);
-    width: 24px;
+    width: 20px;
     height: 3px;
-    background: var(--primary);
-    border-radius: 0 0 3px 3px;
+    background: var(--primary-gradient);
+    border-radius: 9999px;
+    box-shadow: 0 0 8px var(--primary);
   }
 
+  /* Center Floating Action Button (FAB) */
   .mobile-nav-fab {
-    width: 50px;
-    height: 50px;
-    min-width: 50px;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    max-width: 48px;
     padding: 0;
     border-radius: 50%;
-    background: var(--primary-gradient);
-    color: white;
-    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.45);
-    transition: all var(--transition-fast);
-    margin-bottom: 6px;
+    background: var(--primary-gradient) !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5), 0 0 12px rgba(99, 102, 241, 0.3);
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-bottom: 12px;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--bg-surface) !important;
+  }
+
+  .mobile-nav-fab:hover {
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 8px 26px rgba(99, 102, 241, 0.65), 0 0 16px rgba(99, 102, 241, 0.4);
+  }
+
+  .mobile-nav-fab:active {
+    transform: scale(0.94);
+  }
+
+  .mobile-nav-fab i,
+  .mobile-nav-fab svg {
+    width: 22px;
+    height: 22px;
+    color: #ffffff !important;
   }
 
   /* ── 13. TOASTS ── */
