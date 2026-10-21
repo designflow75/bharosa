@@ -625,6 +625,26 @@ function updateHeaderAndSidebar(user) {
     `;
   }
 
+  // Synchronize 3-Button Direct Segmented Switcher in Header
+  const segFl = document.getElementById('seg-btn-freelancer');
+  const segCl = document.getElementById('seg-btn-client');
+  const segAdm = document.getElementById('seg-btn-admin');
+  if (segFl) {
+    const isFl = user.role === 'freelancer';
+    segFl.classList.toggle('active', isFl);
+    segFl.setAttribute('aria-selected', isFl ? 'true' : 'false');
+  }
+  if (segCl) {
+    const isCl = user.role === 'client';
+    segCl.classList.toggle('active', isCl);
+    segCl.setAttribute('aria-selected', isCl ? 'true' : 'false');
+  }
+  if (segAdm) {
+    const isAdm = user.role === 'admin';
+    segAdm.classList.toggle('active', isAdm);
+    segAdm.setAttribute('aria-selected', isAdm ? 'true' : 'false');
+  }
+
   if (window.lucide) window.lucide.createIcons();
 }
 
