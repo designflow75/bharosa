@@ -47,6 +47,18 @@
       setTimeout(initIcons, 300);
     });
 
+    function scrollToLandingSection(id, el) {
+      document.querySelectorAll('.lvn-item').forEach(item => item.classList.remove('active'));
+      if (el) el.classList.add('active');
+      if (id === 'home') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        const target = document.getElementById(id);
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    window.scrollToLandingSection = scrollToLandingSection;
+
     /* Mobile navigation helpers */
     function openQuickActionSheet() {
       const sheet = document.getElementById('mobile-action-sheet');
@@ -122,19 +134,19 @@
 
         <!-- Vertical Navigation Links -->
         <nav class="landing-vertical-nav">
-          <a href="#home" class="lvn-item active" onclick="event.preventDefault(); window.scrollTo({top:0, behavior:'smooth'});">
+          <a href="#home" class="lvn-item active" onclick="event.preventDefault(); scrollToLandingSection('home', this)">
             <i data-lucide="home" class="lvn-icon"></i>
             <span>Home</span>
           </a>
-          <a href="#features-section" class="lvn-item" onclick="event.preventDefault(); document.getElementById('features-section')?.scrollIntoView({behavior:'smooth'});">
+          <a href="#features-section" class="lvn-item" onclick="event.preventDefault(); scrollToLandingSection('features-section', this)">
             <i data-lucide="layout-grid" class="lvn-icon"></i>
             <span>Features</span>
           </a>
-          <a href="#security-card" class="lvn-item" onclick="event.preventDefault(); document.getElementById('security-card')?.scrollIntoView({behavior:'smooth'});">
+          <a href="#security-card" class="lvn-item" onclick="event.preventDefault(); scrollToLandingSection('security-card', this)">
             <i data-lucide="shield-check" class="lvn-icon"></i>
             <span>Security</span>
           </a>
-          <a href="#bottom-strip" class="lvn-item" onclick="event.preventDefault(); document.getElementById('bottom-strip')?.scrollIntoView({behavior:'smooth'});">
+          <a href="#bottom-strip" class="lvn-item" onclick="event.preventDefault(); scrollToLandingSection('bottom-strip', this)">
             <i data-lucide="info" class="lvn-icon"></i>
             <span>About</span>
           </a>

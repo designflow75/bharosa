@@ -2364,6 +2364,39 @@ h1, h2, h3, h4, h5, h6,
   box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
 }
 
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.15rem;
+  background: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-surface);
+  border-color: var(--border-focus);
+}
+
+button:active,
+.btn-primary:active,
+.btn-secondary:active,
+.btn-tag:active,
+.seg-role-btn:active,
+.btn-reset-demo:active {
+  transform: scale(0.97);
+}
+
 .auth-form-pane .btn-primary,
 #login-form .btn-primary {
   width: 100%;
@@ -6588,22 +6621,46 @@ html {
 }
 
 @media (max-width: 768px) {
+  /* Prevent header overflow by hiding dev pills in top header on mobile (accessible in sidebar) */
+  .header-switch-column-top {
+    display: none !important;
+  }
+
   .header-role-switcher-segmented {
     padding: 2px !important;
     gap: 2px !important;
   }
   .seg-role-btn {
     padding: 6px 8px !important;
-    min-width: 30px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
     justify-content: center !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
   }
-  .seg-role-btn span {
+  .header-role-switcher-segmented .seg-role-btn span {
     display: none !important;
+  }
+  .sidebar-role-switcher-capsule .seg-role-btn span {
+    display: inline !important;
+    font-size: 0.68rem !important;
   }
   .seg-role-btn svg {
     width: 14px !important;
     height: 14px !important;
   }
+
+  /* Accessible touch targets for modal close buttons */
+  .modal-close-btn {
+    min-width: 40px !important;
+    min-height: 40px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.5rem !important;
+    touch-action: manipulation !important;
+  }
+
   .dashboard-cyber-hero {
     padding: 1.25rem 1rem !important;
     border-radius: 16px !important;
