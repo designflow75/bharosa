@@ -1062,18 +1062,6 @@
               <i data-lucide="upload-cloud" style="width:15px;height:15px;"></i>
               <span>Submit Work</span>
             </button>
-            <button class="btn-secondary" onclick="navigateTo('/messages')">
-              <i data-lucide="message-square" style="width:15px;height:15px;"></i>
-              <span>Messages</span>
-            </button>
-            <button class="btn-secondary" onclick="openUrlImportModal()">
-              <i data-lucide="link-2" style="width:15px;height:15px;"></i>
-              <span>Import URL</span>
-            </button>
-            <button class="btn-secondary" onclick="openCreateInvoiceModal()">
-              <i data-lucide="receipt" style="width:15px;height:15px;"></i>
-              <span>New Invoice</span>
-            </button>
           </div>
         </div>
 
@@ -1087,18 +1075,14 @@
             <h1 class="dch-title">Work Confidently. <br><span class="dch-gradient-emerald">Get Paid Automatically.</span></h1>
             <p class="dch-desc">Your milestones are cryptographically locked in escrow before you write a single line or design an asset. Never chase an unpaid invoice again.</p>
             <div class="dch-actions-row">
-              <button class="btn-primary" onclick="navigateTo('/freelancer/find-work')" style="padding: 0.65rem 1.25rem;">
+              <button class="btn-primary" onclick="navigateTo('/freelancer/find-work')" style="padding: 0.6rem 1.15rem;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
                 <span>Browse Escrow Projects</span>
               </button>
-              <button class="btn-secondary" onclick="openCreateInvoiceModal()" style="padding: 0.65rem 1.25rem;">
+              <button class="btn-secondary" onclick="openCreateInvoiceModal()" style="padding: 0.6rem 1.15rem;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
                 <span>New Invoice</span>
               </button>
-              <div style="display:inline-flex; align-items:center; gap:6px; margin-left:auto;">
-                <button class="btn-tag" onclick="switchRole('client')" title="Switch to Client View" style="cursor:pointer; font-size:0.75rem; padding:4px 10px;">Switch to Client</button>
-                <button class="btn-tag" onclick="switchRole('admin')" title="Switch to Admin View" style="cursor:pointer; font-size:0.75rem; padding:4px 10px;">Switch to Admin</button>
-              </div>
             </div>
           </div>
           <div class="dch-right-pane">
@@ -1319,6 +1303,7 @@
               </tbody>
             </table>
           </div>
+        </div>
       </section>
 
 
@@ -1337,21 +1322,9 @@
               <i data-lucide="plus-circle" style="width:15px;height:15px;"></i>
               <span>Create Project</span>
             </button>
-            <button class="btn-secondary" onclick="openInviteFreelancerModal()">
-              <i data-lucide="user-plus" style="width:15px;height:15px;"></i>
-              <span>Invite Freelancer</span>
-            </button>
-            <button class="btn-secondary" onclick="navigateTo('/messages')">
-              <i data-lucide="message-square" style="width:15px;height:15px;"></i>
-              <span>Messages</span>
-            </button>
-            <button class="btn-secondary" style="color:var(--warning);" onclick="openRaiseDisputeModal()">
-              <i data-lucide="alert-triangle" style="width:15px;height:15px;"></i>
-              <span>Raise Dispute</span>
-            </button>
-            <button class="btn-secondary" onclick="openRequestRefundModal()">
-              <i data-lucide="undo" style="width:15px;height:15px;"></i>
-              <span>Request Refund</span>
+            <button class="btn-secondary" onclick="scrollToApprovals()">
+              <i data-lucide="check-circle" style="width:15px;height:15px;"></i>
+              <span>Review Approvals</span>
             </button>
           </div>
         </div>
@@ -1366,18 +1339,14 @@
             <h1 class="dch-title">Work Confidently. <br><span class="dch-gradient-cyan">Pay Only For Verified Work.</span></h1>
             <p class="dch-desc">Bharosa OS secures your project capital in neutral escrow. Funds are disbursed to freelancers only when you verify milestones against contract specs.</p>
             <div class="dch-actions-row">
-              <button class="btn-primary" onclick="openCreateProjectModal()" style="padding: 0.65rem 1.25rem;">
+              <button class="btn-primary" onclick="openCreateProjectModal()" style="padding: 0.6rem 1.15rem;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                 <span>Create Protected Project</span>
               </button>
-              <button class="btn-secondary" onclick="scrollToApprovals()" style="padding: 0.65rem 1.25rem;">
+              <button class="btn-secondary" onclick="scrollToApprovals()" style="padding: 0.6rem 1.15rem;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
                 <span>Review Pending Work</span>
               </button>
-              <div style="display:inline-flex; align-items:center; gap:6px; margin-left:auto;">
-                <button class="btn-tag" onclick="switchRole('freelancer')" title="Switch to Freelancer View" style="cursor:pointer; font-size:0.75rem; padding:4px 10px;">Switch to Freelancer</button>
-                <button class="btn-tag" onclick="switchRole('admin')" title="Switch to Admin View" style="cursor:pointer; font-size:0.75rem; padding:4px 10px;">Switch to Admin</button>
-              </div>
             </div>
           </div>
           <div class="dch-right-pane">

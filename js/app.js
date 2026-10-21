@@ -1025,6 +1025,59 @@ function renderClientDashboardUI(data) {
     `).join('');
   }
 
+  // 6. Files to Review
+  const filesListEl = document.getElementById('cl-files-to-review-list');
+  if (filesListEl) {
+    const deliverableItems = (needsApproval || []).filter(i => i.type === 'deliverable_approval');
+    if (deliverableItems.length === 0) {
+      filesListEl.innerHTML = `
+        <div style="text-align:center; padding:1.75rem 1rem; color:var(--text-muted); font-size:0.82rem;">
+          <div style="font-size:1.25rem; margin-bottom:0.35rem;">✓</div>
+          <div style="font-weight:600; color:var(--text-primary); margin-bottom:2px;">All Deliverables Reviewed</div>
+          <div>No contractor submission files waiting for inspection.</div>
+        </div>
+      `;
+    } else {
+      filesListEl.innerHTML = deliverableItems.map(item => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 0; border-bottom:1px solid var(--border-subtle); font-size:0.8rem;">
+          <div>
+            <div style="font-weight:700; color:var(--text-primary);">${item.projectTitle}</div>
+            <div style="font-size:0.72rem; color:var(--text-muted);">${item.milestoneTitle} · ${item.deliverables?.length || 1} file(s)</div>
+          </div>
+          <button class="btn-primary" style="font-size:0.72rem; padding:3px 9px;" onclick="scrollToApprovals()">
+            Inspect
+          </button>
+        </div>
+      `).join('');
+    }
+  }
+
+  // 7. Agreements & Amendments
+  const amdListEl = document.getElementById('cl-amendments-list');
+  if (amdListEl) {
+    if (!amendmentsRequiringApproval || amendmentsRequiringApproval.length === 0) {
+      amdListEl.innerHTML = `
+        <div style="text-align:center; padding:1.75rem 1rem; color:var(--text-muted); font-size:0.82rem;">
+          <div style="font-size:1.25rem; margin-bottom:0.35rem;">📄</div>
+          <div style="font-weight:600; color:var(--text-primary); margin-bottom:2px;">No Active Scope Amendments</div>
+          <div>All agreements and milestone scopes are locked and on schedule.</div>
+        </div>
+      `;
+    } else {
+      amdListEl.innerHTML = amendmentsRequiringApproval.map(amd => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 0; border-bottom:1px solid var(--border-subtle); font-size:0.8rem;">
+          <div>
+            <div style="font-weight:700; color:var(--text-primary);">${amd.title}</div>
+            <div style="font-size:0.72rem; color:var(--text-muted);">+₹${amd.additionalCost} INR · +${amd.additionalDays} days (${amd.requesterName})</div>
+          </div>
+          <button class="btn-primary" style="font-size:0.72rem; padding:3px 9px;" onclick="clientApproveAmendment('${amd.id}')">
+            Approve
+          </button>
+        </div>
+      `).join('');
+    }
+  }
+
   renderClientDashboardGraph(currentClientChartRange);
   if (window.lucide) window.lucide.createIcons();
 }

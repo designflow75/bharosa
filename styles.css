@@ -3095,8 +3095,10 @@ body.authenticated #auth-screen,
 .view-section {
   display: none;
   min-width: 0;
-  max-width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
   width: 100%;
+  padding-bottom: 3.5rem;
   box-sizing: border-box;
 }
 
@@ -3249,9 +3251,9 @@ button:active:not(:disabled) {
    ========================================================================== */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 1.15rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
   width: 100%;
   box-sizing: border-box;
 }
@@ -3259,16 +3261,16 @@ button:active:not(:disabled) {
 .stat-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  box-shadow: var(--shadow-sm);
+  border-radius: 16px;
+  padding: 1.35rem 1.45rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   transition: all var(--transition-fast);
   position: relative;
   overflow: hidden;
 }
 
 .stat-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
   border-color: var(--border-strong);
 }
@@ -3417,10 +3419,129 @@ button:active:not(:disabled) {
 .card-section {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 2rem;
+  border-radius: 16px;
+  padding: 1.35rem 1.6rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  margin-bottom: 1.75rem;
+}
+
+/* Breathable Two-Column Layout for Secondary Dashboard Panels */
+.responsive-two-col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+  align-items: stretch;
+}
+
+@media (max-width: 960px) {
+  .responsive-two-col {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}
+
+/* Action Items & Approvals Grid */
+.action-items-grid,
+#cl-approval-items-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.15rem;
+}
+
+.action-item-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.85rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.action-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+}
+
+.action-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.action-item-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+.action-item-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.action-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* Client Dashboard Project Cards */
+.cl-project-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 1.35rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.cl-project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-light);
+}
+
+/* Client Dashboard Secondary Scrollable Lists */
+#cl-files-to-review-list,
+#cl-amendments-list,
+#cl-invoices-list,
+#cl-activity-timeline {
+  max-height: 290px;
+  overflow-y: auto;
+  padding-right: 0.4rem;
+}
+
+#cl-files-to-review-list::-webkit-scrollbar,
+#cl-amendments-list::-webkit-scrollbar,
+#cl-invoices-list::-webkit-scrollbar,
+#cl-activity-timeline::-webkit-scrollbar {
+  width: 5px;
+}
+
+#cl-files-to-review-list::-webkit-scrollbar-thumb,
+#cl-amendments-list::-webkit-scrollbar-thumb,
+#cl-invoices-list::-webkit-scrollbar-thumb,
+#cl-activity-timeline::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 4px;
 }
 
 .card-section-header {
@@ -7997,10 +8118,15 @@ html {
 .chart-canvas-wrapper {
   background: rgba(11, 18, 35, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-lg);
+  border-radius: 16px;
   padding: 1.25rem 1.25rem 0.5rem;
   position: relative;
   overflow: hidden;
+}
+
+[data-theme="light"] .chart-canvas-wrapper {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 .chart-canvas-wrapper svg {
@@ -8026,8 +8152,13 @@ html {
   gap: 0.85rem;
   background: rgba(15, 23, 42, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
+  border-radius: 16px;
+  padding: 1.25rem 1.35rem;
+}
+
+[data-theme="light"] .chart-summary-sidecard {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 .summary-metric-row {
@@ -8036,6 +8167,10 @@ html {
   gap: 0.85rem;
   padding: 0.5rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="light"] .summary-metric-row {
+  border-bottom-color: rgba(0, 0, 0, 0.06);
 }
 
 .summary-metric-row:last-child {
