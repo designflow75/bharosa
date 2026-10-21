@@ -928,6 +928,23 @@
       </nav>
 
       <div class="sidebar-footer">
+        <!-- Mobile Environment & Sandbox Controls -->
+        <div class="sidebar-sandbox-tools">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <span style="font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">Sandbox &amp; Database</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <span class="supabase-status-pill" id="sidebar-supabase-status-pill" onclick="openSupabaseModal()" title="Supabase Database Status">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              <span id="sidebar-supabase-pill-text">Supabase Status</span>
+            </span>
+            <button class="btn-reset-demo" id="btn-sidebar-reset-demo" onclick="confirmResetDemoData()" title="Reset all applied data back to pristine test state">
+              <i data-lucide="rotate-ccw" style="width: 13px; height: 13px;"></i>
+              <span>Reset Demo Data</span>
+            </button>
+          </div>
+        </div>
+
         <div class="trust-shield-card">
           <div class="shield-icon">
             <i data-lucide="shield-check" style="width:20px;height:20px;color:var(--success);"></i>

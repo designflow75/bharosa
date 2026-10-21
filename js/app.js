@@ -4747,30 +4747,36 @@ let currentSupabaseStatus = null;
 async function checkSupabaseStatus(showToastOnSuccess = false) {
   const pill = document.getElementById('supabase-status-pill');
   const pillText = document.getElementById('supabase-pill-text');
+  const sidePill = document.getElementById('sidebar-supabase-status-pill');
+  const sidePillText = document.getElementById('sidebar-supabase-pill-text');
 
   try {
     const res = await fetch('/api/supabase/status');
     const data = await res.json();
     currentSupabaseStatus = data;
 
-    if (pill && pillText) {
+    const updatePill = (p, pt) => {
+      if (!p || !pt) return;
       if (data.connected) {
-        pill.style.borderColor = 'rgba(62, 207, 142, 0.5)';
-        pill.style.background = 'rgba(62, 207, 142, 0.12)';
-        pill.style.color = '#3ecf8e';
-        pillText.textContent = 'Supabase: Connected';
+        p.style.borderColor = 'rgba(62, 207, 142, 0.5)';
+        p.style.background = 'rgba(62, 207, 142, 0.12)';
+        p.style.color = '#3ecf8e';
+        pt.textContent = 'Supabase: Connected';
       } else if (data.configured) {
-        pill.style.borderColor = 'rgba(234, 179, 8, 0.5)';
-        pill.style.background = 'rgba(234, 179, 8, 0.12)';
-        pill.style.color = '#eab308';
-        pillText.textContent = 'Supabase: Schema Needed';
+        p.style.borderColor = 'rgba(234, 179, 8, 0.5)';
+        p.style.background = 'rgba(234, 179, 8, 0.12)';
+        p.style.color = '#eab308';
+        pt.textContent = 'Supabase: Schema Needed';
       } else {
-        pill.style.borderColor = 'rgba(148, 163, 184, 0.3)';
-        pill.style.background = 'rgba(148, 163, 184, 0.08)';
-        pill.style.color = 'var(--text-muted)';
-        pillText.textContent = 'DB: Local (Connect Supabase)';
+        p.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+        p.style.background = 'rgba(148, 163, 184, 0.08)';
+        p.style.color = 'var(--text-muted)';
+        pt.textContent = 'DB: Local (Connect Supabase)';
       }
-    }
+    };
+
+    updatePill(pill, pillText);
+    updatePill(sidePill, sidePillText);
 
     renderSupabaseModalContent(data);
 
@@ -4785,6 +4791,7 @@ async function checkSupabaseStatus(showToastOnSuccess = false) {
     }
   } catch (err) {
     if (pillText) pillText.textContent = 'Supabase: Offline';
+    if (sidePillText) sidePillText.textContent = 'Supabase: Offline';
   }
 }
 
@@ -4875,6 +4882,7 @@ function confirmResetDemoData() {
 async function executeResetDemoData() {
   const btn = document.getElementById('btn-confirm-reset-data');
   const headerBtn = document.getElementById('btn-header-reset-demo');
+  const sideBtn = document.getElementById('btn-sidebar-reset-demo');
   if (btn) {
     btn.disabled = true;
     btn.innerHTML = `<span style="display:inline-block; animation:spin 1s linear infinite;">⏳</span> <span>Resetting Data...</span>`;
@@ -4882,6 +4890,10 @@ async function executeResetDemoData() {
   if (headerBtn) {
     headerBtn.disabled = true;
     headerBtn.style.opacity = '0.6';
+  }
+  if (sideBtn) {
+    sideBtn.disabled = true;
+    sideBtn.style.opacity = '0.6';
   }
 
   showToast('Resetting all platform data to initial test state...', 'info');
@@ -4916,6 +4928,10 @@ async function executeResetDemoData() {
     if (headerBtn) {
       headerBtn.disabled = false;
       headerBtn.style.opacity = '1';
+    }
+    if (sideBtn) {
+      sideBtn.disabled = false;
+      sideBtn.style.opacity = '1';
     }
     if (window.lucide) window.lucide.createIcons();
   }

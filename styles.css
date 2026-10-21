@@ -2899,6 +2899,10 @@ h1, h2, h3, h4, h5, h6,
   background: var(--bg-surface-elevated);
 }
 
+.sidebar-sandbox-tools {
+  display: none;
+}
+
 .trust-shield-card {
   padding: 0.85rem;
   border-radius: var(--radius-md);
@@ -4963,109 +4967,84 @@ html {
     gap: 0.5rem;
   }
 
-  /* ── 2. TOP NAVIGATION HEADER (NO OVERFLOW) ── */
+  /* ── 2. TOP NAVIGATION HEADER (MOBILE VIEWPORT <= 768px) ── */
   .top-header {
-    height: 58px !important;
+    height: 56px !important;
     padding: 0 0.65rem !important;
-    gap: 0.4rem !important;
     width: 100% !important;
     max-width: 100vw !important;
     box-sizing: border-box !important;
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 100 !important;
     overflow: visible !important;
   }
 
   .header-brand-group {
     display: flex !important;
     align-items: center !important;
-    gap: 0.4rem !important;
+    gap: 0.45rem !important;
     min-width: 0 !important;
-    flex: 1 1 auto !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    scrollbar-width: none !important;
+    flex: 0 0 auto !important;
   }
 
-  .header-brand-group::-webkit-scrollbar {
-    display: none !important;
+  .header-brand-group .auth-brand {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    cursor: pointer !important;
   }
 
-  .btn-reset-demo {
-    padding: 0.22rem 0.55rem !important;
-    font-size: 0.7rem !important;
+  .header-brand-group .brand-icon {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    font-size: 1rem !important;
+    border-radius: 8px !important;
+  }
+
+  .header-brand-group .brand-text h1 {
+    font-size: 1.05rem !important;
+    line-height: 1 !important;
+    margin: 0 !important;
     white-space: nowrap !important;
-    flex-shrink: 0 !important;
-  }
-
-  .supabase-status-pill {
-    padding: 0.22rem 0.55rem !important;
-    font-size: 0.7rem !important;
-    white-space: nowrap !important;
-    flex-shrink: 0 !important;
   }
 
   .mobile-menu-toggle {
     display: flex !important;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    border-radius: 10px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-primary);
-    cursor: pointer;
-    flex-shrink: 0;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    border-radius: 10px !important;
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: var(--text-primary) !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
   }
 
-  .demo-pill-badge,
-  #theme-label,
-  .user-info-text {
+  /* Completely eliminate developer pills and desktop search bar from mobile top header */
+  .top-header .supabase-status-pill,
+  .top-header .btn-reset-demo,
+  .top-header .demo-pill-badge,
+  .top-header .header-search-wrap,
+  .top-header #theme-label,
+  .top-header .user-info-text {
     display: none !important;
   }
 
-  /* Unblock & keep search fully accessible on mobile */
-  .header-search {
-    display: flex !important;
-    position: relative !important;
-    flex: 1 1 120px !important;
-    min-width: 80px !important;
-    max-width: 240px !important;
-    min-height: 36px !important;
-    height: 36px !important;
-    z-index: 5 !important;
-  }
-
-  .header-search input {
-    height: 36px !important;
-    font-size: 0.78rem !important;
-    padding: 0.4rem 0.6rem 0.4rem 1.9rem !important;
-    width: 100% !important;
-  }
-
-  .header-search .search-icon {
-    left: 0.65rem !important;
-    width: 14px !important;
-    height: 14px !important;
-  }
-
-  /* Keep notification bell right in front of search on mobile */
-  .notif-wrapper {
-    position: relative !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    flex-shrink: 0 !important;
-    z-index: 10 !important;
-  }
-
+  /* Right Action Controls: exactly 4 distinct, non-overlapping controls */
   .header-actions {
     display: flex !important;
     align-items: center !important;
-    gap: 0.35rem !important;
-    flex-shrink: 0 !important;
+    gap: 0.4rem !important;
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
   }
 
   .btn-header-switch-role {
@@ -5075,15 +5054,28 @@ html {
     height: 36px !important;
     min-height: 36px !important;
     padding: 0 !important;
+    margin: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     border-radius: 10px !important;
     flex-shrink: 0 !important;
+    background: var(--bg-surface-elevated) !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: var(--role-client, #38bdf8) !important;
+    box-sizing: border-box !important;
   }
 
   .btn-header-switch-role span {
     display: none !important;
+  }
+
+  .notif-wrapper {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
   }
 
   .header-actions .notif-bell-btn,
@@ -5094,14 +5086,59 @@ html {
     height: 36px !important;
     min-height: 36px !important;
     padding: 0 !important;
+    margin: 0 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     border-radius: 10px !important;
     flex-shrink: 0 !important;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    color: var(--text-primary);
+    background: var(--bg-surface-elevated) !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: var(--text-primary) !important;
+    box-sizing: border-box !important;
+  }
+
+  .theme-toggle-btn {
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    flex-shrink: 0 !important;
+    background: var(--bg-surface-elevated) !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: var(--text-primary) !important;
+    box-sizing: border-box !important;
+  }
+
+  .user-profile-badge {
+    padding: 0 0.35rem !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+    gap: 0.35rem !important;
+    border-radius: 10px !important;
+    background: var(--bg-surface-elevated) !important;
+    border: 1px solid var(--border-subtle) !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+  }
+
+  .user-avatar {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    font-size: 0.75rem !important;
+    border-radius: 50% !important;
   }
 
   /* Notification dropdown on mobile is fixed & clean */
@@ -5116,54 +5153,29 @@ html {
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75) !important;
   }
 
-  @media (max-width: 600px) {
-    .header-brand-group {
-      gap: 0.4rem !important;
-    }
-    #supabase-pill-text {
-      display: none !important;
-    }
-    .supabase-status-pill {
-      padding: 0.35rem 0.5rem !important;
-    }
-    .btn-reset-demo span {
-      display: none !important;
-    }
-    .btn-reset-demo {
-      padding: 0.35rem 0.55rem !important;
-      min-width: 32px !important;
-      height: 32px !important;
-    }
+  /* Mobile Sidebar Sandbox / Developer Tools */
+  .sidebar-sandbox-tools {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    margin-bottom: 0.85rem !important;
+    padding: 0.65rem 0.75rem !important;
+    background: var(--bg-surface-elevated) !important;
+    border: 1px solid var(--border-subtle) !important;
+    border-radius: var(--radius-md) !important;
   }
 
-  .theme-toggle-btn {
-    width: 38px !important;
-    min-width: 38px !important;
-    max-width: 38px !important;
-    height: 38px !important;
-    min-height: 38px !important;
-    padding: 0 !important;
+  .sidebar-sandbox-tools .supabase-status-pill,
+  .sidebar-sandbox-tools .btn-reset-demo {
     display: inline-flex !important;
-    align-items: center !important;
+    width: 100% !important;
     justify-content: center !important;
-    border-radius: 10px !important;
-    flex-shrink: 0 !important;
+    padding: 0.45rem 0.75rem !important;
+    font-size: 0.76rem !important;
   }
 
-  .user-profile-badge {
-    padding: 3px 6px !important;
-    min-height: 36px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    flex-shrink: 0 !important;
-    gap: 0.35rem !important;
-    border-radius: 10px !important;
-  }
-
-  .user-avatar {
-    width: 30px !important;
-    height: 30px !important;
-    font-size: 0.78rem !important;
+  .sidebar-sandbox-tools .btn-reset-demo span {
+    display: inline !important;
   }
 
   /* ── 3. OFF-CANVAS SIDEBAR DRAWER ── */
