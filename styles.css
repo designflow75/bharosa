@@ -2406,14 +2406,15 @@ h1, h2, h3, h4, h5, h6,
   padding: 0 1.25rem;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
   transition: background-color var(--transition-normal);
   max-width: 100%;
   width: 100%;
   box-sizing: border-box;
   gap: 0.85rem;
-  overflow: hidden;
-  height: var(--header-height, 64px);
+  overflow: visible !important;
+  min-height: var(--header-height, 64px);
+  height: auto;
 }
 
 .header-brand-group {
@@ -2621,7 +2622,7 @@ h1, h2, h3, h4, h5, h6,
   box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  z-index: 1000;
+  z-index: 99999 !important;
   overflow: hidden;
   animation: notifDropdownFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -6023,6 +6024,31 @@ html {
    WORKSPACE SWITCHER & MULTI-ROLE CONSOLE STYLES
    ========================================================================== */
 
+/* Column container putting Switcher directly UNDER Supabase and Reset Data */
+.header-switch-column {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.header-switch-column-top {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-switch-column-top .supabase-status-pill {
+  padding: 0.22rem 0.65rem;
+  font-size: 0.72rem;
+}
+
+.header-switch-column-top .btn-reset-demo {
+  padding: 0.22rem 0.6rem;
+  font-size: 0.72rem;
+}
+
 /* 3-Button Direct Role Switcher Segmented Control in Header */
 .header-role-switcher-segmented {
   display: inline-flex;
@@ -6121,6 +6147,32 @@ html {
 /* Backwards-compatible fallback class */
 .btn-header-switch-role {
   display: none !important;
+}
+
+/* Sidebar switcher under Supabase and Reset Data */
+.sidebar-role-switcher-capsule {
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border-subtle);
+  width: 100%;
+}
+
+.sidebar-role-switcher-capsule .header-role-switcher-segmented {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  border-radius: var(--radius-md);
+  padding: 3px;
+  background: var(--bg-surface-elevated);
+}
+
+.sidebar-role-switcher-capsule .seg-role-btn {
+  flex: 1;
+  justify-content: center;
+  padding: 0.35rem 0.3rem;
+  font-size: 0.72rem;
+  border-radius: var(--radius-sm);
+  gap: 4px;
 }
 
 /* ==========================================================================
