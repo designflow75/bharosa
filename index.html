@@ -16,6 +16,37 @@
   <!-- Lucide Modern Icons for backward-compatible action triggers -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
+    /* Global Icon Initializer with Retry Guard for Lucide CDN Latency */
+    function initIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+      }
+    }
+    window.initIcons = initIcons;
+
+    /* Seamless 1-Click Role Switcher */
+    function switchRole(role) {
+      if (typeof demoLogin === 'function') {
+        demoLogin(role);
+      } else if (typeof switchPersonaDemo === 'function') {
+        switchPersonaDemo(role);
+      }
+    }
+    window.switchRole = switchRole;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initIcons();
+      setTimeout(initIcons, 50);
+      setTimeout(initIcons, 200);
+      setTimeout(initIcons, 600);
+      setTimeout(initIcons, 1500);
+      setTimeout(initIcons, 3000);
+    });
+    window.addEventListener('load', () => {
+      initIcons();
+      setTimeout(initIcons, 300);
+    });
+
     /* Mobile navigation helpers */
     function openQuickActionSheet() {
       const sheet = document.getElementById('mobile-action-sheet');
@@ -134,7 +165,7 @@
           <div class="ltb-controls">
             <!-- Theme Toggle Button -->
             <button type="button" class="btn-ltb-theme" onclick="toggleTheme()" title="Toggle Theme" aria-label="Toggle Theme">
-              <i data-lucide="moon"></i>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
             </button>
 
             <!-- Live Demo Green Pill -->
@@ -146,7 +177,7 @@
             <!-- Header Login Gradient Button -->
             <button type="button" class="btn-ltb-login" onclick="scrollToDemoRoles()" title="Login to Workspace">
               <span>Login</span>
-              <i data-lucide="arrow-right"></i>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
           </div>
         </header>
@@ -391,8 +422,9 @@
             <!-- TRY THE DEMO CARD -->
             <div class="try-demo-card">
               <div class="tdc-header">
+                <span class="brand-badge" style="background:rgba(99,102,241,0.15); color:#818cf8; border:1px solid rgba(99,102,241,0.3); font-size:0.68rem; padding:3px 8px; margin-bottom:6px; display:inline-block; font-weight:700; border-radius:6px;">BUILT-IN WORKSPACE SWITCHER</span>
                 <h3>Try the Demo</h3>
-                <p>Choose a role to explore the platform.</p>
+                <p>Choose <strong>Client</strong>, <strong>Freelancer</strong>, or <strong>Admin</strong>. Switch roles anytime instantly inside your dashboard.</p>
               </div>
 
               <!-- 3 Interactive Role Buttons -->
@@ -400,45 +432,45 @@
                 <!-- Client Role Item -->
                 <div class="tdc-role-item role-item-client" onclick="demoLogin('client')" role="button" tabindex="0" title="Sign in as Client (Rahul Verma)">
                   <div class="tri-icon icon-bg-blue">
-                    <i data-lucide="user"></i>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                   </div>
                   <div class="tri-meta">
-                    <div class="tri-name">Client</div>
-                    <div class="tri-desc">Post projects, track progress, make payments</div>
+                    <div class="tri-name">Client Portal</div>
+                    <div class="tri-desc">Post projects, track escrow, approve milestones</div>
                   </div>
-                  <i data-lucide="chevron-right" class="tri-chevron"></i>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="tri-chevron" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </div>
 
                 <!-- Freelancer Role Item -->
                 <div class="tdc-role-item role-item-freelancer" onclick="demoLogin('freelancer')" role="button" tabindex="0" title="Sign in as Freelancer (Priya Sharma)">
                   <div class="tri-icon icon-bg-purple">
-                    <i data-lucide="user"></i>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
                   </div>
                   <div class="tri-meta">
-                    <div class="tri-name">Freelancer</div>
-                    <div class="tri-desc">Find projects, submit work, get paid</div>
+                    <div class="tri-name">Freelancer Suite</div>
+                    <div class="tri-desc">Find projects, submit deliverables, get paid</div>
                   </div>
-                  <i data-lucide="chevron-right" class="tri-chevron"></i>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="tri-chevron" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </div>
 
                 <!-- Admin Role Item -->
                 <div class="tdc-role-item role-item-admin" onclick="demoLogin('admin')" role="button" tabindex="0" title="Sign in as Admin (Dispute Arbiter)">
                   <div class="tri-icon icon-bg-indigo">
-                    <i data-lucide="shield"></i>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
                   </div>
                   <div class="tri-meta">
-                    <div class="tri-name">Admin</div>
-                    <div class="tri-desc">Manage disputes, invoices and payments</div>
+                    <div class="tri-name">Admin Console</div>
+                    <div class="tri-desc">Manage disputes, neutral mediation & compliance</div>
                   </div>
-                  <i data-lucide="chevron-right" class="tri-chevron"></i>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="tri-chevron" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </div>
               </div>
 
               <!-- Full-width Bottom Login Button -->
               <button type="button" class="btn-tdc-login" onclick="toggleCustomLoginForm()" title="Toggle custom credentials form">
-                <i data-lucide="lock" class="btn-lock"></i>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="btn-lock" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                 <span>Login</span>
-                <i data-lucide="arrow-right" class="btn-arrow"></i>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="btn-arrow" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
               </button>
 
               <!-- Collapsible Custom Credentials Drawer (Fully Functional) -->
@@ -857,26 +889,26 @@
 
         <!-- Reset Applied Data Button -->
         <button class="btn-reset-demo" id="btn-header-reset-demo" onclick="confirmResetDemoData()" title="Reset all applied data back to pristine test state">
-          <i data-lucide="rotate-ccw" style="width: 13px; height: 13px;"></i>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
           <span>Reset Data</span>
         </button>
 
         <!-- Switch Workspace / Role Button -->
-        <button class="btn-header-switch-role" id="btn-header-switch-role" onclick="navigateTo('/switch-workspace')" title="Switch Workspace (Freelancer, Client, Admin)">
-          <i data-lucide="arrow-left-right" style="width:14px;height:14px;"></i>
-          <span>Switch Role</span>
+        <button class="btn-header-switch-role" id="btn-header-switch-role" onclick="navigateTo('/switch-workspace')" title="Built-in Workspace Switcher (Freelancer • Client • Admin)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 4 4-4 4"></path><path d="M20 7H4"></path><path d="m8 21-4-4 4-4"></path><path d="M4 17h16"></path></svg>
+          <span>Switch: Freelancer • Client • Admin</span>
         </button>
 
         <!-- Notifications Bell -->
         <div class="notif-wrapper" id="header-notif-wrapper">
-          <button class="btn-secondary notif-bell-btn" id="btn-toggle-notifs" onclick="toggleNotificationPanel(event)" title="Notifications" aria-label="Notifications">
-            <i data-lucide="bell" style="width:16px;height:16px;"></i>
+          <button class="notif-bell-btn" id="btn-toggle-notifs" onclick="toggleNotificationPanel(event)" title="Notifications" aria-label="Notifications">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
             <span class="badge-count" id="notif-count-badge" style="display: none;">0</span>
           </button>
           
           <div class="notification-dropdown-panel" id="notification-panel" style="display: none;">
             <div class="notif-panel-header">
-              <span><i data-lucide="bell" style="width:14px;height:14px;margin-right:6px;"></i>Notifications</span>
+              <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:6px;" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>Notifications</span>
               <button class="btn-tag" style="font-size:0.7rem;cursor:pointer;" onclick="markAllNotifsRead(event)">Mark all read</button>
             </div>
             <div class="notif-panel-list" id="notification-panel-list">
@@ -888,7 +920,7 @@
         <!-- Light / Dark Theme Switcher -->
         <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Theme">
           <span class="icon" id="theme-icon">
-            <i data-lucide="moon" style="width:15px;height:15px;"></i>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
           </span>
           <span id="theme-label">Dark</span>
         </button>
@@ -900,7 +932,7 @@
             <span class="user-info-name" id="nav-user-name">Priya Sharma</span>
             <span class="user-info-role" id="nav-user-role">Senior Product Designer</span>
           </div>
-          <i data-lucide="log-out" style="width:14px;height:14px;color:var(--text-muted);margin-left:4px;"></i>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-muted);margin-left:4px;" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
         </div>
       </div>
     </header>
@@ -994,6 +1026,39 @@
             </button>
           </div>
         </div>
+
+        <!-- Built-in Workspace Quick Switcher Banner -->
+        <div class="workspace-switch-banner">
+          <div class="ws-banner-content">
+            <div class="ws-banner-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 4 4-4 4"></path><path d="M20 7H4"></path><path d="m8 21-4-4 4-4"></path><path d="M4 17h16"></path></svg>
+            </div>
+            <div class="ws-banner-text">
+              <div class="ws-banner-title-row">
+                <h4>Built-in Workspace Switcher</h4>
+                <span class="role-chip chip-green" style="font-size:0.72rem; padding:2px 8px;">Active: Freelancer Suite</span>
+              </div>
+              <p>Seamlessly toggle to Client Portal or Admin Console anytime without losing your work.</p>
+            </div>
+          </div>
+          <div class="ws-banner-actions">
+            <button class="btn-role-quickswitch role-switch-client" onclick="switchRole('client')" title="Switch to Client Portal">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+              <div class="btn-role-meta">
+                <span class="btn-role-title">Client Portal</span>
+                <span class="btn-role-sub">Approvals &amp; Escrow</span>
+              </div>
+            </button>
+            <button class="btn-role-quickswitch role-switch-admin" onclick="switchRole('admin')" title="Switch to Admin Console">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+              <div class="btn-role-meta">
+                <span class="btn-role-title">Admin Console</span>
+                <span class="btn-role-sub">Disputes &amp; Arbiter</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
         <!-- Needs Your Action Row -->
         <div class="card-section" style="margin-bottom: 1.5rem;" id="fl-action-items-section">
           <div class="card-section-header">
@@ -1127,6 +1192,39 @@
             </button>
           </div>
         </div>
+
+        <!-- Built-in Workspace Quick Switcher Banner -->
+        <div class="workspace-switch-banner banner-client">
+          <div class="ws-banner-content">
+            <div class="ws-banner-icon" style="background:rgba(56,189,248,0.15); border-color:rgba(56,189,248,0.3); color:#38bdf8;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 4 4-4 4"></path><path d="M20 7H4"></path><path d="m8 21-4-4 4-4"></path><path d="M4 17h16"></path></svg>
+            </div>
+            <div class="ws-banner-text">
+              <div class="ws-banner-title-row">
+                <h4>Built-in Workspace Switcher</h4>
+                <span class="role-chip chip-blue" style="font-size:0.72rem; padding:2px 8px;">Active: Client Portal</span>
+              </div>
+              <p>Seamlessly toggle to Freelancer Suite or Admin Console anytime without losing your work.</p>
+            </div>
+          </div>
+          <div class="ws-banner-actions">
+            <button class="btn-role-quickswitch role-switch-freelancer" onclick="switchRole('freelancer')" title="Switch to Freelancer Suite">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              <div class="btn-role-meta">
+                <span class="btn-role-title">Freelancer Suite</span>
+                <span class="btn-role-sub">Tasks &amp; Invoices</span>
+              </div>
+            </button>
+            <button class="btn-role-quickswitch role-switch-admin" onclick="switchRole('admin')" title="Switch to Admin Console">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
+              <div class="btn-role-meta">
+                <span class="btn-role-title">Admin Console</span>
+                <span class="btn-role-sub">Disputes &amp; Arbiter</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
         <!-- Needs Your Approval Queue -->
         <div class="card-section" style="margin-bottom: 1.5rem;" id="cl-approvals-section">
           <div class="card-section-header">
@@ -1717,6 +1815,38 @@
           <div class="page-header-text">
             <h2>Super Admin Control Panel</h2>
             <p>Platform Operations, Neutral Dispute Mediation, and Compliance Oversight</p>
+          </div>
+        </div>
+
+        <!-- Built-in Workspace Quick Switcher Banner -->
+        <div class="workspace-switch-banner banner-admin">
+          <div class="ws-banner-content">
+            <div class="ws-banner-icon" style="background:rgba(168,85,247,0.15); border-color:rgba(168,85,247,0.3); color:#c084fc;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m16 3 4 4-4 4"></path><path d="M20 7H4"></path><path d="m8 21-4-4 4-4"></path><path d="M4 17h16"></path></svg>
+            </div>
+            <div class="ws-banner-text">
+              <div class="ws-banner-title-row">
+                <h4>Built-in Workspace Switcher</h4>
+                <span class="role-chip chip-purple" style="font-size:0.72rem; padding:2px 8px;">Active: Admin Console</span>
+              </div>
+              <p>Seamlessly toggle to Freelancer Suite or Client Portal anytime without losing your work.</p>
+            </div>
+          </div>
+          <div class="ws-banner-actions">
+            <button class="btn-role-quickswitch role-switch-freelancer" onclick="switchRole('freelancer')" title="Switch to Freelancer Suite">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              <div class="btn-role-meta">
+                <span class="btn-role-title">Freelancer Suite</span>
+                <span class="btn-role-sub">Tasks &amp; Invoices</span>
+              </div>
+            </button>
+            <button class="btn-role-quickswitch role-switch-client" onclick="switchRole('client')" title="Switch to Client Portal">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+              <div class="btn-role-meta">
+                <span class="btn-role-title">Client Portal</span>
+                <span class="btn-role-sub">Approvals &amp; Escrow</span>
+              </div>
+            </button>
           </div>
         </div>
 

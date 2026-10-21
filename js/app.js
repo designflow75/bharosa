@@ -209,6 +209,12 @@ function routeView(pathname) {
       navigateTo('/admin');
     }
   }
+
+  if (typeof initIcons === 'function') {
+    initIcons();
+  } else if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
 }
 
 function showAuthScreen() {
@@ -5140,10 +5146,24 @@ window.openMobileLoginDrawer = openMobileLoginDrawer;
 window.closeMobileLoginDrawer = closeMobileLoginDrawer;
 window.toggleMobileCustomLogin = toggleMobileCustomLogin;
 
+function switchRole(role) {
+  if (typeof demoLogin === 'function') {
+    demoLogin(role);
+  } else if (typeof switchPersonaDemo === 'function') {
+    switchPersonaDemo(role);
+  }
+}
+window.switchRole = switchRole;
+
 // App Initialization on DOM Ready
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   routeView(window.location.pathname);
   checkSupabaseStatus();
   renderNotificationList();
+  if (typeof initIcons === 'function') {
+    initIcons();
+    setTimeout(initIcons, 100);
+    setTimeout(initIcons, 400);
+  }
 });
