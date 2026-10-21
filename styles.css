@@ -7868,4 +7868,191 @@ html {
   }
 }
 
+/* ==========================================================================
+   INTERACTIVE DATA VISUALIZATION & ANALYTICS CHARTS
+   ========================================================================== */
+.chart-card-section {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(11, 18, 35, 0.85) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.75rem;
+  transition: border-color var(--transition-fast);
+}
+
+.chart-card-section:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.chart-range-selector {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-full);
+  padding: 2px;
+  gap: 2px;
+}
+
+.chart-range-selector .btn-tag {
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 0.3rem 0.75rem;
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.chart-range-selector .btn-tag:hover {
+  color: var(--text-primary);
+}
+
+.chart-range-selector .btn-tag.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+  font-weight: 700;
+}
+
+.chart-analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 1.5rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.chart-canvas-wrapper {
+  background: rgba(11, 18, 35, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.25rem 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-canvas-wrapper svg {
+  width: 100%;
+  height: auto;
+  min-height: 200px;
+  display: block;
+}
+
+.chart-canvas-wrapper svg circle {
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.chart-canvas-wrapper svg circle:hover {
+  r: 7.5;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.chart-summary-sidecard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+}
+
+.summary-metric-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.summary-metric-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.metric-icon-bubble {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.metric-icon-bubble.green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.metric-icon-bubble.purple {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.metric-icon-bubble.blue {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.metric-icon-bubble.amber {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.summary-metric-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: var(--font-display, 'Plus Jakarta Sans', sans-serif);
+  line-height: 1.2;
+}
+
+.summary-metric-lbl {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+@media (max-width: 992px) {
+  .chart-analytics-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+[data-theme="light"] .chart-card-section {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .chart-canvas-wrapper {
+  background: #f8fafc;
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .chart-summary-sidecard {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .chart-range-selector {
+  background: #e2e8f0;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
 

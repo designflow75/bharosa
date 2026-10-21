@@ -1220,6 +1220,66 @@
           <span style="font-size:0.75rem; color:var(--text-muted);">Payment via provider (simulated in demo)</span>
         </div>
 
+        <!-- Freelancer Escrow Velocity & Cashflow Analytics Hub -->
+        <div class="card-section chart-card-section">
+          <div class="card-section-header" style="flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="trending-up" style="width: 18px; height: 18px; color: var(--success);"></i>
+                <h3>Escrow Velocity &amp; Cashflow Runway</h3>
+              </div>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">
+                Cryptographically locked milestones vs. released payments over time
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="role-chip chip-green" style="font-size: 0.7rem; padding: 2px 8px;">100% Guaranteed</span>
+              <div class="chart-range-selector">
+                <button id="btn-fl-chart-30d" class="btn-tag active" onclick="setFreelancerChartRange('30d')">30 Days</button>
+                <button id="btn-fl-chart-90d" class="btn-tag" onclick="setFreelancerChartRange('90d')">90 Days</button>
+                <button id="btn-fl-chart-all" class="btn-tag" onclick="setFreelancerChartRange('all')">All Time</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dual Visual Metrics + SVG Chart Grid -->
+          <div class="chart-analytics-grid">
+            <div id="fl-chart-svg-container" class="chart-canvas-wrapper">
+              <!-- Dynamically rendered via renderFreelancerDashboardGraph() -->
+            </div>
+            
+            <div class="chart-summary-sidecard">
+              <div class="summary-metric-row">
+                <div class="metric-icon-bubble green">
+                  <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div>
+                  <div class="summary-metric-val">1.4 Days</div>
+                  <div class="summary-metric-lbl">Avg Payout Clearance Speed</div>
+                </div>
+              </div>
+              <div class="summary-metric-row">
+                <div class="metric-icon-bubble purple">
+                  <i data-lucide="lock" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div>
+                  <div class="summary-metric-val">100% Backed</div>
+                  <div class="summary-metric-lbl">Zero Unpaid Invoices or Scope Debt</div>
+                </div>
+              </div>
+              <div class="summary-metric-row">
+                <div class="metric-icon-bubble blue">
+                  <i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div>
+                  <div class="summary-metric-val">99.4%</div>
+                  <div class="summary-metric-lbl">Milestone Verification SLA</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Freelancer Projects Table -->
         <div class="card-section">
           <div class="card-section-header">
@@ -1420,6 +1480,66 @@
             <div class="stat-value" id="cl-stat-active-projects">0</div>
             <div class="stat-footer">
               <span>View All Projects →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Client Capital Burn & Escrow Release Runway Hub -->
+        <div class="card-section chart-card-section" style="margin-bottom: 1.5rem;">
+          <div class="card-section-header" style="flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="bar-chart-3" style="width: 18px; height: 18px; color: var(--info);"></i>
+                <h3>Capital Burn &amp; Escrow Release Runway</h3>
+              </div>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">
+                Committed budget in escrow vs. verified funds disbursed upon milestone sign-off
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="role-chip chip-blue" style="font-size: 0.7rem; padding: 2px 8px;">Escrow Vault Guard</span>
+              <div class="chart-range-selector">
+                <button id="btn-cl-chart-30d" class="btn-tag active" onclick="setClientChartRange('30d')">30 Days</button>
+                <button id="btn-cl-chart-90d" class="btn-tag" onclick="setClientChartRange('90d')">90 Days</button>
+                <button id="btn-cl-chart-all" class="btn-tag" onclick="setClientChartRange('all')">All Time</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dual Visual Metrics + SVG Chart Grid -->
+          <div class="chart-analytics-grid">
+            <div id="cl-chart-svg-container" class="chart-canvas-wrapper">
+              <!-- Dynamically rendered via renderClientDashboardGraph() -->
+            </div>
+            
+            <div class="chart-summary-sidecard">
+              <div class="summary-metric-row">
+                <div class="metric-icon-bubble blue">
+                  <i data-lucide="shield" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div>
+                  <div class="summary-metric-val">100% Protected</div>
+                  <div class="summary-metric-lbl">Held in neutral escrow vault</div>
+                </div>
+              </div>
+              <div class="summary-metric-row">
+                <div class="metric-icon-bubble green">
+                  <i data-lucide="check-check" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div>
+                  <div class="summary-metric-val">18.4 Hours</div>
+                  <div class="summary-metric-lbl">Avg Milestone Verification Time</div>
+                </div>
+              </div>
+              <div class="summary-metric-row">
+                <div class="metric-icon-bubble amber">
+                  <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div>
+                  <div class="summary-metric-val">Zero Risk</div>
+                  <div class="summary-metric-lbl">48h Inspection &amp; Revision SLA</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1718,6 +1718,66 @@ async function loadAdminDashboard() {
           </div>
         </div>
 
+        <!-- Admin Platform Escrow & Settlement Analytics Hub -->
+        <div class="card-section chart-card-section" style="margin-bottom: 1.5rem;">
+          <div class="card-section-header" style="flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="line-chart" style="width: 18px; height: 18px; color: var(--warning);"></i>
+                <h3>Platform Escrow &amp; Settlement Velocity</h3>
+              </div>
+              <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">
+                Cumulative GMV protected in institutional escrow vs. verified settlement volume
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="role-chip chip-amber" style="font-size: 0.7rem; padding: 2px 8px;">Institutional Integrity</span>
+              <div class="chart-range-selector">
+                <button id="btn-adm-chart-30d" class="btn-tag active" onclick="setAdminChartRange('30d')">30 Days</button>
+                <button id="btn-adm-chart-90d" class="btn-tag" onclick="setAdminChartRange('90d')">90 Days</button>
+                <button id="btn-adm-chart-all" class="btn-tag" onclick="setAdminChartRange('all')">All Time</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dual Visual Metrics + SVG Chart Grid -->
+          <div class="chart-analytics-grid">
+            <div id="adm-chart-svg-container" class="chart-canvas-wrapper">
+              <!-- Dynamically rendered via renderAdminDashboardGraph() -->
+            </div>
+            
+            <div class="chart-summary-sidecard">
+              <div class="summary-metric-row">
+                <div class="metric-icon-bubble amber">
+                  <i data-lucide="shield-alert" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div>
+                  <div class="summary-metric-val">100% SLA</div>
+                  <div class="summary-metric-lbl">Dispute Mediation Rate</div>
+                </div>
+              </div>
+              <div class="summary-metric-row">
+                <div class="metric-icon-bubble blue">
+                  <i data-lucide="clock" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div>
+                  <div class="summary-metric-val">18.2 Hours</div>
+                  <div class="summary-metric-lbl">Avg Dispute Resolution Turnaround</div>
+                </div>
+              </div>
+              <div class="summary-metric-row">
+                <div class="metric-icon-bubble green">
+                  <i data-lucide="file-check" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div>
+                  <div class="summary-metric-val">₹0.00 Leakage</div>
+                  <div class="summary-metric-lbl">Cryptographic Audit Reconciliation</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="card-section" style="margin-bottom:1.5rem;">
           <div class="card-section-header">
             <div style="display:flex; align-items:center; gap:8px;">
@@ -3121,6 +3181,10 @@ async function sendProjectMessage() {
 // ==============================================================================
 // DASHBOARD VELOCITY GRAPHS (FREELANCER, CLIENT, ADMIN)
 // ==============================================================================
+
+let currentFreelancerChartRange = '30d';
+let currentClientChartRange = '30d';
+let currentAdminChartRange = '30d';
 
 function generateDashboardSvgChart({
   containerId,
