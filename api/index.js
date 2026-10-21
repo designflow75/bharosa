@@ -343,7 +343,84 @@ function getInitialSeed() {
         text: 'Thanks Rahul! The interactive prototype has been uploaded to Milestone 2 with cryptographic SHA-256 integrity hashes.',
         timestamp: '2026-10-16T11:35:00Z'
       }
-    ]
+    ],
+
+    wallets: {
+      'USR-102': {
+        userId: 'USR-102',
+        role: 'client',
+        availableBalance: 85000,
+        lockedInEscrow: 60000,
+        totalFundedLifetime: 170000,
+        totalDisbursedLifetime: 25000,
+        transactions: [
+          {
+            id: 'TXN-CL-901',
+            type: 'credit',
+            amount: 100000,
+            method: 'UPI Auto-Collect (HDFC Bank •••• 9214)',
+            referenceId: 'UPI-REF-9842109281',
+            description: 'Pre-funded Project Escrow Deposit',
+            timestamp: '2026-10-01T09:30:00Z',
+            status: 'completed'
+          },
+          {
+            id: 'TXN-CL-902',
+            type: 'escrow_lock',
+            amount: 40000,
+            projectId: 'PRJ-101',
+            projectTitle: 'Fintech Mobile App Redesign',
+            description: 'Escrow Lock: Milestone 2 & 3',
+            timestamp: '2026-10-05T14:15:00Z',
+            status: 'locked'
+          },
+          {
+            id: 'TXN-CL-903',
+            type: 'disbursement',
+            amount: 25000,
+            projectId: 'PRJ-101',
+            projectTitle: 'Fintech Mobile App Redesign',
+            description: 'Payment Released to Priya Sharma for Milestone 1',
+            timestamp: '2026-10-15T18:40:00Z',
+            status: 'settled'
+          },
+          {
+            id: 'TXN-CL-904',
+            type: 'credit',
+            amount: 70000,
+            method: 'NetBanking IMPS (ICICI Corporate •••• 1108)',
+            referenceId: 'IMPS-REF-4421088712',
+            description: 'Top-up for Enterprise Landing System Escrow',
+            timestamp: '2026-10-18T11:20:00Z',
+            status: 'completed'
+          }
+        ]
+      },
+      'USR-101': {
+        userId: 'USR-101',
+        role: 'freelancer',
+        availableBalance: 25000,
+        pendingInEscrow: 40000,
+        totalEarnedLifetime: 25000,
+        totalWithdrawnLifetime: 0,
+        bankAccounts: [
+          { id: 'BANK-01', bankName: 'HDFC Bank Ltd.', accountType: 'Savings Account', accountNumber: '•••• •••• •••• 4092', ifsc: 'HDFC0001824', isDefault: true },
+          { id: 'UPI-01', bankName: 'BHIM UPI', accountType: 'Virtual Payment Address', accountNumber: 'priya.sharma@okhdfcbank', ifsc: 'UPI-VPA', isDefault: false }
+        ],
+        transactions: [
+          {
+            id: 'TXN-FL-801',
+            type: 'milestone_payout',
+            amount: 25000,
+            projectId: 'PRJ-101',
+            projectTitle: 'Fintech Mobile App Redesign',
+            description: 'Milestone 1 Deliverables Approved by Rahul Verma',
+            timestamp: '2026-10-15T18:40:00Z',
+            status: 'cleared'
+          }
+        ]
+      }
+    }
   };
 }
 
@@ -1467,6 +1544,179 @@ app.post('/api/refunds', authenticateUser, requireRole('client', 'admin'), (req,
   supabaseAdapter.syncAuditLog(auditRefund);
 
   res.json({ success: true, refundId, status: 'logged_for_escrow_review' });
+});
+
+// ==============================================================================
+// 12. ESCROW & PAYOUT WALLET HUB API (/api/wallet)
+// ==============================================================================
+
+app.get('/api/wallet', authenticateUser, (req, res) => {
+  if (!DB.wallets) {
+    DB.wallets = getInitialSeed().wallets;
+  }
+  let wallet = DB.wallets[req.user.id];
+  if (!wallet) {
+    wallet = {
+      userId: req.user.id,
+      role: req.user.role,
+      availableBalance: req.user.role === 'client' ? 50000 : 15000,
+      lockedInEscrow: req.user.role === 'client' ? 30000 : 0,
+      pendingInEscrow: req.user.role === 'freelancer' ? 20000 : 0,
+      totalFundedLifetime: req.user.role === 'client' ? 80000 : 0,
+      totalEarnedLifetime: req.user.role === 'freelancer' ? 15000 : 0,
+      totalWithdrawnLifetime: 0,
+      totalDisbursedLifetime: req.user.role === 'client' ? 15000 : 0,
+      bankAccounts: req.user.role === 'freelancer' ? [
+        { id: 'BANK-01', bankName: 'HDFC Bank Ltd.', accountType: 'Savings Account', accountNumber: '•••• •••• •••• 4092', ifsc: 'HDFC0001824', isDefault: true },
+        { id: 'UPI-01', bankName: 'BHIM UPI', accountType: 'Virtual Payment Address', accountNumber: `${req.user.name.toLowerCase().replace(/\s+/g, '.')}@okhdfcbank`, ifsc: 'UPI-VPA', isDefault: false }
+      ] : [],
+      transactions: []
+    };
+    DB.wallets[req.user.id] = wallet;
+  }
+  res.json({ success: true, wallet });
+});
+
+// Client credits / pre-funds their Escrow Vault Balance
+app.post('/api/wallet/credit', authenticateUser, requireRole('client'), (req, res) => {
+  const { amount, method = 'UPI Instant', referenceNote = 'Pre-funded Escrow Deposit' } = req.body;
+  const numAmount = Number(amount);
+  if (!numAmount || numAmount <= 0) {
+    return res.status(400).json({ error: 'Invalid amount. Must be greater than 0.' });
+  }
+
+  if (!DB.wallets) DB.wallets = getInitialSeed().wallets;
+  let wallet = DB.wallets[req.user.id];
+  if (!wallet) {
+    wallet = {
+      userId: req.user.id,
+      role: 'client',
+      availableBalance: 0,
+      lockedInEscrow: 0,
+      totalFundedLifetime: 0,
+      totalDisbursedLifetime: 0,
+      transactions: []
+    };
+    DB.wallets[req.user.id] = wallet;
+  }
+
+  wallet.availableBalance += numAmount;
+  wallet.totalFundedLifetime = (wallet.totalFundedLifetime || 0) + numAmount;
+
+  const txnId = `TXN-CR-${Date.now().toString().slice(-6)}`;
+  const refId = `REF-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+  const transaction = {
+    id: txnId,
+    type: 'credit',
+    amount: numAmount,
+    method,
+    referenceId: refId,
+    description: referenceNote,
+    timestamp: new Date().toISOString(),
+    status: 'completed'
+  };
+
+  if (!wallet.transactions) wallet.transactions = [];
+  wallet.transactions.unshift(transaction);
+
+  if (DB.auditLogs) {
+    DB.auditLogs.unshift({
+      id: `AUD-${Date.now().toString().slice(-6)}`,
+      action: 'ESCROW_WALLET_CREDITED',
+      actorId: req.user.id,
+      actorName: req.user.name,
+      actorRole: req.user.role,
+      reason: `Client deposited ₹${numAmount.toLocaleString('en-IN')} into Escrow Pre-Funding Vault via ${method}`,
+      evidenceHash: `sha256-${Math.random().toString(16).substring(2, 10)}${Math.random().toString(16).substring(2, 10)}`,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  res.json({
+    success: true,
+    message: `Successfully credited ₹${numAmount.toLocaleString('en-IN')} to Escrow Vault`,
+    wallet,
+    transaction
+  });
+});
+
+// Freelancer debits / withdraws their cleared earnings to their bank account
+app.post('/api/wallet/withdraw', authenticateUser, requireRole('freelancer'), (req, res) => {
+  const { amount, destinationAccountId = 'BANK-01', payoutMethod = 'IMPS Instant' } = req.body;
+  const numAmount = Number(amount);
+  if (!numAmount || numAmount <= 0) {
+    return res.status(400).json({ error: 'Invalid withdrawal amount.' });
+  }
+
+  if (!DB.wallets) DB.wallets = getInitialSeed().wallets;
+  let wallet = DB.wallets[req.user.id];
+  if (!wallet) {
+    wallet = {
+      userId: req.user.id,
+      role: 'freelancer',
+      availableBalance: 25000,
+      pendingInEscrow: 40000,
+      totalEarnedLifetime: 25000,
+      totalWithdrawnLifetime: 0,
+      bankAccounts: [
+        { id: 'BANK-01', bankName: 'HDFC Bank Ltd.', accountType: 'Savings Account', accountNumber: '•••• •••• •••• 4092', ifsc: 'HDFC0001824', isDefault: true },
+        { id: 'UPI-01', bankName: 'BHIM UPI', accountType: 'Virtual Payment Address', accountNumber: 'priya.sharma@okhdfcbank', ifsc: 'UPI-VPA', isDefault: false }
+      ],
+      transactions: []
+    };
+    DB.wallets[req.user.id] = wallet;
+  }
+
+  if (numAmount > wallet.availableBalance) {
+    return res.status(400).json({
+      error: 'Insufficient funds',
+      message: `Requested ₹${numAmount.toLocaleString('en-IN')} exceeds available withdrawable balance of ₹${wallet.availableBalance.toLocaleString('en-IN')}`
+    });
+  }
+
+  wallet.availableBalance -= numAmount;
+  wallet.totalWithdrawnLifetime = (wallet.totalWithdrawnLifetime || 0) + numAmount;
+
+  const destAccount = (wallet.bankAccounts || []).find(b => b.id === destinationAccountId) || {
+    bankName: 'Verified Bank',
+    accountNumber: '•••• 4092'
+  };
+
+  const txnId = `TXN-WDR-${Date.now().toString().slice(-6)}`;
+  const utr = `UTR-${Date.now()}${Math.floor(Math.random() * 1000)}`;
+  const transaction = {
+    id: txnId,
+    type: 'withdrawal_debit',
+    amount: numAmount,
+    method: `${payoutMethod} (${destAccount.bankName} ${destAccount.accountNumber})`,
+    referenceId: utr,
+    description: `Payout debit transfer to ${destAccount.bankName} ${destAccount.accountNumber}`,
+    timestamp: new Date().toISOString(),
+    status: 'completed'
+  };
+
+  if (!wallet.transactions) wallet.transactions = [];
+  wallet.transactions.unshift(transaction);
+
+  if (DB.auditLogs) {
+    DB.auditLogs.unshift({
+      id: `AUD-${Date.now().toString().slice(-6)}`,
+      action: 'FREELANCER_EARNINGS_DEBITED',
+      actorId: req.user.id,
+      actorName: req.user.name,
+      actorRole: req.user.role,
+      reason: `Freelancer debited ₹${numAmount.toLocaleString('en-IN')} to ${destAccount.bankName} (UTR: ${utr})`,
+      evidenceHash: `sha256-${Math.random().toString(16).substring(2, 10)}${Math.random().toString(16).substring(2, 10)}`,
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  res.json({
+    success: true,
+    message: `Successfully initiated debit payout of ₹${numAmount.toLocaleString('en-IN')} to ${destAccount.bankName}`,
+    wallet,
+    transaction
+  });
 });
 
 module.exports = app;

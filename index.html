@@ -1200,14 +1200,14 @@
             </div>
           </div>
 
-          <div class="stat-card" style="border-left: 3px solid var(--success); cursor:pointer;" onclick="navigateTo('/freelancer/invoices')" title="Click to view paid invoices">
+          <div class="stat-card" style="border-left: 3px solid var(--success); cursor:pointer;" onclick="navigateTo('/freelancer/wallet')" title="Click to view earnings wallet & bank payouts">
             <div class="stat-card-header">
               <span class="stat-title">Received Income</span>
               <div class="stat-icon green"><i data-lucide="wallet" style="width:16px;height:16px;"></i></div>
             </div>
             <div class="stat-value" id="fl-stat-received-income">₹0</div>
             <div class="stat-footer">
-              <span class="stat-trend up">View Invoices →</span>
+              <span class="stat-trend up">Earnings Wallet & Payouts →</span>
             </div>
           </div>
         </div>
@@ -1439,14 +1439,14 @@
 
         <!-- Client Metric Cards (Committed vs Spent, Pending Approvals, Next Milestone Due, Active Projects) -->
         <div class="stats-grid">
-          <div class="stat-card" style="cursor:pointer;" onclick="navigateTo('/client/invoices')" title="Click to view all invoices">
+          <div class="stat-card" style="cursor:pointer;" onclick="navigateTo('/client/wallet')" title="Click to view Escrow Pre-Funding Vault & Top-Up">
             <div class="stat-card-header">
               <span class="stat-title">Budget Committed</span>
               <div class="stat-icon purple"><i data-lucide="credit-card" style="width:16px;height:16px;"></i></div>
             </div>
             <div class="stat-value" id="cl-stat-committed">₹0</div>
             <div class="stat-footer">
-              <span>View Invoices →</span>
+              <span class="stat-trend up">Escrow Vault & Top-Up →</span>
             </div>
           </div>
 
@@ -2043,6 +2043,132 @@
         <!-- Workspace Subtab Content Pane -->
         <div id="pw-subtab-content" style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-lg); padding:1.5rem;">
           <!-- Dynamically populated based on active subtab -->
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           VIEW 3W: ESCROW & PAYOUT WALLET HUB (/client/wallet & /freelancer/wallet)
+           Clients credit/deposit money; Freelancers debit/withdraw earnings
+           ================================================================== -->
+      <section id="view-wallet" class="view-section">
+        <div class="page-header" style="flex-wrap: wrap; gap: 1rem;">
+          <div class="page-header-text">
+            <h2 id="wallet-view-title">Escrow &amp; Payout Wallet Hub</h2>
+            <p id="wallet-view-subtitle">Pre-fund milestone escrow capital or withdraw cleared earnings to your bank</p>
+          </div>
+          <div class="header-action-group" id="wallet-header-actions">
+            <!-- Injected dynamically based on role -->
+          </div>
+        </div>
+
+        <!-- Wallet Balance Hero Highlight Card -->
+        <div class="wallet-balance-hero" id="wallet-hero-banner">
+          <div>
+            <div class="wallet-balance-title" id="wallet-hero-badge">
+              <i data-lucide="shield-check" style="width:16px;height:16px;"></i>
+              <span id="wallet-hero-badge-text">Available Withdrawable Balance</span>
+            </div>
+            <div class="wallet-balance-amount" id="wallet-hero-amount">₹0</div>
+            <div class="wallet-balance-desc" id="wallet-hero-desc">
+              Cleared funds from approved milestones • Instant 24x7 IMPS / UPI payout
+            </div>
+            <div class="wallet-quick-chips" id="wallet-quick-chips-container">
+              <!-- Preset chips populated dynamically -->
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:flex-end;">
+            <div id="wallet-hero-action-slot">
+              <!-- Primary Action Button -->
+            </div>
+            <span class="role-chip chip-green" id="wallet-custody-pill" style="font-size:0.7rem; padding:3px 10px;">
+              <i data-lucide="lock" style="width:12px;height:12px;margin-right:4px;"></i>
+              Institutional Escrow Backed
+            </span>
+          </div>
+        </div>
+
+        <!-- 4 Key Financial Metrics Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title" id="wallet-stat-title-1">Available Funds</span>
+              <div class="stat-icon green" id="wallet-stat-icon-1"><i data-lucide="wallet" style="width:16px;height:16px;"></i></div>
+            </div>
+            <div class="stat-value" id="wallet-stat-val-1">₹0</div>
+            <div class="stat-footer"><span id="wallet-stat-sub-1">Instant liquidity</span></div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title" id="wallet-stat-title-2">Locked in Escrow</span>
+              <div class="stat-icon purple" id="wallet-stat-icon-2"><i data-lucide="lock" style="width:16px;height:16px;"></i></div>
+            </div>
+            <div class="stat-value" id="wallet-stat-val-2">₹0</div>
+            <div class="stat-footer"><span id="wallet-stat-sub-2">Pending milestone delivery</span></div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title" id="wallet-stat-title-3">Lifetime Volume</span>
+              <div class="stat-icon blue" id="wallet-stat-icon-3"><i data-lucide="trending-up" style="width:16px;height:16px;"></i></div>
+            </div>
+            <div class="stat-value" id="wallet-stat-val-3">₹0</div>
+            <div class="stat-footer"><span id="wallet-stat-sub-3">Total platform turnover</span></div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-header">
+              <span class="stat-title" id="wallet-stat-title-4">Settled / Debited</span>
+              <div class="stat-icon amber" id="wallet-stat-icon-4"><i data-lucide="arrow-up-right" style="width:16px;height:16px;"></i></div>
+            </div>
+            <div class="stat-value" id="wallet-stat-val-4">₹0</div>
+            <div class="stat-footer"><span id="wallet-stat-sub-4">Disbursed to bank</span></div>
+          </div>
+        </div>
+
+        <!-- 2-Column Responsive Hub: Ledger & Banking Methods -->
+        <div class="responsive-two-col" style="grid-template-columns: 2fr 1fr; margin-top: 1.5rem;">
+          <!-- Left: Transaction Ledger -->
+          <div class="card-section">
+            <div class="card-section-header" style="flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <h3>Wallet &amp; Escrow Ledger</h3>
+                <span style="font-size:0.75rem; color:var(--text-muted);">Real-time cryptographic audit of deposits, locks, and payouts</span>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="btn-tag active" id="btn-wallet-filter-all" onclick="filterWalletLedger('all')">All</button>
+                <button class="btn-tag" id="btn-wallet-filter-credits" onclick="filterWalletLedger('credit')">Deposits</button>
+                <button class="btn-tag" id="btn-wallet-filter-debits" onclick="filterWalletLedger('withdrawal_debit')">Debits</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="data-table" style="width:100%;">
+                <thead>
+                  <tr>
+                    <th>Type &amp; ID</th>
+                    <th>Description</th>
+                    <th>Method / Reference</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody id="wallet-ledger-tbody">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Right: Linked Banking / Custody Details -->
+          <div class="card-section">
+            <div class="card-section-header">
+              <h3 id="wallet-sidecard-title">Payout Accounts &amp; Custody</h3>
+            </div>
+            <div id="wallet-sidecard-body">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
         </div>
       </section>
 
@@ -3121,6 +3247,145 @@ SUPABASE_KEY=your-anon-or-service-role-key</pre>
           <span>Confirm &amp; Reset Data</span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal: Client Credit / Pre-fund Escrow Vault -->
+  <div class="modal-overlay" id="modal-wallet-credit">
+    <div class="modal-card" style="max-width: 520px; width: 92%;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="background:rgba(56, 189, 248, 0.15); color:var(--info); width:34px; height:34px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center;">
+            <i data-lucide="plus-circle" style="width:18px;height:18px;"></i>
+          </div>
+          <div>
+            <h3 style="margin:0; font-size:1.15rem;">Credit Escrow Pre-Funding Vault</h3>
+            <span style="font-size:0.74rem; color:var(--text-muted);">Pre-fund funds into neutral escrow pool</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modal-wallet-credit')">&times;</button>
+      </div>
+      <form onsubmit="submitWalletCredit(event)">
+        <div class="modal-body">
+          <div style="background:rgba(56, 189, 248, 0.08); border:1px solid rgba(56, 189, 248, 0.25); border-radius:var(--radius-md); padding:0.85rem; margin-bottom:1rem; display:flex; gap:10px; align-items:center;">
+            <i data-lucide="shield" style="width:20px;height:20px;color:var(--info);flex-shrink:0;"></i>
+            <div style="font-size:0.78rem; color:var(--text-secondary); line-height:1.4;">
+              Funds deposited into your Escrow Vault are held in an RBI-compliant neutral partner bank. They are disbursed to contractors ONLY upon your explicit deliverable approval.
+            </div>
+          </div>
+
+          <div class="auth-input-group">
+            <label for="credit-amount-input">Deposit Amount (INR ₹) <span style="color:var(--danger);">*</span></label>
+            <div style="position:relative;">
+              <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--text-muted); font-size:1.1rem;">₹</span>
+              <input type="number" id="credit-amount-input" min="1000" step="500" value="25000" required style="width:100%; padding:0.65rem 0.65rem 0.65rem 2rem; font-size:1.15rem; font-weight:700; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-family:inherit; box-sizing:border-box;">
+            </div>
+            <!-- Quick Chips -->
+            <div class="wallet-quick-chips" style="margin-top:8px;">
+              <button type="button" class="wallet-quick-chip" onclick="quickFillCreditAmount(10000)">+ ₹10,000</button>
+              <button type="button" class="wallet-quick-chip" onclick="quickFillCreditAmount(25000)">+ ₹25,000</button>
+              <button type="button" class="wallet-quick-chip" onclick="quickFillCreditAmount(50000)">+ ₹50,000</button>
+              <button type="button" class="wallet-quick-chip" onclick="quickFillCreditAmount(100000)">+ ₹1,00,000</button>
+            </div>
+          </div>
+
+          <div class="auth-input-group" style="margin-top:1rem;">
+            <label for="credit-method-select">Payment Method</label>
+            <select id="credit-method-select" style="width:100%; padding:0.6rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-family:inherit; font-size:0.85rem;">
+              <option value="UPI Instant (Google Pay / PhonePe)">UPI Instant (Google Pay / PhonePe / BHIM)</option>
+              <option value="NetBanking IMPS (ICICI / HDFC Corporate)">NetBanking Corporate IMPS</option>
+              <option value="Commercial Visa/MasterCard Credit Card">Commercial Corporate Credit Card</option>
+              <option value="NEFT / RTGS Virtual Account Transfer">Virtual Escrow Account Direct RTGS</option>
+            </select>
+          </div>
+
+          <div class="auth-input-group" style="margin-top:1rem;">
+            <label for="credit-note-input">Deposit Purpose / Reference Note</label>
+            <input type="text" id="credit-note-input" value="Pre-funded Project Escrow Deposit" placeholder="e.g. Budget top-up for Q4 Deliverables" style="width:100%; padding:0.6rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-family:inherit; font-size:0.85rem; box-sizing:border-box;">
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.75rem; color:var(--text-muted); display:flex; align-items:center; gap:4px;">
+            <i data-lucide="lock" style="width:13px;height:13px;"></i> 256-bit Encrypted
+          </span>
+          <div style="display:flex; gap:0.5rem;">
+            <button type="button" class="btn-secondary" onclick="closeModal('modal-wallet-credit')">Cancel</button>
+            <button type="submit" class="btn-primary" id="btn-submit-wallet-credit">Confirm &amp; Credit Vault</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Freelancer Debit / Withdraw Earnings to Bank -->
+  <div class="modal-overlay" id="modal-wallet-withdraw">
+    <div class="modal-card" style="max-width: 520px; width: 92%;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="background:rgba(16, 185, 129, 0.15); color:var(--success); width:34px; height:34px; border-radius:var(--radius-sm); display:flex; align-items:center; justify-content:center;">
+            <i data-lucide="arrow-down-to-line" style="width:18px;height:18px;"></i>
+          </div>
+          <div>
+            <h3 style="margin:0; font-size:1.15rem;">Debit Earnings to Bank Account</h3>
+            <span style="font-size:0.74rem; color:var(--text-muted);">Instant withdrawal of cleared milestone payouts</span>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modal-wallet-withdraw')">&times;</button>
+      </div>
+      <form onsubmit="submitWalletWithdraw(event)">
+        <div class="modal-body">
+          <!-- Balance Summary Banner -->
+          <div style="background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.25); border-radius:var(--radius-md); padding:0.85rem; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Withdrawable Balance</div>
+              <div style="font-size:1.4rem; font-weight:800; color:var(--success);" id="modal-withdraw-avail-bal">₹25,000</div>
+            </div>
+            <button type="button" class="btn-tag" onclick="quickFillWithdrawMax()" style="font-weight:700; border-color:var(--success); color:var(--success);">
+              Withdraw All (100%)
+            </button>
+          </div>
+
+          <div class="auth-input-group">
+            <label for="withdraw-amount-input">Withdrawal Amount (INR ₹) <span style="color:var(--danger);">*</span></label>
+            <div style="position:relative;">
+              <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--text-muted); font-size:1.1rem;">₹</span>
+              <input type="number" id="withdraw-amount-input" min="500" step="500" value="25000" required style="width:100%; padding:0.65rem 0.65rem 0.65rem 2rem; font-size:1.15rem; font-weight:700; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-family:inherit; box-sizing:border-box;">
+            </div>
+          </div>
+
+          <div class="auth-input-group" style="margin-top:1rem;">
+            <label for="withdraw-account-select">Destination Account</label>
+            <select id="withdraw-account-select" style="width:100%; padding:0.6rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-family:inherit; font-size:0.85rem;">
+              <option value="BANK-01">HDFC Bank Ltd. (•••• •••• •••• 4092, IFSC: HDFC0001824) — Default</option>
+              <option value="UPI-01">BHIM UPI (priya.sharma@okhdfcbank)</option>
+            </select>
+          </div>
+
+          <div class="auth-input-group" style="margin-top:1rem;">
+            <label for="withdraw-payout-speed">Payout Method &amp; Speed</label>
+            <select id="withdraw-payout-speed" style="width:100%; padding:0.6rem; background:var(--bg-surface-elevated); border:1px solid var(--border-subtle); border-radius:var(--radius-md); color:var(--text-primary); font-family:inherit; font-size:0.85rem;">
+              <option value="Instant IMPS Transfer">Instant IMPS (Immediate 24x7 Settlement — Zero Fee)</option>
+              <option value="Direct UPI VPA Payout">Direct UPI VPA Transfer</option>
+              <option value="RTGS Same-Day Clear">Standard NEFT / RTGS</option>
+            </select>
+          </div>
+
+          <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.4; margin-top:0.75rem; background:var(--bg-surface); padding:0.65rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+            ℹ️ Under Section 194J of the Indian Income Tax Act, TDS certificates (Form 16A) are automatically generated upon payout execution.
+          </div>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:0.75rem; color:var(--text-muted); display:flex; align-items:center; gap:4px;">
+            <i data-lucide="check-check" style="width:13px;height:13px;color:var(--success);"></i> Instant UTR Generation
+          </span>
+          <div style="display:flex; gap:0.5rem;">
+            <button type="button" class="btn-secondary" onclick="closeModal('modal-wallet-withdraw')">Cancel</button>
+            <button type="submit" class="btn-primary" id="btn-submit-wallet-withdraw" style="background:var(--success); border-color:var(--success);">
+              Confirm &amp; Debit to Bank
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 

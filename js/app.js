@@ -115,7 +115,10 @@ function routeView(pathname) {
     pathname === '/approvals' ||
     pathname === '/client/documents' ||
     pathname === '/freelancer/documents' ||
-    pathname === '/documents';
+    pathname === '/documents' ||
+    pathname === '/wallet' ||
+    pathname === '/freelancer/wallet' ||
+    pathname === '/client/wallet';
 
   // Check 403 Forbidden Access (Only on strictly segregated paths)
   if (!isSharedRoute) {
@@ -158,6 +161,7 @@ function routeView(pathname) {
   else if (pathname.includes('/projects')) viewTitle = 'Projects & Escrow Workspaces';
   else if (pathname.includes('/approvals')) viewTitle = 'Approvals Queue';
   else if (pathname.includes('/documents')) viewTitle = 'Documents Vault';
+  else if (pathname.includes('/wallet')) viewTitle = user.role === 'freelancer' ? 'Earnings Wallet & Payouts' : 'Escrow Pre-Funding Vault';
   else if (pathname === '/403') viewTitle = '403 Forbidden Access';
   document.title = `${viewTitle} — Bharosa OS`;
   if (pathname === '/freelancer/find-work') {
@@ -181,6 +185,9 @@ function routeView(pathname) {
   } else if (pathname === '/client/documents' || pathname === '/freelancer/documents' || pathname === '/documents') {
     showSection('view-documents');
     loadDocumentsRegistry();
+  } else if (pathname === '/freelancer/wallet' || pathname === '/client/wallet' || pathname === '/wallet') {
+    showSection('view-wallet');
+    loadWalletHub();
   } else if (pathname.startsWith('/freelancer/dashboard') || pathname === '/freelancer') {
     showSection('view-freelancer-dashboard');
     loadFreelancerDashboard();
@@ -539,6 +546,11 @@ function updateHeaderAndSidebar(user) {
         <span>Messages</span>
       </a>
       <div class="nav-section-label">Trust & Finance</div>
+      <a class="nav-item ${appState.currentRoute === '/freelancer/wallet' ? 'active' : ''}" onclick="navigateTo('/freelancer/wallet')">
+        <span class="icon"><i data-lucide="wallet" style="width:18px;height:18px;"></i></span>
+        <span>Earnings Wallet</span>
+        <span class="badge-count" style="background:rgba(16,185,129,0.2); color:#10b981; font-weight:700;">Payouts</span>
+      </a>
       <a class="nav-item ${appState.currentRoute === '/freelancer/invoices' ? 'active' : ''}" onclick="navigateTo('/freelancer/invoices')">
         <span class="icon"><i data-lucide="receipt" style="width:18px;height:18px;"></i></span>
         <span>Tax Invoices</span>
@@ -568,6 +580,11 @@ function updateHeaderAndSidebar(user) {
       <a class="nav-item ${appState.currentRoute === '/client/dashboard' ? 'active' : ''}" onclick="navigateTo('/client/dashboard')">
         <span class="icon"><i data-lucide="layout-dashboard" style="width:18px;height:18px;"></i></span>
         <span>Dashboard</span>
+      </a>
+      <a class="nav-item ${appState.currentRoute === '/client/wallet' ? 'active' : ''}" onclick="navigateTo('/client/wallet')">
+        <span class="icon"><i data-lucide="wallet" style="width:18px;height:18px;"></i></span>
+        <span>Escrow Wallet</span>
+        <span class="badge-count" style="background:rgba(56,189,248,0.2); color:#38bdf8; font-weight:700;">Deposit</span>
       </a>
       <a class="nav-item ${appState.currentRoute === '/client/projects' ? 'active' : ''}" onclick="navigateTo('/client/projects')">
         <span class="icon"><i data-lucide="folder" style="width:18px;height:18px;"></i></span>
@@ -607,6 +624,10 @@ function updateHeaderAndSidebar(user) {
       <a class="nav-item ${appState.currentRoute === '/admin' ? 'active' : ''}" onclick="navigateTo('/admin')">
         <span class="icon"><i data-lucide="shield-check" style="width:18px;height:18px;"></i></span>
         <span>Admin Dashboard</span>
+      </a>
+      <a class="nav-item ${appState.currentRoute === '/wallet' ? 'active' : ''}" onclick="navigateTo('/wallet')">
+        <span class="icon"><i data-lucide="wallet" style="width:18px;height:18px;"></i></span>
+        <span>Escrow Vault Ledger</span>
       </a>
       <a class="nav-item" onclick="switchAdminSubtab('disputes')">
         <span class="icon"><i data-lucide="scale" style="width:18px;height:18px;"></i></span>
@@ -3182,10 +3203,6 @@ async function sendProjectMessage() {
 // DASHBOARD VELOCITY GRAPHS (FREELANCER, CLIENT, ADMIN)
 // ==============================================================================
 
-let currentFreelancerChartRange = '30d';
-let currentClientChartRange = '30d';
-let currentAdminChartRange = '30d';
-
 function generateDashboardSvgChart({
   containerId,
   dataPoints,
@@ -5162,6 +5179,676 @@ window.setClientChartRange = setClientChartRange;
 window.renderClientDashboardGraph = renderClientDashboardGraph;
 window.setAdminChartRange = setAdminChartRange;
 window.renderAdminDashboardGraph = renderAdminDashboardGraph;
+
+// ==============================================================================
+// 12. ESCROW & PAYOUT WALLET HUB CONTROLLER
+// ==============================================================================
+
+let currentWalletData = null;
+let currentWalletFilter = 'all';
+
+async function loadWalletHub() {
+  const user = getSessionUser();
+  if (!user) {
+    navigateTo('/login');
+    return;
+  }
+
+  const tbody = document.getElementById('wallet-ledger-tbody');
+  if (tbody) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);"><i data-lucide="loader" class="spin" style="width:20px;height:20px;"></i> Loading escrow and wallet records...</td></tr>`;
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  try {
+    const res = await fetch('/api/wallet', {
+      headers: { 'x-user-id': user.id }
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      currentWalletData = data.wallet;
+      renderWalletUI(currentWalletData);
+    } else {
+      showToast('Failed to load wallet ledger', 'danger');
+    }
+  } catch (err) {
+    console.error('Wallet load error:', err);
+    // Offline / fallback mock
+    currentWalletData = {
+      userId: user.id,
+      role: user.role,
+      availableBalance: user.role === 'client' ? 50000 : 25000,
+      lockedInEscrow: user.role === 'client' ? 30000 : 0,
+      pendingInEscrow: user.role === 'freelancer' ? 40000 : 0,
+      totalFundedLifetime: user.role === 'client' ? 80000 : 0,
+      totalEarnedLifetime: user.role === 'freelancer' ? 25000 : 0,
+      totalWithdrawnLifetime: 0,
+      totalDisbursedLifetime: user.role === 'client' ? 25000 : 0,
+      bankAccounts: [
+        { id: 'BANK-01', bankName: 'HDFC Bank Ltd.', accountType: 'Savings Account', accountNumber: '•••• •••• •••• 4092', ifsc: 'HDFC0001824', isDefault: true },
+        { id: 'UPI-01', bankName: 'BHIM UPI', accountType: 'Virtual Payment Address', accountNumber: `${user.name.toLowerCase().replace(/\s+/g, '.')}@okhdfcbank`, ifsc: 'UPI-VPA', isDefault: false }
+      ],
+      transactions: []
+    };
+    renderWalletUI(currentWalletData);
+  }
+}
+
+function renderWalletUI(wallet) {
+  if (!wallet) return;
+  const user = getSessionUser() || { role: wallet.role || 'client' };
+  const isFreelancer = user.role === 'freelancer';
+  const isClient = user.role === 'client';
+
+  // 1. Page Header Titles & Subtitles
+  const titleEl = document.getElementById('wallet-view-title');
+  const subEl = document.getElementById('wallet-view-subtitle');
+  const headerActionsEl = document.getElementById('wallet-header-actions');
+
+  if (titleEl) {
+    titleEl.textContent = isFreelancer
+      ? 'Freelancer Earnings Wallet & Bank Payouts'
+      : (isClient ? 'Client Escrow Pre-Funding Vault' : 'Platform Escrow Custody Ledger');
+  }
+
+  if (subEl) {
+    subEl.textContent = isFreelancer
+      ? 'Track cleared milestone payouts and debit funds directly to your verified bank account via instant IMPS / UPI'
+      : (isClient
+          ? 'Credit pre-funding capital into your escrow vault to lock milestones and protect deliverables'
+          : 'Complete multi-sig tripartite escrow ledger and liquidity audit view');
+  }
+
+  if (headerActionsEl) {
+    if (isFreelancer) {
+      headerActionsEl.innerHTML = `
+        <button class="btn-primary" onclick="openWalletWithdrawModal()" style="background:var(--success); border-color:var(--success); display:flex; align-items:center; gap:6px;">
+          <i data-lucide="arrow-down-to-line" style="width:16px;height:16px;"></i> Debit / Withdraw to Bank
+        </button>
+      `;
+    } else if (isClient) {
+      headerActionsEl.innerHTML = `
+        <button class="btn-primary" onclick="openWalletCreditModal()" style="display:flex; align-items:center; gap:6px;">
+          <i data-lucide="plus-circle" style="width:16px;height:16px;"></i> Credit / Deposit Money
+        </button>
+      `;
+    } else {
+      headerActionsEl.innerHTML = `
+        <button class="btn-secondary" onclick="loadWalletHub()" style="display:flex; align-items:center; gap:6px;">
+          <i data-lucide="refresh-cw" style="width:16px;height:16px;"></i> Refresh Ledger
+        </button>
+      `;
+    }
+  }
+
+  // 2. Wallet Hero Banner
+  const heroBadgeText = document.getElementById('wallet-hero-badge-text');
+  const heroAmount = document.getElementById('wallet-hero-amount');
+  const heroDesc = document.getElementById('wallet-hero-desc');
+  const quickChipsContainer = document.getElementById('wallet-quick-chips-container');
+  const heroActionSlot = document.getElementById('wallet-hero-action-slot');
+  const custodyPill = document.getElementById('wallet-custody-pill');
+
+  const avail = wallet.availableBalance || 0;
+  if (heroAmount) heroAmount.textContent = `₹${avail.toLocaleString('en-IN')}`;
+
+  if (isFreelancer) {
+    if (heroBadgeText) heroBadgeText.textContent = 'Cleared Withdrawable Earnings';
+    if (heroDesc) heroDesc.textContent = 'Milestone funds cleared and ready for instant zero-fee transfer to your bank account via IMPS or UPI.';
+    if (custodyPill) custodyPill.textContent = 'RBI-Regulated Direct Bank Settlement Active';
+    if (quickChipsContainer) {
+      quickChipsContainer.innerHTML = `
+        <button type="button" class="wallet-quick-chip" onclick="quickFillWithdrawMax()">Withdraw Max (₹${avail.toLocaleString('en-IN')})</button>
+        <button type="button" class="wallet-quick-chip" onclick="quickOpenWithdraw(10000)">Withdraw ₹10,000</button>
+        <button type="button" class="wallet-quick-chip" onclick="navigateTo('/freelancer/submit-work')">Submit Milestone Work →</button>
+      `;
+    }
+    if (heroActionSlot) {
+      heroActionSlot.innerHTML = `
+        <button class="btn-primary" onclick="openWalletWithdrawModal()" style="background:var(--success); border-color:var(--success); padding:0.75rem 1.4rem; font-weight:700; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
+          <i data-lucide="arrow-down-to-line" style="width:18px;height:18px;"></i> Debit Earnings to Bank
+        </button>
+      `;
+    }
+  } else if (isClient) {
+    if (heroBadgeText) heroBadgeText.textContent = 'Available Pre-Funding Escrow Balance';
+    if (heroDesc) heroDesc.textContent = 'Available capital deposited in your escrow vault. Funds are locked only when you allocate them to project milestones.';
+    if (custodyPill) custodyPill.textContent = 'Tripartite Escrow Trustee Protection Active';
+    if (quickChipsContainer) {
+      quickChipsContainer.innerHTML = `
+        <button type="button" class="wallet-quick-chip" onclick="quickOpenCredit(25000)">+ ₹25,000</button>
+        <button type="button" class="wallet-quick-chip" onclick="quickOpenCredit(50000)">+ ₹50,000</button>
+        <button type="button" class="wallet-quick-chip" onclick="quickOpenCredit(100000)">+ ₹1,00,000</button>
+        <button type="button" class="wallet-quick-chip" onclick="navigateTo('/client/approvals')">Review Pending Approvals →</button>
+      `;
+    }
+    if (heroActionSlot) {
+      heroActionSlot.innerHTML = `
+        <button class="btn-primary" onclick="openWalletCreditModal()" style="padding:0.75rem 1.4rem; font-weight:700; font-size:0.95rem; display:flex; align-items:center; gap:8px;">
+          <i data-lucide="plus-circle" style="width:18px;height:18px;"></i> Credit / Deposit Money
+        </button>
+      `;
+    }
+  } else {
+    // Admin
+    if (heroBadgeText) heroBadgeText.textContent = 'Total Platform Escrow Custody';
+    if (heroDesc) heroDesc.textContent = 'Tripartite pooled custody across ICICI and Yes Bank escrow trustees.';
+    if (custodyPill) custodyPill.textContent = 'Platform Governance Mode';
+    if (quickChipsContainer) quickChipsContainer.innerHTML = '';
+    if (heroActionSlot) {
+      heroActionSlot.innerHTML = `
+        <button class="btn-secondary" onclick="navigateTo('/admin')" style="padding:0.75rem 1.4rem; font-weight:700; font-size:0.95rem;">
+          Governance Center →
+        </button>
+      `;
+    }
+  }
+
+  // 3. Four Metric Stats
+  const stat1Title = document.getElementById('wallet-stat-title-1');
+  const stat1Val = document.getElementById('wallet-stat-val-1');
+  const stat1Sub = document.getElementById('wallet-stat-sub-1');
+
+  const stat2Title = document.getElementById('wallet-stat-title-2');
+  const stat2Val = document.getElementById('wallet-stat-val-2');
+  const stat2Sub = document.getElementById('wallet-stat-sub-2');
+
+  const stat3Title = document.getElementById('wallet-stat-title-3');
+  const stat3Val = document.getElementById('wallet-stat-val-3');
+  const stat3Sub = document.getElementById('wallet-stat-sub-3');
+
+  const stat4Title = document.getElementById('wallet-stat-title-4');
+  const stat4Val = document.getElementById('wallet-stat-val-4');
+  const stat4Sub = document.getElementById('wallet-stat-sub-4');
+
+  if (isFreelancer) {
+    if (stat1Title) stat1Title.textContent = 'Available to Debit';
+    if (stat1Val) stat1Val.textContent = `₹${(wallet.availableBalance || 0).toLocaleString('en-IN')}`;
+    if (stat1Sub) stat1Sub.textContent = 'Instant payout eligible';
+
+    if (stat2Title) stat2Title.textContent = 'Pending in Escrow';
+    if (stat2Val) stat2Val.textContent = `₹${(wallet.pendingInEscrow || 40000).toLocaleString('en-IN')}`;
+    if (stat2Sub) stat2Sub.textContent = 'In client escrow vault';
+
+    if (stat3Title) stat3Title.textContent = 'Total Earned';
+    if (stat3Val) stat3Val.textContent = `₹${(wallet.totalEarnedLifetime || 25000).toLocaleString('en-IN')}`;
+    if (stat3Sub) stat3Sub.textContent = 'Lifetime cleared payouts';
+
+    if (stat4Title) stat4Title.textContent = 'Debited to Bank';
+    if (stat4Val) stat4Val.textContent = `₹${(wallet.totalWithdrawnLifetime || 0).toLocaleString('en-IN')}`;
+    if (stat4Sub) stat4Sub.textContent = 'Transferred to HDFC';
+  } else {
+    // Client or Admin
+    if (stat1Title) stat1Title.textContent = 'Available Pre-Fund';
+    if (stat1Val) stat1Val.textContent = `₹${(wallet.availableBalance || 0).toLocaleString('en-IN')}`;
+    if (stat1Sub) stat1Sub.textContent = 'Ready for new projects';
+
+    if (stat2Title) stat2Title.textContent = 'Locked in Milestones';
+    if (stat2Val) stat2Val.textContent = `₹${(wallet.lockedInEscrow || 30000).toLocaleString('en-IN')}`;
+    if (stat2Sub) stat2Sub.textContent = 'Active project escrow';
+
+    if (stat3Title) stat3Title.textContent = 'Total Capital Funded';
+    if (stat3Val) stat3Val.textContent = `₹${(wallet.totalFundedLifetime || 80000).toLocaleString('en-IN')}`;
+    if (stat3Sub) stat3Sub.textContent = 'Lifetime deposits';
+
+    if (stat4Title) stat4Title.textContent = 'Disbursed Payouts';
+    if (stat4Val) stat4Val.textContent = `₹${(wallet.totalDisbursedLifetime || 25000).toLocaleString('en-IN')}`;
+    if (stat4Sub) stat4Sub.textContent = 'Released to freelancers';
+  }
+
+  // 4. Ledger Table
+  renderWalletLedger(wallet.transactions || [], currentWalletFilter);
+
+  // 5. Sidecard: Banking Details or Escrow Custody Info
+  const sidecardTitle = document.getElementById('wallet-sidecard-title');
+  const sidecardBody = document.getElementById('wallet-sidecard-body');
+
+  if (isFreelancer) {
+    if (sidecardTitle) sidecardTitle.textContent = 'Verified Payout Destination';
+    if (sidecardBody) {
+      const accounts = wallet.bankAccounts || [
+        { id: 'BANK-01', bankName: 'HDFC Bank Ltd.', accountType: 'Savings Account', accountNumber: '•••• •••• •••• 4092', ifsc: 'HDFC0001824', isDefault: true },
+        { id: 'UPI-01', bankName: 'BHIM UPI', accountType: 'Virtual Payment Address', accountNumber: 'priya.sharma@okhdfcbank', ifsc: 'UPI-VPA', isDefault: false }
+      ];
+
+      sidecardBody.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          ${accounts.map(acc => `
+            <div class="bank-card-tile">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <span class="bank-card-name">${acc.bankName}</span>
+                ${acc.isDefault ? `<span class="bank-card-badge">Primary Destination</span>` : ''}
+              </div>
+              <div class="bank-card-acc">${acc.accountNumber}</div>
+              <div class="bank-card-meta">${acc.accountType} • IFSC: ${acc.ifsc} • Verified Penny-Drop</div>
+            </div>
+          `).join('')}
+
+          <div style="margin-top:0.5rem; background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.2); border-radius:var(--radius-sm); padding:0.75rem; font-size:0.75rem; color:var(--text-muted); line-height:1.4;">
+            <strong style="color:var(--success); display:flex; align-items:center; gap:4px; margin-bottom:4px;">
+              <i data-lucide="zap" style="width:13px;height:13px;"></i> Instant IMPS Settlement
+            </strong>
+            Payouts debit instantly to your bank account with real-time UTR tracking. No 3-day delays or holding fees.
+          </div>
+          <div style="font-size:0.72rem; color:var(--text-muted); line-height:1.3;">
+            Section 194J TDS certificates and GST invoices are auto-generated and stored in your <a onclick="navigateTo('/freelancer/documents')" style="color:var(--role-freelancer); cursor:pointer; text-decoration:underline;">Documents Vault</a>.
+          </div>
+        </div>
+      `;
+    }
+  } else {
+    // Client view
+    if (sidecardTitle) sidecardTitle.textContent = 'Escrow Vault & Trustee Custody';
+    if (sidecardBody) {
+      sidecardBody.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          <div class="bank-card-tile">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span class="bank-card-name">Tripartite Escrow Account</span>
+              <span class="bank-card-badge">ICICI Bank Trustee</span>
+            </div>
+            <div class="bank-card-acc">VA-BHAROSA-GN-102</div>
+            <div class="bank-card-meta">Virtual Corporate Escrow • IFSC: ICIC0000011</div>
+          </div>
+
+          <div style="background:rgba(56, 189, 248, 0.08); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-sm); padding:0.75rem; font-size:0.75rem; color:var(--text-muted); line-height:1.4;">
+            <strong style="color:var(--primary); display:flex; align-items:center; gap:4px; margin-bottom:4px;">
+              <i data-lucide="shield-check" style="width:13px;height:13px;"></i> Milestone Protection Guarantee
+            </strong>
+            Funds deposited into your vault cannot be debited by freelancers without your explicit milestone approval or cryptographic sign-off.
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted); padding:0.5rem 0; border-top:1px solid var(--border-subtle);">
+            <span>GST Input Tax Credit</span>
+            <span style="font-weight:700; color:var(--text-primary);">18% Eligible (B2B)</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted);">
+            <span>Dispute Freeze Window</span>
+            <span style="font-weight:700; color:var(--text-primary);">72 Hours Protocol</span>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // Update modal preview available balance
+  const withdrawModalAvail = document.getElementById('modal-withdraw-avail-bal');
+  if (withdrawModalAvail) {
+    withdrawModalAvail.textContent = `₹${(wallet.availableBalance || 0).toLocaleString('en-IN')}`;
+  }
+
+  const withdrawInput = document.getElementById('withdraw-amount-input');
+  if (withdrawInput) {
+    withdrawInput.max = wallet.availableBalance || 0;
+    if (Number(withdrawInput.value) > (wallet.availableBalance || 0)) {
+      withdrawInput.value = wallet.availableBalance || 0;
+    }
+  }
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function renderWalletLedger(transactions, filter = 'all') {
+  const tbody = document.getElementById('wallet-ledger-tbody');
+  if (!tbody) return;
+
+  let filtered = transactions;
+  if (filter === 'credit') {
+    filtered = transactions.filter(t => t.type === 'credit' || t.type === 'milestone_payout');
+  } else if (filter === 'withdrawal_debit') {
+    filtered = transactions.filter(t => t.type === 'withdrawal_debit' || t.type === 'debit');
+  }
+
+  if (!filtered || filtered.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align:center; padding:2.5rem; color:var(--text-muted);">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+            <i data-lucide="receipt" style="width:28px;height:28px;opacity:0.4;"></i>
+            <span>No transactions found under this filter</span>
+          </div>
+        </td>
+      </tr>
+    `;
+    if (window.lucide) window.lucide.createIcons();
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(t => {
+    const isCredit = t.type === 'credit' || t.type === 'milestone_payout';
+    const isWithdrawal = t.type === 'withdrawal_debit' || t.type === 'debit';
+    const isLock = t.type === 'lock';
+
+    let pillClass = 'credit';
+    let pillLabel = 'Deposit Credit';
+    let iconName = 'arrow-down-left';
+
+    if (t.type === 'milestone_payout') {
+      pillClass = 'credit';
+      pillLabel = 'Milestone Release';
+      iconName = 'check-circle';
+    } else if (isWithdrawal) {
+      pillClass = 'debit';
+      pillLabel = 'Bank Debit Payout';
+      iconName = 'arrow-up-right';
+    } else if (isLock) {
+      pillClass = 'lock';
+      pillLabel = 'Escrow Lock';
+      iconName = 'lock';
+    }
+
+    const dateStr = t.timestamp ? new Date(t.timestamp).toLocaleDateString('en-IN', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    }) : 'Today';
+
+    const timeStr = t.timestamp ? new Date(t.timestamp).toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit'
+    }) : '';
+
+    const sign = isCredit ? '+' : (isWithdrawal ? '-' : '');
+    const amountColor = isCredit ? 'var(--success)' : (isWithdrawal ? 'var(--warning)' : 'var(--text-primary)');
+
+    return `
+      <tr>
+        <td>
+          <div style="font-weight:600; font-size:0.85rem;">${dateStr}</div>
+          <div style="font-size:0.72rem; color:var(--text-muted);">${timeStr}</div>
+        </td>
+        <td>
+          <div style="font-family:monospace; font-weight:700; font-size:0.82rem;">${t.id}</div>
+          <div style="font-size:0.72rem; color:var(--text-muted);">${t.referenceId || t.method || 'Standard Wire'}</div>
+        </td>
+        <td>
+          <span class="txn-type-pill ${pillClass}">
+            <i data-lucide="${iconName}" style="width:11px;height:11px;"></i>
+            ${pillLabel}
+          </span>
+        </td>
+        <td>
+          <div style="font-weight:600; font-size:0.85rem;">${t.description || 'Ledger entry'}</div>
+          ${t.projectTitle ? `<div style="font-size:0.72rem; color:var(--text-muted);">${t.projectTitle}</div>` : ''}
+        </td>
+        <td style="text-align:right;">
+          <div style="font-size:0.95rem; font-weight:800; color:${amountColor}; font-family:monospace;">
+            ${sign}₹${Number(t.amount || 0).toLocaleString('en-IN')}
+          </div>
+          <div style="font-size:0.7rem; color:var(--success); font-weight:600;">
+            ${t.status === 'completed' || t.status === 'cleared' ? '✓ Completed' : t.status}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function filterWalletLedger(type) {
+  currentWalletFilter = type;
+  document.getElementById('btn-wallet-filter-all')?.classList.toggle('active', type === 'all');
+  document.getElementById('btn-wallet-filter-credits')?.classList.toggle('active', type === 'credit');
+  document.getElementById('btn-wallet-filter-debits')?.classList.toggle('active', type === 'withdrawal_debit');
+
+  if (currentWalletData && currentWalletData.transactions) {
+    renderWalletLedger(currentWalletData.transactions, type);
+  }
+}
+
+// Client Credit Deposit Modal Handlers
+function openWalletCreditModal() {
+  const user = getSessionUser();
+  if (user && user.role !== 'client' && user.role !== 'admin') {
+    showToast('Only clients can deposit pre-funding capital into the escrow vault.', 'warning');
+    return;
+  }
+  const modal = document.getElementById('modal-wallet-credit');
+  if (modal) {
+    modal.classList.add('active');
+    modal.style.display = 'flex';
+  }
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function quickOpenCredit(amount) {
+  openWalletCreditModal();
+  quickFillCreditAmount(amount);
+}
+
+function quickFillCreditAmount(amount) {
+  const inp = document.getElementById('credit-amount-input');
+  if (inp) {
+    inp.value = amount;
+    inp.focus();
+  }
+}
+
+async function submitWalletCredit(e) {
+  if (e) e.preventDefault();
+  const user = getSessionUser();
+  if (!user) return;
+
+  const amountInput = document.getElementById('credit-amount-input');
+  const methodSelect = document.getElementById('credit-method-select');
+  const noteInput = document.getElementById('credit-note-input');
+  const submitBtn = document.getElementById('btn-submit-wallet-credit');
+
+  const amount = Number(amountInput?.value);
+  if (!amount || amount <= 0) {
+    showToast('Please enter a valid deposit amount', 'danger');
+    return;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Processing Deposit...';
+  }
+
+  try {
+    const res = await fetch('/api/wallet/credit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({
+        amount,
+        method: methodSelect?.value || 'UPI Instant',
+        referenceNote: noteInput?.value || 'Pre-funded Escrow Deposit'
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      currentWalletData = data.wallet;
+      closeModal('modal-wallet-credit');
+      const m = document.getElementById('modal-wallet-credit');
+      if (m) m.style.display = 'none';
+      renderWalletUI(currentWalletData);
+      showToast(`Successfully credited ₹${amount.toLocaleString('en-IN')} to Escrow Vault!`, 'success');
+      if (typeof addSystemNotification === 'function') {
+        addSystemNotification({
+          title: 'Escrow Vault Credited',
+          message: `₹${amount.toLocaleString('en-IN')} pre-funding deposit completed via ${methodSelect?.value || 'UPI'}.`,
+          type: 'finance'
+        });
+      }
+    } else {
+      showToast(data.error || 'Failed to credit wallet', 'danger');
+    }
+  } catch (err) {
+    console.error('Wallet credit error:', err);
+    // Offline simulation
+    if (currentWalletData) {
+      currentWalletData.availableBalance += amount;
+      currentWalletData.totalFundedLifetime += amount;
+      currentWalletData.transactions.unshift({
+        id: `TXN-CR-${Date.now().toString().slice(-6)}`,
+        type: 'credit',
+        amount,
+        method: methodSelect?.value || 'UPI Instant',
+        referenceId: `REF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+        description: noteInput?.value || 'Pre-funded Project Escrow Deposit',
+        timestamp: new Date().toISOString(),
+        status: 'completed'
+      });
+      closeModal('modal-wallet-credit');
+      const m = document.getElementById('modal-wallet-credit');
+      if (m) m.style.display = 'none';
+      renderWalletUI(currentWalletData);
+      showToast(`Successfully credited ₹${amount.toLocaleString('en-IN')} to Escrow Vault (Offline mode)!`, 'success');
+    }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Confirm & Credit Vault';
+    }
+  }
+}
+
+// Freelancer Withdraw / Debit to Bank Modal Handlers
+function openWalletWithdrawModal() {
+  const user = getSessionUser();
+  if (user && user.role !== 'freelancer' && user.role !== 'admin') {
+    showToast('Only freelancers can debit cleared earnings to their bank accounts.', 'warning');
+    return;
+  }
+  const modal = document.getElementById('modal-wallet-withdraw');
+  if (modal) {
+    modal.classList.add('active');
+    modal.style.display = 'flex';
+  }
+  const avail = currentWalletData ? currentWalletData.availableBalance : 25000;
+  const availEl = document.getElementById('modal-withdraw-avail-bal');
+  const amountInput = document.getElementById('withdraw-amount-input');
+  if (availEl) availEl.textContent = `₹${avail.toLocaleString('en-IN')}`;
+  if (amountInput) {
+    amountInput.value = avail;
+    amountInput.max = avail;
+  }
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function quickOpenWithdraw(amount) {
+  openWalletWithdrawModal();
+  const amountInput = document.getElementById('withdraw-amount-input');
+  if (amountInput) amountInput.value = amount;
+}
+
+function quickFillWithdrawMax() {
+  const avail = currentWalletData ? currentWalletData.availableBalance : 25000;
+  const amountInput = document.getElementById('withdraw-amount-input');
+  if (amountInput) {
+    amountInput.value = avail;
+    amountInput.focus();
+  }
+}
+
+async function submitWalletWithdraw(e) {
+  if (e) e.preventDefault();
+  const user = getSessionUser();
+  if (!user) return;
+
+  const amountInput = document.getElementById('withdraw-amount-input');
+  const accountSelect = document.getElementById('withdraw-account-select');
+  const speedSelect = document.getElementById('withdraw-payout-speed');
+  const submitBtn = document.getElementById('btn-submit-wallet-withdraw');
+
+  const amount = Number(amountInput?.value);
+  if (!amount || amount <= 0) {
+    showToast('Please enter a valid withdrawal amount', 'danger');
+    return;
+  }
+
+  const avail = currentWalletData ? currentWalletData.availableBalance : 0;
+  if (amount > avail) {
+    showToast(`Amount exceeds available balance of ₹${avail.toLocaleString('en-IN')}`, 'danger');
+    return;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Initiating Bank Debit...';
+  }
+
+  try {
+    const res = await fetch('/api/wallet/withdraw', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-id': user.id
+      },
+      body: JSON.stringify({
+        amount,
+        destinationAccountId: accountSelect?.value || 'BANK-01',
+        payoutMethod: speedSelect?.value || 'Instant IMPS'
+      })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      currentWalletData = data.wallet;
+      closeModal('modal-wallet-withdraw');
+      const m = document.getElementById('modal-wallet-withdraw');
+      if (m) m.style.display = 'none';
+      renderWalletUI(currentWalletData);
+      showToast(`Successfully debited ₹${amount.toLocaleString('en-IN')} to bank account! (UTR: ${data.transaction.referenceId})`, 'success');
+      if (typeof addSystemNotification === 'function') {
+        addSystemNotification({
+          title: 'Payout Debited to Bank',
+          message: `₹${amount.toLocaleString('en-IN')} transferred via ${speedSelect?.value || 'IMPS'} (UTR: ${data.transaction.referenceId}).`,
+          type: 'finance'
+        });
+      }
+    } else {
+      showToast(data.message || data.error || 'Failed to process bank withdrawal', 'danger');
+    }
+  } catch (err) {
+    console.error('Wallet withdraw error:', err);
+    // Offline simulation
+    if (currentWalletData) {
+      currentWalletData.availableBalance -= amount;
+      currentWalletData.totalWithdrawnLifetime += amount;
+      const utr = `UTR-${Date.now()}`;
+      currentWalletData.transactions.unshift({
+        id: `TXN-WDR-${Date.now().toString().slice(-6)}`,
+        type: 'withdrawal_debit',
+        amount,
+        method: speedSelect?.value || 'Instant IMPS (HDFC Bank •••• 4092)',
+        referenceId: utr,
+        description: 'Payout debit transfer to HDFC Bank Ltd. (•••• 4092)',
+        timestamp: new Date().toISOString(),
+        status: 'completed'
+      });
+      closeModal('modal-wallet-withdraw');
+      const m = document.getElementById('modal-wallet-withdraw');
+      if (m) m.style.display = 'none';
+      renderWalletUI(currentWalletData);
+      showToast(`Successfully debited ₹${amount.toLocaleString('en-IN')} to bank account (UTR: ${utr})!`, 'success');
+    }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Confirm & Debit to Bank';
+    }
+  }
+}
+
+window.loadWalletHub = loadWalletHub;
+window.renderWalletUI = renderWalletUI;
+window.renderWalletLedger = renderWalletLedger;
+window.filterWalletLedger = filterWalletLedger;
+window.openWalletCreditModal = openWalletCreditModal;
+window.quickOpenCredit = quickOpenCredit;
+window.quickFillCreditAmount = quickFillCreditAmount;
+window.submitWalletCredit = submitWalletCredit;
+window.openWalletWithdrawModal = openWalletWithdrawModal;
+window.quickOpenWithdraw = quickOpenWithdraw;
+window.quickFillWithdrawMax = quickFillWithdrawMax;
+window.submitWalletWithdraw = submitWalletWithdraw;
 
 // Theme Management Functions
 function initTheme() {
