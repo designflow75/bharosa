@@ -6573,11 +6573,16 @@ html {
 }
 
 @media (max-width: 768px) {
-  /* Ensure mobile drawer displays when opened */
-  #mobile-login-drawer.active,
-  #mobile-login-drawer.open,
-  #mobile-login-drawer[style*="display: flex"] {
+  /* Ensure mobile drawer only displays when explicitly active and not closed or authenticated */
+  #mobile-login-drawer.active.open {
     display: flex !important;
+  }
+
+  #mobile-login-drawer:not(.active),
+  #mobile-login-drawer.closed,
+  #mobile-login-drawer[style*="display: none"],
+  body.authenticated #mobile-login-drawer {
+    display: none !important;
   }
 
   /* Hide the desktop landing frame completely on mobile */
@@ -6585,7 +6590,22 @@ html {
     display: none !important;
   }
 
-  .auth-wrapper.bharosa-landing-root {
+  /* When authenticated, ALWAYS hide the auth screen and mobile login view */
+  body.authenticated #auth-screen,
+  #auth-screen.hidden,
+  #auth-screen[style*="display: none"],
+  body.authenticated .mobile-login-view {
+    display: none !important;
+  }
+
+  /* When authenticated, show app-shell */
+  body.authenticated #app-shell,
+  #app-shell.active {
+    display: grid !important;
+  }
+
+  /* Full-screen Mobile Login Root only when unauthenticated */
+  body:not(.authenticated) .auth-wrapper.bharosa-landing-root:not(.hidden):not([style*="display: none"]) {
     padding: 0 !important;
     background: #060b18 !important;
     overflow-x: hidden !important;
@@ -6596,8 +6616,8 @@ html {
     display: block !important;
   }
 
-  /* Full-screen Mobile Login Root */
-  .mobile-login-view {
+  /* Full-screen Mobile Login View only when unauthenticated */
+  body:not(.authenticated) .mobile-login-view {
     display: flex !important;
     flex-direction: column;
     justify-content: space-between;

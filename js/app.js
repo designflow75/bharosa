@@ -188,9 +188,21 @@ function routeView(pathname) {
 function showAuthScreen() {
   const authScreen = document.getElementById('auth-screen');
   const appShell = document.getElementById('app-shell');
-  if (authScreen) authScreen.style.display = 'flex';
-  if (appShell) appShell.classList.remove('active');
+  if (authScreen) {
+    authScreen.classList.remove('hidden');
+    authScreen.style.setProperty('display', '', 'important');
+  }
+  if (appShell) {
+    appShell.classList.remove('active');
+    appShell.style.setProperty('display', 'none', 'important');
+  }
   document.body.classList.remove('authenticated');
+  const drawer = document.getElementById('mobile-login-drawer');
+  if (drawer) {
+    drawer.classList.remove('active', 'open');
+    drawer.classList.add('closed');
+    drawer.style.setProperty('display', 'none', 'important');
+  }
   const mobNav = document.getElementById('mobile-bottom-nav');
   if (mobNav) mobNav.style.display = 'none';
   if (window.lucide) window.lucide.createIcons();
@@ -199,9 +211,22 @@ function showAuthScreen() {
 function hideAuthScreen() {
   const authScreen = document.getElementById('auth-screen');
   const appShell = document.getElementById('app-shell');
-  if (authScreen) authScreen.style.display = 'none';
-  if (appShell) appShell.classList.add('active');
+  if (authScreen) {
+    authScreen.classList.add('hidden');
+    authScreen.style.setProperty('display', 'none', 'important');
+  }
+  const drawer = document.getElementById('mobile-login-drawer');
+  if (drawer) {
+    drawer.classList.remove('active', 'open');
+    drawer.classList.add('closed');
+    drawer.style.setProperty('display', 'none', 'important');
+  }
+  if (appShell) {
+    appShell.classList.add('active');
+    appShell.style.setProperty('display', 'grid', 'important');
+  }
   document.body.classList.add('authenticated');
+  document.body.style.overflow = '';
   const mobNav = document.getElementById('mobile-bottom-nav');
   if (mobNav) mobNav.style.display = '';
 }
@@ -287,17 +312,24 @@ async function demoLogin(role) {
   const selectedRole = role || 'client';
   const profile = demoProfiles[selectedRole] || demoProfiles.client;
 
-  // 1. Immediately close mobile login drawer if open
+  // 1. Immediately close mobile login drawer with classes and important style
   const drawer = document.getElementById('mobile-login-drawer');
-  if (drawer) drawer.style.display = 'none';
+  if (drawer) {
+    drawer.classList.remove('active', 'open');
+    drawer.classList.add('closed');
+    drawer.style.setProperty('display', 'none', 'important');
+  }
   document.body.style.overflow = '';
 
-  // 2. Set session user and navigate directly to destination workspace page (0ms delay)
+  // 2. Hide auth screen and unblock workspace
+  hideAuthScreen();
+
+  // 3. Set session user and navigate directly to destination workspace page (0ms delay)
   setSessionUser(profile);
   navigateTo(profile.redirectTo);
   showToast(`Welcome back, ${profile.name}! Opened ${selectedRole === 'client' ? 'Client Portal' : (selectedRole === 'freelancer' ? 'Freelancer Suite' : 'Admin Console')}`, 'success');
 
-  // 3. Asynchronously sync session with server API
+  // 4. Asynchronously sync session with server API
   try {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
@@ -328,11 +360,16 @@ async function handleCustomLogin(e) {
     });
     const data = await res.json();
     if (res.ok && data.user) {
+      const drawer = document.getElementById('mobile-login-drawer');
+      if (drawer) {
+        drawer.classList.remove('active', 'open');
+        drawer.classList.add('closed');
+        drawer.style.setProperty('display', 'none', 'important');
+      }
+      document.body.style.overflow = '';
+      hideAuthScreen();
       setSessionUser(data.user);
       showToast(`Welcome back, ${data.user.name}!`, 'success');
-      const drawer = document.getElementById('mobile-login-drawer');
-      if (drawer) drawer.style.display = 'none';
-      document.body.style.overflow = '';
       navigateTo(data.redirectTo);
     } else {
       showToast(data.error || 'User not found. Try priya@bharosa.design or rahul@growthnest.media', 'danger');
@@ -383,6 +420,7 @@ function fillDemoCreds(email, password) {
 function openMobileLoginDrawer(mode) {
   const drawer = document.getElementById('mobile-login-drawer');
   if (!drawer) return;
+  drawer.classList.remove('closed');
   drawer.classList.add('active', 'open');
   drawer.style.setProperty('display', 'flex', 'important');
   document.body.style.overflow = 'hidden';
@@ -403,6 +441,7 @@ function closeMobileLoginDrawer(e) {
   const drawer = document.getElementById('mobile-login-drawer');
   if (drawer) {
     drawer.classList.remove('active', 'open');
+    drawer.classList.add('closed');
     drawer.style.setProperty('display', 'none', 'important');
   }
   document.body.style.overflow = '';
@@ -4487,8 +4526,68 @@ function openRequestRefundModal() {
 
 function openQuickActionSheet() {
   const el = document.getElementById('mobile-action-sheet');
+  const user = getSessionUser();
+  const grid = el?.querySelector('.action-sheet-grid');
+  if (grid && user) {
+    if (user.role === 'client') {
+      grid.innerHTML = `
+        <button class="action-sheet-btn" onclick="closeMobileActionSheet(); openCreateProjectModal()">
+          <div class="asb-icon" style="background:rgba(2,132,199,0.15);color:#38bdf8;">
+            <i data-lucide="plus-circle" style="width:22px;height:22px;"></i>
+          </div>
+          <span>Create Project</span>
+        </button>
+        <button class="action-sheet-btn" onclick="closeMobileActionSheet(); openInviteFreelancerModal()">
+          <div class="asb-icon" style="background:rgba(16,185,129,0.15);color:var(--success);">
+            <i data-lucide="user-plus" style="width:22px;height:22px;"></i>
+          </div>
+          <span>Invite Freelancer</span>
+        </button>
+        <button class="action-sheet-btn" onclick="closeMobileActionSheet(); navigateTo('/client/invoices')">
+          <div class="asb-icon" style="background:rgba(245,158,11,0.15);color:var(--warning);">
+            <i data-lucide="receipt" style="width:22px;height:22px;"></i>
+          </div>
+          <span>Tax Invoices</span>
+        </button>
+        <button class="action-sheet-btn" onclick="closeMobileActionSheet(); navigateTo('/messages')">
+          <div class="asb-icon" style="background:rgba(56,189,248,0.15);color:var(--info);">
+            <i data-lucide="message-circle" style="width:22px;height:22px;"></i>
+          </div>
+          <span>Messages</span>
+        </button>
+      `;
+    } else {
+      grid.innerHTML = `
+        <button class="action-sheet-btn" onclick="closeMobileActionSheet(); navigateTo('/freelancer/submit-work')">
+          <div class="asb-icon" style="background:rgba(99,102,241,0.15);color:var(--primary);">
+            <i data-lucide="upload-cloud" style="width:22px;height:22px;"></i>
+          </div>
+          <span>Submit Work</span>
+        </button>
+        <button class="action-sheet-btn" onclick="closeMobileActionSheet(); navigateTo('/freelancer/find-work')">
+          <div class="asb-icon" style="background:rgba(16,185,129,0.15);color:var(--success);">
+            <i data-lucide="compass" style="width:22px;height:22px;"></i>
+          </div>
+          <span>Find Work</span>
+        </button>
+        <button class="action-sheet-btn" onclick="closeMobileActionSheet(); openCreateInvoiceModal()">
+          <div class="asb-icon" style="background:rgba(245,158,11,0.15);color:var(--warning);">
+            <i data-lucide="file-plus" style="width:22px;height:22px;"></i>
+          </div>
+          <span>New Invoice</span>
+        </button>
+        <button class="action-sheet-btn" onclick="closeMobileActionSheet(); navigateTo('/messages')">
+          <div class="asb-icon" style="background:rgba(56,189,248,0.15);color:var(--info);">
+            <i data-lucide="message-circle" style="width:22px;height:22px;"></i>
+          </div>
+          <span>Messages</span>
+        </button>
+      `;
+    }
+  }
   if (el) {
     el.classList.add('active');
+    document.body.style.overflow = 'hidden';
     if (window.lucide) window.lucide.createIcons();
   }
 }
@@ -4496,6 +4595,7 @@ function openQuickActionSheet() {
 function closeMobileActionSheet() {
   const el = document.getElementById('mobile-action-sheet');
   if (el) el.classList.remove('active');
+  document.body.style.overflow = '';
 }
 
 function mobileNavTo(target) {
@@ -4518,7 +4618,7 @@ function mobileNavTo(target) {
     else if (user.role === 'client') navigateTo('/client/projects');
     else navigateTo('/admin');
   } else if (target === 'messages') {
-    navigateTo('/freelancer/messages');
+    navigateTo('/messages');
   } else if (target === 'profile') {
     showToast(`Signed in as ${user.name} (${user.role.toUpperCase()}) • Bharosa ID: ${user.id}`, 'info');
   }
