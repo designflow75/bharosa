@@ -1603,38 +1603,6 @@ async function loadAdminDashboard() {
 
     if (activeTab === 'overview') {
       container.innerHTML = `
-        <!-- Admin Platform Escrow Volume & Settlement Velocity Graph (User Requested!) -->
-        <div class="card-section dashboard-chart-card" id="adm-velocity-graph-card" style="margin-bottom:1.5rem;">
-          <div class="dashboard-chart-header">
-            <div class="dashboard-chart-title-block">
-              <div style="display:flex; align-items:center; gap:10px;">
-                <span class="chart-header-icon" style="background:rgba(234,179,8,0.15); color:var(--accent-gold);">
-                  <i data-lucide="shield-check" style="width:20px;height:20px;"></i>
-                </span>
-                <div>
-                  <h3 style="margin:0; font-size:1.05rem;">Platform GMV &amp; Settlement Velocity</h3>
-                  <p style="margin:2px 0 0 0; font-size:0.78rem; color:var(--text-muted);">Cross-project escrow custody, automated dispute resolutions &amp; milestone velocity</p>
-                </div>
-              </div>
-            </div>
-            <div class="dashboard-chart-controls">
-              <div class="chart-summary-pills">
-                <span class="chart-pill gold"><span class="dot"></span> ₹3,25,000 Platform GMV</span>
-                <span class="chart-pill green"><span class="dot"></span> 100% Release Rate</span>
-                <span class="chart-pill blue"><span class="dot"></span> 18h Avg. Resolution</span>
-              </div>
-              <div class="chart-toggle-group">
-                <button class="chart-toggle-btn ${currentAdminChartRange === '30d' ? 'active' : ''}" id="btn-adm-chart-30d" onclick="setAdminChartRange('30d')">30D</button>
-                <button class="chart-toggle-btn ${currentAdminChartRange === '90d' ? 'active' : ''}" id="btn-adm-chart-90d" onclick="setAdminChartRange('90d')">90D</button>
-                <button class="chart-toggle-btn ${currentAdminChartRange === 'all' ? 'active' : ''}" id="btn-adm-chart-all" onclick="setAdminChartRange('all')">All</button>
-              </div>
-            </div>
-          </div>
-          <div class="dashboard-chart-body" id="adm-chart-svg-container">
-            <!-- Dynamic SVG injected here -->
-          </div>
-        </div>
-
         <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:1.5rem;">
           <div class="stat-card">
             <span class="stat-title">Platform Active Projects</span>
