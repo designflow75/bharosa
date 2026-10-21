@@ -8331,5 +8331,29 @@ html {
   border-color: rgba(0, 0, 0, 0.06);
 }
 
+/* First-Visit Role Selection Enhancements */
+.btn-hero-role-pill {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.btn-hero-role-pill:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.2);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+.btn-hero-role-pill:active {
+  transform: scale(0.97);
+}
 
-
+.btn-ml-role-direct {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-ml-role-direct:active {
+  transform: scale(0.97);
+  filter: brightness(1.2);
+}
+.btn-ml-role-direct:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}

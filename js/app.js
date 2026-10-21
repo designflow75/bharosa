@@ -75,27 +75,15 @@ function routeView(pathname) {
   const user = getSessionUser();
   appState.currentUser = user;
 
-  // If not logged in and not on login page, show auth
-  if (!user && pathname !== '/' && pathname !== '/login') {
+  // When a user visits / or /login, always show the login and role selection screen first!
+  if (pathname === '/' || pathname === '/login') {
     showAuthScreen();
     return;
   }
 
+  // If not logged in and attempting to access an inner route, show login screen
   if (!user) {
     showAuthScreen();
-    return;
-  }
-
-  // Parse path
-  if (pathname === '/' || pathname === '/login') {
-    // Redirect logged-in user to their role workspace
-    if (user.role === 'freelancer') {
-      navigateTo('/freelancer/dashboard');
-    } else if (user.role === 'client') {
-      navigateTo('/client/dashboard');
-    } else if (user.role === 'admin') {
-      navigateTo('/admin');
-    }
     return;
   }
 
@@ -231,7 +219,8 @@ function showAuthScreen() {
   const appShell = document.getElementById('app-shell');
   if (authScreen) {
     authScreen.classList.remove('hidden');
-    authScreen.style.setProperty('display', '', 'important');
+    authScreen.style.removeProperty('display');
+    authScreen.style.display = '';
   }
   if (appShell) {
     appShell.classList.remove('active');
