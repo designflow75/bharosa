@@ -178,13 +178,22 @@
       <div class="landing-main-stage">
         <!-- Top Utility Header -->
         <header class="landing-top-bar">
-          <div class="ltb-mobile-brand">
+          <div class="ltb-mobile-brand" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" role="button" tabindex="0" title="Bharosa OS Home">
             <svg viewBox="0 0 38 44" width="28" height="32">
               <path d="M19 2L4 7.5v13.5c0 12.5 6.5 19.5 15 22 8.5-2.5 15-9.5 15-22V7.5L19 2z" fill="#2563eb"/>
               <text x="19" y="27" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="18" fill="#ffffff">B</text>
             </svg>
             <span class="ltb-brand-text">Bharosa OS</span>
           </div>
+
+          <!-- Clean Desktop Nav Links -->
+          <nav class="ltb-nav-links" aria-label="Main Navigation">
+            <a href="#home" class="ltb-nav-item active">Home</a>
+            <a href="#features" class="ltb-nav-item">Features</a>
+            <a href="#demo-roles-panel" class="ltb-nav-item">Role Access</a>
+            <a href="#security-card" class="ltb-nav-item">Security</a>
+            <a href="#bottom-strip" class="ltb-nav-item">About</a>
+          </nav>
 
           <div class="ltb-controls">
             <!-- Theme Toggle Button -->
