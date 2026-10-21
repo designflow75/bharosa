@@ -50,8 +50,10 @@ function navigateTo(path, pushState = true) {
 
   const performRoute = () => {
     routeView(path);
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    const mainEl = document.querySelector('.main-content');
+    if (typeof window.scrollTo === 'function') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+    const mainEl = typeof document.querySelector === 'function' ? document.querySelector('.main-content') : null;
     if (mainEl) mainEl.scrollTop = 0;
   };
 
@@ -2193,9 +2195,23 @@ async function submitRequestRefund() {
   }
 }
 
+function openModal(modalId) {
+  const m = document.getElementById(modalId);
+  if (m) {
+    m.classList.add('active');
+    m.style.display = 'flex';
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  }
+}
+
 function closeModal(modalId) {
   const m = document.getElementById(modalId);
-  if (m) m.classList.remove('active');
+  if (m) {
+    m.classList.remove('active');
+    m.style.display = 'none';
+  }
 }
 
 function showToast(message, type = 'info') {
@@ -4773,6 +4789,8 @@ function mobileNavTo(target) {
 }
 
 // Explicitly bind all navigation and action handlers to window for inline onclick execution
+window.getSessionUser = getSessionUser;
+window.setSessionUser = setSessionUser;
 window.navigateTo = navigateTo;
 window.navigateHome = navigateHome;
 window.navigateBack = navigateBack;

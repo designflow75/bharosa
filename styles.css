@@ -2389,8 +2389,15 @@ h1, h2, h3, h4, h5, h6,
   position: relative;
 }
 
-.app-shell.active {
+.app-shell.active,
+body.authenticated #app-shell {
   display: grid;
+}
+
+body.authenticated #auth-screen,
+#auth-screen.hidden,
+#auth-screen[style*="display: none"] {
+  display: none !important;
 }
 
 /* Top Navigation Header */

@@ -62,13 +62,25 @@
       document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
       const btn = document.getElementById('mbn-' + tab);
       if (btn) btn.classList.add('active');
-      const routes = {
-        dashboard: '/freelancer/dashboard',
-        work: '/freelancer/find-work',
-        messages: '/freelancer/messages',
-        profile: '/freelancer/profile'
-      };
-      if (routes[tab] && typeof navigateTo === 'function') navigateTo(routes[tab]);
+
+      const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
+      const role = user ? user.role : 'freelancer';
+
+      if (tab === 'dashboard') {
+        if (role === 'client') navigateTo('/client/dashboard');
+        else if (role === 'admin') navigateTo('/admin');
+        else navigateTo('/freelancer/dashboard');
+      } else if (tab === 'work') {
+        if (role === 'client') navigateTo('/client/projects');
+        else if (role === 'admin') navigateTo('/admin');
+        else navigateTo('/freelancer/find-work');
+      } else if (tab === 'messages') {
+        navigateTo('/messages');
+      } else if (tab === 'profile') {
+        if (role === 'client') navigateTo('/client/wallet');
+        else if (role === 'admin') navigateTo('/wallet');
+        else navigateTo('/freelancer/wallet');
+      }
     }
   </script>
 </head>
