@@ -47,7 +47,21 @@ function navigateTo(path, pushState = true) {
     window.history.pushState({}, '', path);
   }
   appState.currentRoute = path;
-  routeView(path);
+
+  const performRoute = () => {
+    routeView(path);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    const mainEl = document.querySelector('.main-content');
+    if (mainEl) mainEl.scrollTop = 0;
+  };
+
+  if (document.startViewTransition) {
+    document.startViewTransition(() => {
+      performRoute();
+    });
+  } else {
+    performRoute();
+  }
 }
 
 window.addEventListener('popstate', () => {
@@ -133,7 +147,19 @@ function routeView(pathname) {
   hideAuthScreen();
   updateHeaderAndSidebar(user);
 
-  // Route Views
+  // Set document title according to route & role
+  let viewTitle = 'Workspace';
+  if (pathname.startsWith('/freelancer/dashboard') || pathname === '/freelancer') viewTitle = 'Freelancer Suite';
+  else if (pathname.startsWith('/client/dashboard') || pathname === '/client') viewTitle = 'Client Portal';
+  else if (pathname.startsWith('/admin')) viewTitle = 'Super Admin Control Panel';
+  else if (pathname === '/switch-workspace' || pathname === '/switch-role') viewTitle = 'Switch Workspace';
+  else if (pathname.includes('/messages')) viewTitle = 'Messages & Deliverables';
+  else if (pathname.includes('/invoices')) viewTitle = 'Tax Invoices & Ledger';
+  else if (pathname.includes('/projects')) viewTitle = 'Projects & Escrow Workspaces';
+  else if (pathname.includes('/approvals')) viewTitle = 'Approvals Queue';
+  else if (pathname.includes('/documents')) viewTitle = 'Documents Vault';
+  else if (pathname === '/403') viewTitle = '403 Forbidden Access';
+  document.title = `${viewTitle} — Bharosa OS`;
   if (pathname === '/freelancer/find-work') {
     showSection('view-freelancer-find-work');
     loadOpportunities();
@@ -1644,19 +1670,28 @@ async function loadAdminDashboard() {
       container.innerHTML = `
         <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:1.5rem;">
           <div class="stat-card">
-            <span class="stat-title">Platform Active Projects</span>
+            <div class="stat-card-header">
+              <span class="stat-title">Platform Active Projects</span>
+              <div class="stat-icon blue"><i data-lucide="folder-kanban" style="width:16px;height:16px;"></i></div>
+            </div>
             <div class="stat-value" id="adm-active-projects">2</div>
-            <div class="stat-footer">Fintech App &amp; Marketplace Branding</div>
+            <div class="stat-footer"><span>Fintech App &amp; Marketplace Branding</span></div>
           </div>
           <div class="stat-card">
-            <span class="stat-title">Simulated Escrow Balance</span>
+            <div class="stat-card-header">
+              <span class="stat-title">Simulated Escrow Balance</span>
+              <div class="stat-icon green"><i data-lucide="wallet" style="width:16px;height:16px;"></i></div>
+            </div>
             <div class="stat-value" id="adm-sim-escrow">₹40,000</div>
-            <div class="stat-footer">Held across funded milestones</div>
+            <div class="stat-footer"><span>Held across funded milestones</span></div>
           </div>
           <div class="stat-card">
-            <span class="stat-title">Platform Audit Events</span>
+            <div class="stat-card-header">
+              <span class="stat-title">Platform Audit Events</span>
+              <div class="stat-icon purple"><i data-lucide="shield-check" style="width:16px;height:16px;"></i></div>
+            </div>
             <div class="stat-value" id="adm-audit-count">${auditLogs.length}</div>
-            <div class="stat-footer">Append-only integrity log</div>
+            <div class="stat-footer"><span>Append-only integrity log</span></div>
           </div>
         </div>
 
@@ -1670,17 +1705,26 @@ async function loadAdminDashboard() {
           </div>
           <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem; padding:0.5rem 0;">
             <div style="background:var(--bg-surface-elevated); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
-              <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">ACTIVE DISPUTES</div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">ACTIVE DISPUTES</span>
+                <i data-lucide="alert-triangle" style="width:16px;height:16px;color:var(--warning);"></i>
+              </div>
               <div style="font-size:1.4rem; font-weight:800; color:${disputes.length > 0 ? 'var(--warning)' : 'var(--success)'}; margin:4px 0;">${disputes.length}</div>
               <div style="font-size:0.75rem; color:var(--text-muted);">${disputes.length === 0 ? 'Zero unresolved grievances' : 'Pending neutral mediation'}</div>
             </div>
             <div style="background:var(--bg-surface-elevated); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
-              <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">GST TAX COMPLIANCE</div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">GST TAX COMPLIANCE</span>
+                <i data-lucide="receipt" style="width:16px;height:16px;color:var(--info);"></i>
+              </div>
               <div style="font-size:1.4rem; font-weight:800; color:var(--info); margin:4px 0;">Rule 46</div>
               <div style="font-size:0.75rem; color:var(--text-muted);">SAC 998314 digital invoicing</div>
             </div>
             <div style="background:var(--bg-surface-elevated); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
-              <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">CLIENT SILENCE WATCHDOG</div>
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">CLIENT SILENCE WATCHDOG</span>
+                <i data-lucide="clock" style="width:16px;height:16px;color:var(--primary);"></i>
+              </div>
               <div style="font-size:1.4rem; font-weight:800; color:var(--primary); margin:4px 0;">72 Hours</div>
               <div style="font-size:0.75rem; color:var(--text-muted);">Automated schedule proposal guards</div>
             </div>
@@ -5044,18 +5088,19 @@ function toggleTheme() {
 
 // Landing Page Actions
 function scrollToDemoRoles(role) {
+  if (role) {
+    demoLogin(role);
+    return;
+  }
+  if (window.innerWidth <= 768) {
+    openMobileLoginDrawer();
+    return;
+  }
   const target = document.getElementById('demo-roles-panel') || document.querySelector('.try-demo-card');
   if (target) {
     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
     target.classList.add('highlight-pulse');
     setTimeout(() => target.classList.remove('highlight-pulse'), 1500);
-  }
-  if (role) {
-    const roleBtn = document.querySelector(`.role-item-${role}`);
-    if (roleBtn) {
-      roleBtn.classList.add('highlight-pulse');
-      setTimeout(() => roleBtn.classList.remove('highlight-pulse'), 1500);
-    }
   }
 }
 

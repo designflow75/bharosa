@@ -2397,8 +2397,8 @@ h1, h2, h3, h4, h5, h6,
 .top-header {
   grid-area: header;
   background: var(--bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -2406,13 +2406,14 @@ h1, h2, h3, h4, h5, h6,
   padding: 0 1.25rem;
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 100;
   transition: background-color var(--transition-normal);
   max-width: 100%;
   width: 100%;
   box-sizing: border-box;
-  gap: 0.75rem;
-  overflow: visible;
+  gap: 0.85rem;
+  overflow: hidden;
+  height: var(--header-height, 64px);
 }
 
 .header-brand-group {
@@ -2420,7 +2421,7 @@ h1, h2, h3, h4, h5, h6,
   align-items: center;
   gap: 0.65rem;
   min-width: 0;
-  flex: 1 1 auto;
+  flex-shrink: 0;
 }
 
 .demo-pill-badge {
@@ -2485,17 +2486,24 @@ h1, h2, h3, h4, h5, h6,
   transform: scale(0.96);
 }
 
+.header-search-wrap {
+  flex: 1 1 240px;
+  max-width: 380px;
+  min-width: 130px;
+  display: flex;
+  align-items: center;
+  margin: 0 0.5rem;
+}
+
 .header-search {
   position: relative;
-  flex: 1 1 200px;
-  max-width: 320px;
-  min-width: 120px;
+  width: 100%;
   min-height: 36px;
 }
 
 .header-search input {
   width: 100%;
-  padding: 0.5rem 0.85rem 0.5rem 2.25rem;
+  padding: 0.5rem 2.4rem 0.5rem 2.25rem;
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-full);
@@ -2522,11 +2530,27 @@ h1, h2, h3, h4, h5, h6,
   pointer-events: none;
 }
 
+.search-kbd-hint {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.55rem;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* Floating Notification Dropdown Panel & Bell Button */
@@ -4440,38 +4464,67 @@ html {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   RESPONSIVE BREAKPOINTS: LAPTOPS & TABLETS (992px - 1280px)
+   RESPONSIVE BREAKPOINTS: LAPTOPS & TABLETS (992px - 1440px)
    ══════════════════════════════════════════════════════════════════════════ */
-@media (max-width: 1280px) {
-  .user-info-role {
-    display: none !important;
-  }
-  .header-search {
-    max-width: 220px;
-  }
-}
-
-@media (max-width: 1100px) {
+@media (max-width: 1440px) {
   .btn-reset-demo span {
     display: none !important;
   }
   .btn-reset-demo {
     padding: 0.35rem 0.55rem !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    justify-content: center !important;
+    border-radius: var(--radius-md) !important;
   }
   .btn-header-switch-role span {
     display: none !important;
   }
   .btn-header-switch-role {
-    padding: 0.45rem 0.65rem !important;
+    padding: 0.35rem 0.55rem !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    justify-content: center !important;
+    border-radius: var(--radius-md) !important;
+  }
+  #theme-label {
+    display: none !important;
+  }
+  .user-info-role {
+    display: none !important;
   }
   .demo-pill-badge .pill-label {
-    display: none;
+    display: none !important;
   }
   .demo-pill-badge::after {
     content: "Demo";
   }
-  .header-search {
-    max-width: 180px;
+  .header-search-wrap {
+    max-width: 280px;
+    flex: 1 1 180px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .user-info-text {
+    display: none !important;
+  }
+  .supabase-status-pill #supabase-pill-text {
+    display: none !important;
+  }
+  .supabase-status-pill {
+    padding: 0.35rem 0.55rem !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    justify-content: center !important;
+    border-radius: var(--radius-md) !important;
+  }
+  .header-search-wrap {
+    max-width: 220px;
+    min-width: 110px;
   }
   .stats-grid {
     grid-template-columns: repeat(2, 1fr) !important;
@@ -4479,16 +4532,13 @@ html {
 }
 
 @media (max-width: 992px) {
-  .user-info-text {
+  .demo-pill-badge {
     display: none !important;
   }
-  .header-search {
-    flex: 1 1 160px;
-    max-width: 240px;
-    min-width: 110px;
-  }
-  #theme-label {
-    display: none !important;
+  .header-search-wrap {
+    flex: 1 1 140px;
+    max-width: 200px;
+    min-width: 100px;
   }
 }
 

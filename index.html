@@ -819,6 +819,7 @@
 
     <!-- Top Navigation Header -->
     <header class="top-header">
+      <!-- Left: Brand & Sandbox Badge -->
       <div class="header-brand-group">
         <button class="mobile-menu-toggle" id="btn-mobile-menu" onclick="toggleMobileSidebar()" title="Toggle Navigation Menu">
           <i data-lucide="menu" style="width:20px;height:20px;"></i>
@@ -835,27 +836,31 @@
           <span class="pulse-dot"></span>
           <span class="pill-label">Sample data in demo</span>
         </span>
+      </div>
 
+      <!-- Center: Dedicated Search Bar (Flexible, never overlaps actions) -->
+      <div class="header-search-wrap">
+        <div class="header-search">
+          <i data-lucide="search" style="width:15px;height:15px;color:var(--text-muted);" class="search-icon"></i>
+          <input type="text" id="global-search" placeholder="Search deliverables, contracts, or projects..." oninput="handleGlobalSearch(event)" autocomplete="off">
+          <span class="search-kbd-hint">⌘K</span>
+        </div>
+      </div>
+
+      <!-- Right: Control Actions -->
+      <div class="header-actions">
         <!-- Supabase Database Status Badge -->
         <span class="supabase-status-pill" id="supabase-status-pill" onclick="openSupabaseModal()" title="Supabase Database Status">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          <span id="supabase-pill-text">Supabase: Checking...</span>
+          <span id="supabase-pill-text">Supabase</span>
         </span>
 
         <!-- Reset Applied Data Button -->
         <button class="btn-reset-demo" id="btn-header-reset-demo" onclick="confirmResetDemoData()" title="Reset all applied data back to pristine test state">
-          <i data-lucide="rotate-ccw" style="width: 12px; height: 12px;"></i>
+          <i data-lucide="rotate-ccw" style="width: 13px; height: 13px;"></i>
           <span>Reset Data</span>
         </button>
 
-        <!-- Global Search Bar (Never blocked) -->
-        <div class="header-search">
-          <i data-lucide="search" style="width:16px;height:16px;color:var(--text-muted);" class="search-icon"></i>
-          <input type="text" id="global-search" placeholder="Search deliverables, contracts, or projects..." oninput="handleGlobalSearch(event)" autocomplete="off">
-        </div>
-      </div>
-
-      <div class="header-actions">
         <!-- Switch Workspace / Role Button -->
         <button class="btn-header-switch-role" id="btn-header-switch-role" onclick="navigateTo('/switch-workspace')" title="Switch Workspace (Freelancer, Client, Admin)">
           <i data-lucide="arrow-left-right" style="width:14px;height:14px;"></i>
@@ -883,7 +888,7 @@
         <!-- Light / Dark Theme Switcher -->
         <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Theme">
           <span class="icon" id="theme-icon">
-            <i data-lucide="moon" style="width:16px;height:16px;"></i>
+            <i data-lucide="moon" style="width:15px;height:15px;"></i>
           </span>
           <span id="theme-label">Dark</span>
         </button>
@@ -1699,28 +1704,46 @@
         </div>
 
         <div class="admin-subnav" style="margin-bottom:1.5rem;">
-          <button class="admin-subnav-btn active" onclick="switchAdminSubtab('overview')">Overview</button>
-          <button class="admin-subnav-btn" onclick="switchAdminSubtab('disputes')">Disputes</button>
-          <button class="admin-subnav-btn" onclick="switchAdminSubtab('audit')">Audit Logs</button>
+          <button class="admin-subnav-btn active" onclick="switchAdminSubtab('overview')">
+            <i data-lucide="layout-dashboard" style="width:14px;height:14px;margin-right:6px;"></i>
+            <span>Overview</span>
+          </button>
+          <button class="admin-subnav-btn" onclick="switchAdminSubtab('disputes')">
+            <i data-lucide="scale" style="width:14px;height:14px;margin-right:6px;"></i>
+            <span>Disputes</span>
+          </button>
+          <button class="admin-subnav-btn" onclick="switchAdminSubtab('audit')">
+            <i data-lucide="file-check-2" style="width:14px;height:14px;margin-right:6px;"></i>
+            <span>Audit Logs</span>
+          </button>
         </div>
 
         <div id="admin-subtab-container">
           <!-- Overview Cards -->
           <div class="stats-grid">
             <div class="stat-card">
-              <span class="stat-title">Platform Active Projects</span>
+              <div class="stat-card-header">
+                <span class="stat-title">Platform Active Projects</span>
+                <div class="stat-icon blue"><i data-lucide="folder-kanban" style="width:16px;height:16px;"></i></div>
+              </div>
               <div class="stat-value" id="adm-active-projects">2</div>
-              <div class="stat-footer">Fintech App &amp; Marketplace Branding</div>
+              <div class="stat-footer"><span>Fintech App &amp; Marketplace Branding</span></div>
             </div>
             <div class="stat-card">
-              <span class="stat-title">Simulated Escrow Balance</span>
+              <div class="stat-card-header">
+                <span class="stat-title">Simulated Escrow Balance</span>
+                <div class="stat-icon green"><i data-lucide="wallet" style="width:16px;height:16px;"></i></div>
+              </div>
               <div class="stat-value" id="adm-sim-escrow">₹40,000</div>
-              <div class="stat-footer">Held across funded milestones</div>
+              <div class="stat-footer"><span>Held across funded milestones</span></div>
             </div>
             <div class="stat-card">
-              <span class="stat-title">Platform Audit Events</span>
+              <div class="stat-card-header">
+                <span class="stat-title">Platform Audit Events</span>
+                <div class="stat-icon purple"><i data-lucide="shield-check" style="width:16px;height:16px;"></i></div>
+              </div>
               <div class="stat-value" id="adm-audit-count">0</div>
-              <div class="stat-footer">Append-only integrity log</div>
+              <div class="stat-footer"><span>Append-only integrity log</span></div>
             </div>
           </div>
 
