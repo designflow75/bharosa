@@ -83,28 +83,13 @@
             <i data-lucide="home" class="lvn-icon"></i>
             <span>Home</span>
           </a>
-          <a href="javascript:void(0)" class="lvn-item lvn-portal-link" onclick="demoLogin('client')" title="Instant 1-Click Login to Client Workspace">
-            <i data-lucide="briefcase" class="lvn-icon text-blue"></i>
-            <span>Client Portal</span>
-            <span class="lvn-mini-tag client-tag">Direct</span>
-          </a>
-          <a href="javascript:void(0)" class="lvn-item lvn-portal-link" onclick="demoLogin('freelancer')" title="Instant 1-Click Login to Freelancer Suite">
-            <i data-lucide="palette" class="lvn-icon text-purple"></i>
-            <span>Freelancer Suite</span>
-            <span class="lvn-mini-tag fl-tag">Direct</span>
-          </a>
-          <a href="javascript:void(0)" class="lvn-item lvn-portal-link" onclick="demoLogin('admin')" title="Instant 1-Click Login to Admin Console">
-            <i data-lucide="shield-check" class="lvn-icon text-indigo"></i>
-            <span>Admin Console</span>
-            <span class="lvn-mini-tag admin-tag">Direct</span>
-          </a>
           <a href="#features-section" class="lvn-item" onclick="event.preventDefault(); document.getElementById('features-section')?.scrollIntoView({behavior:'smooth'});">
             <i data-lucide="layout-grid" class="lvn-icon"></i>
             <span>Features</span>
           </a>
           <a href="#security-card" class="lvn-item" onclick="event.preventDefault(); document.getElementById('security-card')?.scrollIntoView({behavior:'smooth'});">
-            <i data-lucide="shield" class="lvn-icon"></i>
-            <span>Security &amp; Escrow</span>
+            <i data-lucide="shield-check" class="lvn-icon"></i>
+            <span>Security</span>
           </a>
           <a href="#bottom-strip" class="lvn-item" onclick="event.preventDefault(); document.getElementById('bottom-strip')?.scrollIntoView({behavior:'smooth'});">
             <i data-lucide="info" class="lvn-icon"></i>
@@ -152,18 +137,16 @@
               <i data-lucide="moon"></i>
             </button>
 
-            <!-- Direct Client Portal Button -->
-            <button type="button" class="btn-ltb-portal btn-ltb-client" onclick="demoLogin('client')" title="1-Click Login to Client Workspace">
-              <i data-lucide="briefcase"></i>
-              <span>Client Portal</span>
-              <i data-lucide="arrow-right"></i>
+            <!-- Live Demo Green Pill -->
+            <button type="button" class="btn-ltb-live-demo" onclick="scrollToDemoRoles()" title="Try Live Demo">
+              <span class="live-dot-pulse"></span>
+              <span>Live Demo</span>
             </button>
 
-            <!-- Direct Freelancer Suite Button -->
-            <button type="button" class="btn-ltb-portal btn-ltb-freelancer" onclick="demoLogin('freelancer')" title="1-Click Login to Freelancer Suite">
-              <span class="live-dot-pulse"></span>
-              <i data-lucide="palette"></i>
-              <span>Freelancer Suite</span>
+            <!-- Header Login Gradient Button -->
+            <button type="button" class="btn-ltb-login" onclick="scrollToDemoRoles()" title="Login to Workspace">
+              <span>Login</span>
+              <i data-lucide="arrow-right"></i>
             </button>
           </div>
         </header>
@@ -192,47 +175,18 @@
                   Bharosa OS is a secure platform that protects both freelancers and clients with verified agreements, milestone payments, and transparent delivery tracking.
                 </p>
 
-                <!-- Hero Action CTAs: Direct 1-Click Workspace Portals -->
+                <!-- Hero Action CTAs -->
                 <div class="hero-action-row">
-                  <!-- Client Portal Direct Login CTA -->
-                  <button type="button" class="btn-hero-role-cta btn-hero-client" onclick="demoLogin('client')" title="Instant 1-Click Login to Client Workspace (Rahul Verma)">
-                    <div class="hero-btn-icon-box bg-blue">
-                      <i data-lucide="briefcase"></i>
-                    </div>
-                    <div class="hero-btn-meta">
-                      <span class="hero-btn-title">Client Workspace</span>
-                      <span class="hero-btn-desc">Rahul Verma • Fund &amp; Approve</span>
-                    </div>
-                    <i data-lucide="arrow-right" class="hero-btn-arrow"></i>
+                  <button type="button" class="btn-hero-primary-login" onclick="scrollToDemoRoles()">
+                    <i data-lucide="lock" class="btn-icon-lock"></i>
+                    <span>Login</span>
+                    <i data-lucide="arrow-right" class="btn-icon-arrow"></i>
                   </button>
 
-                  <!-- Freelancer Suite Direct Login CTA -->
-                  <button type="button" class="btn-hero-role-cta btn-hero-freelancer" onclick="demoLogin('freelancer')" title="Instant 1-Click Login to Freelancer Suite (Priya Sharma)">
-                    <div class="hero-btn-icon-box bg-purple">
-                      <i data-lucide="palette"></i>
-                    </div>
-                    <div class="hero-btn-meta">
-                      <span class="hero-btn-title">Freelancer Suite</span>
-                      <span class="hero-btn-desc">Priya Sharma • Work &amp; Earn</span>
-                    </div>
-                    <i data-lucide="arrow-right" class="hero-btn-arrow"></i>
+                  <button type="button" class="btn-hero-watch-video" onclick="openVideoModal()">
+                    <i data-lucide="play" class="btn-icon-play fill-current"></i>
+                    <span>Watch 1 Min Video</span>
                   </button>
-
-                  <!-- Super Admin Quick Portal Pill -->
-                  <button type="button" class="btn-hero-admin-pill" onclick="demoLogin('admin')" title="Instant 1-Click Login to Admin Console">
-                    <i data-lucide="shield-check"></i>
-                    <span>Admin Console</span>
-                    <i data-lucide="chevron-right"></i>
-                  </button>
-                </div>
-
-                <!-- Micro Trust & Direct Login Reassurance -->
-                <div class="hero-access-strip">
-                  <span class="has-item"><i data-lucide="zap"></i> 1-Click Instant Login</span>
-                  <span class="has-dot">•</span>
-                  <span class="has-item"><i data-lucide="lock"></i> Protected Escrow</span>
-                  <span class="has-dot">•</span>
-                  <span class="has-item"><i data-lucide="file-check"></i> Verified Milestones</span>
                 </div>
               </div>
 
@@ -437,12 +391,8 @@
             <!-- TRY THE DEMO CARD -->
             <div class="try-demo-card">
               <div class="tdc-header">
-                <div class="tdc-live-badge">
-                  <span class="live-dot-pulse"></span>
-                  <span>1-Click Direct Access</span>
-                </div>
                 <h3>Try the Demo</h3>
-                <p>Click any role to launch directly into that workspace.</p>
+                <p>Choose a role to explore the platform.</p>
               </div>
 
               <!-- 3 Interactive Role Buttons -->
@@ -450,76 +400,53 @@
                 <!-- Client Role Item -->
                 <div class="tdc-role-item role-item-client" onclick="demoLogin('client')" role="button" tabindex="0" title="Sign in as Client (Rahul Verma)">
                   <div class="tri-icon icon-bg-blue">
-                    <i data-lucide="briefcase"></i>
+                    <i data-lucide="user"></i>
                   </div>
                   <div class="tri-meta">
-                    <div class="tri-title-row">
-                      <span class="tri-name">Client Portal</span>
-                      <span class="tri-badge badge-client">Verified Buyer</span>
-                    </div>
-                    <div class="tri-sub">Rahul Verma • GrowthNest Media</div>
-                    <div class="tri-desc">Post projects, escrow funding &amp; approve deliverables</div>
+                    <div class="tri-name">Client</div>
+                    <div class="tri-desc">Post projects, track progress, make payments</div>
                   </div>
-                  <div class="tri-enter-action">
-                    <span class="tri-enter-label">Enter</span>
-                    <i data-lucide="arrow-right" class="tri-chevron"></i>
-                  </div>
+                  <i data-lucide="chevron-right" class="tri-chevron"></i>
                 </div>
 
                 <!-- Freelancer Role Item -->
                 <div class="tdc-role-item role-item-freelancer" onclick="demoLogin('freelancer')" role="button" tabindex="0" title="Sign in as Freelancer (Priya Sharma)">
                   <div class="tri-icon icon-bg-purple">
-                    <i data-lucide="palette"></i>
+                    <i data-lucide="user"></i>
                   </div>
                   <div class="tri-meta">
-                    <div class="tri-title-row">
-                      <span class="tri-name">Freelancer Suite</span>
-                      <span class="tri-badge badge-freelancer">Senior Designer</span>
-                    </div>
-                    <div class="tri-sub">Priya Sharma • Top Rated Designer</div>
-                    <div class="tri-desc">Submit work, track milestone approvals &amp; get paid</div>
+                    <div class="tri-name">Freelancer</div>
+                    <div class="tri-desc">Find projects, submit work, get paid</div>
                   </div>
-                  <div class="tri-enter-action">
-                    <span class="tri-enter-label">Enter</span>
-                    <i data-lucide="arrow-right" class="tri-chevron"></i>
-                  </div>
+                  <i data-lucide="chevron-right" class="tri-chevron"></i>
                 </div>
 
                 <!-- Admin Role Item -->
                 <div class="tdc-role-item role-item-admin" onclick="demoLogin('admin')" role="button" tabindex="0" title="Sign in as Admin (Dispute Arbiter)">
                   <div class="tri-icon icon-bg-indigo">
-                    <i data-lucide="shield-check"></i>
+                    <i data-lucide="shield"></i>
                   </div>
                   <div class="tri-meta">
-                    <div class="tri-title-row">
-                      <span class="tri-name">Admin Console</span>
-                      <span class="tri-badge badge-admin">Arbiter</span>
-                    </div>
-                    <div class="tri-sub">Platform Moderator • Security</div>
-                    <div class="tri-desc">Manage disputes, invoices, audit ledger &amp; escrow</div>
+                    <div class="tri-name">Admin</div>
+                    <div class="tri-desc">Manage disputes, invoices and payments</div>
                   </div>
-                  <div class="tri-enter-action">
-                    <span class="tri-enter-label">Enter</span>
-                    <i data-lucide="arrow-right" class="tri-chevron"></i>
-                  </div>
+                  <i data-lucide="chevron-right" class="tri-chevron"></i>
                 </div>
               </div>
 
-              <!-- Secondary Toggle for Custom Email/Password Login -->
-              <div class="tdc-custom-toggle-wrap">
-                <button type="button" class="btn-toggle-custom-creds" onclick="toggleCustomLoginForm()" title="Toggle custom credentials form">
-                  <i data-lucide="key-round" class="toggle-icon-key"></i>
-                  <span>Sign in with custom email / password</span>
-                  <i data-lucide="chevron-down" class="toggle-icon-chevron" id="desktop-chevron-custom"></i>
-                </button>
-              </div>
+              <!-- Full-width Bottom Login Button -->
+              <button type="button" class="btn-tdc-login" onclick="toggleCustomLoginForm()" title="Toggle custom credentials form">
+                <i data-lucide="lock" class="btn-lock"></i>
+                <span>Login</span>
+                <i data-lucide="arrow-right" class="btn-arrow"></i>
+              </button>
 
               <!-- Collapsible Custom Credentials Drawer (Fully Functional) -->
               <div id="custom-login-form-container" style="display: none;" class="custom-login-drawer">
                 <div class="quick-fill-chips">
                   <span class="qf-label">Autofill:</span>
-                  <button type="button" class="qf-chip" onclick="fillDemoCreds('rahul@growthnest.media', 'demo1234')">Rahul (Client)</button>
                   <button type="button" class="qf-chip" onclick="fillDemoCreds('priya@bharosa.design', 'demo1234')">Priya (Freelancer)</button>
+                  <button type="button" class="qf-chip" onclick="fillDemoCreds('rahul@growthnest.media', 'demo1234')">Rahul (Client)</button>
                   <button type="button" class="qf-chip" onclick="fillDemoCreds('admin@bharosa.design', 'demo1234')">Admin</button>
                 </div>
 
@@ -838,6 +765,45 @@
                   <i data-lucide="arrow-right"></i>
                 </button>
               </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================
+         WATCH 1 MIN VIDEO MODAL
+         ================================================================ -->
+    <div id="landing-video-modal" class="modal-overlay" style="display: none;" onclick="closeVideoModal(event)">
+      <div class="video-modal-card" onclick="event.stopPropagation()">
+        <div class="vmc-header">
+          <div class="vmc-title-wrap">
+            <i data-lucide="video" class="text-cyan"></i>
+            <h3>Bharosa OS — Escrow & Deliverable Security in 60s</h3>
+          </div>
+          <button type="button" class="vmc-close-btn" onclick="closeVideoModal()">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="vmc-body">
+          <div class="interactive-video-player">
+            <div class="ivp-placeholder">
+              <div class="ivp-glow"></div>
+              <div class="ivp-shield">
+                <i data-lucide="shield-check"></i>
+              </div>
+              <h4>Autonomous Milestone Protocol Walkthrough</h4>
+              <p>
+                1. <strong>Project Agreement:</strong> Client creates verified deliverables with transparent milestone schedule.<br>
+                2. <strong>Upfront Escrow:</strong> Client funds funds into RBI-compliant escrow vault before design work starts.<br>
+                3. <strong>Delivery &amp; Audit:</strong> Work uploaded with cryptographic SHA-256 verification.<br>
+                4. <strong>Instant Payout:</strong> Client sign-off triggers instant bank release with GST compliant receipt.
+              </p>
+              <div class="ivp-badges">
+                <span class="ivp-badge">🛡️ RBI Compliant Escrow</span>
+                <span class="ivp-badge">⚡ Instant UPI/NEFT Payouts</span>
+                <span class="ivp-badge">⏳ 72-Hour Silence Shield</span>
+              </div>
             </div>
           </div>
         </div>

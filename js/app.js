@@ -383,7 +383,8 @@ function fillDemoCreds(email, password) {
 function openMobileLoginDrawer(mode) {
   const drawer = document.getElementById('mobile-login-drawer');
   if (!drawer) return;
-  drawer.style.display = 'flex';
+  drawer.classList.add('active', 'open');
+  drawer.style.setProperty('display', 'flex', 'important');
   document.body.style.overflow = 'hidden';
   if (window.lucide) window.lucide.createIcons();
   const customForm = document.getElementById('ml-custom-login-form');
@@ -391,13 +392,19 @@ function openMobileLoginDrawer(mode) {
   if (mode === 'login' && customForm) {
     customForm.style.display = 'block';
     if (chevron) chevron.style.transform = 'rotate(180deg)';
+  } else if (customForm) {
+    customForm.style.display = 'none';
+    if (chevron) chevron.style.transform = 'rotate(0deg)';
   }
 }
 
 function closeMobileLoginDrawer(e) {
   if (e && e.target && e.target.id !== 'mobile-login-drawer' && !e.target.closest('.ml-drawer-close')) return;
   const drawer = document.getElementById('mobile-login-drawer');
-  if (drawer) drawer.style.display = 'none';
+  if (drawer) {
+    drawer.classList.remove('active', 'open');
+    drawer.style.setProperty('display', 'none', 'important');
+  }
   document.body.style.overflow = '';
 }
 
