@@ -8357,3 +8357,101 @@ html {
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
+
+/* Uncrowded Clean Login & Hero Styles */
+.custom-login-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.15rem 0 0.85rem;
+  color: #64748b;
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.custom-login-divider::before,
+.custom-login-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.custom-login-divider span {
+  padding: 0 10px;
+}
+
+.btn-toggle-custom-creds {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #94a3b8;
+  font-weight: 600;
+  font-size: 0.84rem;
+  padding: 0.72rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-toggle-custom-creds:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+.btn-toggle-custom-creds svg {
+  width: 15px;
+  height: 15px;
+}
+
+.hero-trust-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.htr-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.htr-item svg {
+  width: 14px;
+  height: 14px;
+  color: #38bdf8;
+}
+
+/* Light mode overrides for uncrowded login */
+[data-theme="light"] .custom-login-divider {
+  color: #94a3b8;
+}
+
+[data-theme="light"] .custom-login-divider::before,
+[data-theme="light"] .custom-login-divider::after {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .btn-toggle-custom-creds {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #475569;
+}
+
+[data-theme="light"] .btn-toggle-custom-creds:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
