@@ -856,10 +856,10 @@
         <button class="mobile-menu-toggle" id="btn-mobile-menu" onclick="toggleMobileSidebar()" title="Toggle Navigation Menu">
           <i data-lucide="menu" style="width:20px;height:20px;"></i>
         </button>
-        <div class="auth-brand" style="cursor: pointer;" onclick="navigateHome()">
-          <div class="brand-icon" style="width: 36px; height: 36px; font-size: 1.1rem;">भ</div>
+        <div class="auth-brand" style="cursor: pointer; display: inline-flex; align-items: center; gap: 8px;" onclick="navigateHome()">
+          <div class="brand-icon" style="width: 32px; height: 32px; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; border-radius: 8px;">भ</div>
           <div class="brand-text">
-            <h1 style="font-size: 1.15rem;">Bharosa</h1>
+            <h1 style="font-size: 1.15rem; margin: 0; line-height: 1;">Bharosa</h1>
           </div>
         </div>
 
@@ -881,23 +881,9 @@
 
       <!-- Right: Control Actions -->
       <div class="header-actions">
-        <!-- Developer Tools & Switcher Column (Supabase & Reset Data on top, Switcher directly UNDER) -->
+        <!-- Developer Tools & Switcher Row (Directly aligned horizontally on one clean bar) -->
         <div class="header-switch-column" id="header-switch-column">
-          <div class="header-switch-column-top">
-            <!-- Supabase Database Status Badge -->
-            <span class="supabase-status-pill" id="supabase-status-pill" onclick="openSupabaseModal()" title="Supabase Database Status">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-              <span id="supabase-pill-text">Supabase</span>
-            </span>
-
-            <!-- Reset Applied Data Button -->
-            <button class="btn-reset-demo" id="btn-header-reset-demo" onclick="confirmResetDemoData()" title="Reset all applied data back to pristine test state">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
-              <span>Reset Data</span>
-            </button>
-          </div>
-
-          <!-- Direct 3-Button Role Switcher: Freelancer • Client • Admin (Directly UNDER Supabase & Reset Data) -->
+          <!-- Direct 3-Button Role Switcher: Freelancer • Client • Admin -->
           <div class="header-role-switcher-segmented" id="header-role-switcher" role="tablist" aria-label="Workspace Role Switcher">
             <button class="seg-role-btn seg-freelancer" id="seg-btn-freelancer" onclick="switchRole('freelancer')" title="Switch to Freelancer Suite" role="tab" aria-selected="false">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
@@ -910,6 +896,20 @@
             <button class="seg-role-btn seg-admin" id="seg-btn-admin" onclick="switchRole('admin')" title="Switch to Admin Console" role="tab" aria-selected="false">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
               <span>Admin</span>
+            </button>
+          </div>
+
+          <div class="header-switch-column-top">
+            <!-- Supabase Database Status Badge -->
+            <span class="supabase-status-pill" id="supabase-status-pill" onclick="openSupabaseModal()" title="Supabase Database Status">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              <span id="supabase-pill-text">Supabase</span>
+            </span>
+
+            <!-- Reset Applied Data Button -->
+            <button class="btn-reset-demo" id="btn-header-reset-demo" onclick="confirmResetDemoData()" title="Reset all applied data back to pristine test state">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+              <span>Reset Data</span>
             </button>
           </div>
         </div>
